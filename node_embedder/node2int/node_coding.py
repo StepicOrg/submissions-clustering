@@ -29,6 +29,9 @@ class NodeCoding:
         else:
             return self._get_code(item)
 
+    def sorted_kinds(self):
+        return [self[code] for code in range(self.total_size)]
+
     @property
     def total_size(self):
         """Return number of elements in dict."""

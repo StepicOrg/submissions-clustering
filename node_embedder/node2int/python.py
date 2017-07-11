@@ -32,12 +32,16 @@ class EmbeddingFeature(Flag):
     CONSIDER_NAMES = auto()
 
 
-def node_embedding(py_ast, embedding_features=EmbeddingFeature.SIMPLE, node_coding=None):
-    """Given as ast tree, map each node to a particular int code."""
+def node_embedding(py_asts, embedding_features=EmbeddingFeature.SIMPLE, node_coding=None):
+    """Given as ast tree (list or single object), map each node to a
+    particular int code. Output type is the same as input (list/object)."""
     node_coding = node_coding or NodeCoding()
     if EmbeddingFeature.CONSIDER_LITERALS | EmbeddingFeature.CONSIDER_NAMES in embedding_features:
         # TODO: To be implemented...
         raise Exception("Not implemented yet!")
     else:
         visitor = SimpleVisitor(node_coding)
-    return visitor.visit(py_ast), node_coding
+    if isinstance(py_asts, list):
+        return [visitor.visit(py_ast) for py_ast in py_asts], node_coding
+    else:
+        return visitor.visit(py_asts), node_coding

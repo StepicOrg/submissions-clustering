@@ -1,6 +1,6 @@
 # submissions-clustering
 
-## Instalation
+## Installation
 
 `pip install -r requirements.txt`
 

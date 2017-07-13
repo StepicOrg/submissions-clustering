@@ -1,4 +1,5 @@
 import ast
+from collections import Iterable
 from enum import Flag, auto
 from .node_coding import NodeCoding
 from ..tree import Tree
@@ -41,7 +42,7 @@ def node_embedding(py_asts, embedding_features=EmbeddingFeature.SIMPLE, node_cod
         raise Exception("Not implemented yet!")
     else:
         visitor = SimpleVisitor(node_coding)
-    if isinstance(py_asts, list):
+    if isinstance(py_asts, Iterable):
         return [visitor.visit(py_ast) for py_ast in py_asts], node_coding
     else:
         return visitor.visit(py_asts), node_coding

@@ -68,3 +68,10 @@ def pad_sequences(sequences, maxlen=None, dtype='int32',
         else:
             raise ValueError('Padding type "%s" not understood' % padding)
     return x
+
+
+def split_into_batches(df, batch_size, max_elem=None):
+    max_elem = max_elem or len(df)
+    k = max_elem // batch_size
+    for batch in np.array_split(df.sample(frac=1).head(k * batch_size), k):
+        yield batch

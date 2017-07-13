@@ -16,8 +16,8 @@ class Tree:
         Map each value at each node using mapping dict/func. Not inplace,
         returning new tree object with same structure.
         """
-        mapping = (lambda x: mapping[x]) if isinstance(mapping, dict) else mapping
-        return Tree(mapping(self.value), [child.map(mapping) for child in self.children])
+        _mapping = (lambda x: mapping[x]) if hasattr(mapping, "__getitem__") else mapping
+        return Tree(_mapping(self.value), [child.map(_mapping) for child in self.children])
 
     def pretty_print(self, level=0, indent="  "):
         """

@@ -61,9 +61,9 @@ def main():
     # print(node_coding["For"])
 
     pcEmbedding = ParentChildrenEmbedding()
-    emb = pcEmbedding.fit(X_train)
+    pcEmbedding.fit(X_train)
 
-    pd.DataFrame(emb).to_csv("data/node_emb.dump", sep='\t', index=False, header=None)
+    # pd.DataFrame(emb).to_csv("data/node_emb.dump", sep='\t', index=False, header=None)
 
 
 if __name__ == '__main__':

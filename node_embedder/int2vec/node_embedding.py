@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import tensorflow as tf
+from ..utils.preprocessing import pad_sequences
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
@@ -8,17 +9,109 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 # TODO: 1) data download scripts + data processing scripts
 # TODO: 2) rewrite py_func with separate placeholder (to be able to serialize meta graph)
 # TODO: 3) deal with how we gonna train and retrain our emb model, with changing num_codes
+# TODO: 4) batch learning
+# TODO: 5) регуляризация
 
-# http://projector.tensorflow.org/?config=https://gist.githubusercontent.com/StasBel/13ab2047adc15ff85a98412680f111f5/raw/9b888779a5a67f867db121e6475eaecb055c908f/projector_config.json
+# https://goo.gl/QoqruK
 
 class ParentChildrenEmbedding:
-    def __init__(self, N_f=30, delta=1, learning_rate=0.001):
-        self.N_f = N_f
-        self.delta = delta
-        self.learning_rate = learning_rate
-        self.num_codes = 0
+    def __init__(self):
+        pass
 
     def fit(self, X, training_epochs=10):
+        N_f = 32
+        delta = 1
+        learning_rate = 0.001
+        batch_size = 128
+
+        codes_num = X["children"].map(max).max()
+        max_children_num = X["children"].map(len).max()
+
+        parent = tf.placeholder(tf.float32, [None])
+        children = tf.placeholder(tf.float32, [None, max_children_num])
+        children_num = tf.placeholder(tf.float32, [None])
+        children_leaves_nums = tf.placeholder(tf.float32, [None, max_children_num])
+        parent_c = tf.placeholder(tf.float32, [None])
+        children_c = tf.placeholder(tf.float32, [None, max_children_num])
+        leaves_coef = tf.placeholder(tf.float32, [None, max_children_num])
+        left_coef = tf.placeholder(tf.float32, [None, max_children_num])
+        right_coef = tf.placeholder(tf.float32, [None, max_children_num])
+
+        tetta = {
+            "W_l": tf.Variable(tf.random_normal([N_f, N_f])),
+            "W_r": tf.Variable(tf.random_normal([N_f, N_f])),
+            "b": tf.Variable(tf.random_normal([N_f])),
+            "vec": tf.Variable(tf.random_normal([codes_num + 1, N_f]))
+        }
+
+        k = tf.shape(parent)[0]
+        W = tf.reshape(left_coef, [k, max_children_num, 1, 1]) \
+            * tf.tile(tf.reshape(tetta["W_l"], [1, 1, N_f, N_f]), [k, max_children_num, 1, 1])
+        W += tf.reshape(right_coef, [k, max_children_num, 1, 1]) \
+             * tf.tile(tf.reshape(tetta["W_r"], [1, 1, N_f, N_f]), [k, max_children_num, 1, 1])
+        W += tf.reshape(leaves_coef, [k, max_children_num, 1, 1]) * W
+
+        def make_d_tensor(p, cs):
+            d = W @ tf.expand_dims(tf.gather(tetta["vec"], tf.cast(cs, tf.int32)), -1)
+            d = tf.tanh(tf.squeeze(tf.reduce_sum(d, axis=1)) + tf.expand_dims(tetta["b"], 0))
+            d = tf.norm(tf.gather(tetta["vec"], tf.cast(p, tf.int32)) - d, axis=1)
+            return d
+
+        d = make_d_tensor(parent, children)
+        d_c = make_d_tensor(parent_c, children_c)
+        y = tf.nn.relu(delta + d - d_c)
+        
+        def generate_input(batch):
+            batch_parent = batch["parent"].as_matrix()
+            batch_children = pad_sequences(batch["children"].as_matrix(),
+                                           maxlen=max_children_num, padding="post")
+
+            batch_children_num = batch["children"].map(len).as_matrix()
+            batch_children_leaves_nums = pad_sequences(batch["children_leaves_nums"].as_matrix(),
+                                                       maxlen=max_children_num, padding="post")
+
+            batch_parent_c = batch_parent.copy()
+            batch_children_c = batch_children.copy()
+            for i in range(len(batch)):
+                k = np.random.randint(batch_children_num[i] + 1)
+                new_code = np.random.randint(1, codes_num + 1)
+                if k:
+                    batch_children_c[i, k - 1] = new_code
+                else:
+                    batch_parent_c[i] = new_code
+
+            batch_leaves_coef = batch_children_leaves_nums / np.sum(batch_children_leaves_nums, axis=1)[:, np.newaxis]
+
+            batch_left_coef, batch_right_coef = [], []
+            for i in range(len(batch)):
+                n = batch_children_num[i]
+                if n == 1:
+                    batch_left_coef.append([0.5])
+                    batch_right_coef.append([0.5])
+                else:
+                    batch_left_coef.append((np.arange(n - 1, -1, -1) / (n - 1)).tolist())
+                    batch_right_coef.append((np.arange(n) / (n - 1)).tolist())
+            batch_left_coef = pad_sequences(batch_left_coef, maxlen=max_children_num, padding="post")
+            batch_right_coef = pad_sequences(batch_right_coef, maxlen=max_children_num, padding="post")
+
+            return batch_parent, batch_children, \
+                   batch_children_num, batch_children_leaves_nums, \
+                   batch_parent_c, batch_children_c, \
+                   batch_leaves_coef, batch_left_coef, batch_right_coef
+
+        with tf.Session() as sess:
+            sess.run(tf.global_variables_initializer())
+
+            placeholders = parent, children, children_num, children_leaves_nums, \
+                           parent_c, children_c, leaves_coef, left_coef, right_coef
+
+            batch = X.sample(batch_size)
+
+            feed_dict = {a: b for a, b in zip(placeholders, generate_input(batch))}
+
+            print(sess.run(y, feed_dict=feed_dict))
+
+        """
         self.num_codes = max(self.num_codes, X["children"].map(max).max() + 1)
 
         shape_type = tf.int32
@@ -102,3 +195,4 @@ class ParentChildrenEmbedding:
 
             VEC = vec.eval()
         return VEC
+        """

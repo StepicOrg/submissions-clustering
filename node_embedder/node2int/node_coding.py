@@ -8,6 +8,7 @@ class NodeCoding:
         """Creates an empty bijection object."""
         self.c2k = {}
         self.k2c = {}
+        _ = self["UNK"]
 
     def _get_kind(self, code):
         return self.c2k[code]
@@ -30,9 +31,9 @@ class NodeCoding:
             return self._get_code(item)
 
     def sorted_kinds(self):
-        return [self[code] for code in range(self.total_size)]
+        return [self[code] for code in range(1, self.total_size + 1)]
 
     @property
     def total_size(self):
         """Return number of elements in dict."""
-        return len(self.c2k)
+        return len(self.c2k) - 1

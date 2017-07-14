@@ -53,7 +53,7 @@ def main():
     X_train = pd.read_csv("data/node_embedding_train_set.csv",
                           converters={"children": parse_nums, "children_leaves_nums": parse_nums})
 
-    pcEmbedding = ParentChildrenEmbedding(variables_dump="data/model_variables.dump ")
+    pcEmbedding = ParentChildrenEmbedding(variables_dump="data/model.ckpt")
     emb = pcEmbedding.fit(X_train)
 
     pd.DataFrame(emb[1:]).to_csv("data/node_emb.dump", sep='\t', index=False, header=None)

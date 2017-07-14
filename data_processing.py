@@ -57,8 +57,9 @@ def main():
                 if file_name.endswith(".py") and not file_name.startswith("_"):
                     yield open(os.path.join(dir_path, file_name)).read()
 
-    # make_node_emb_dataset(venv_py_code())
+    make_node_emb_dataset(venv_py_code())
 
+    """
     def parse_nums(ss):
         return list(map(int, ss.strip("[]").split(", ")))
 
@@ -70,8 +71,9 @@ def main():
     children_nums = X_train["children"].map(len).as_matrix()
 
     # print(dict(zip(*np.unique(children_nums, return_counts=True))))
-    sns.distplot(children_nums, kde=False, rug=True)
-    plt.show()
+    # sns.distplot(children_nums, kde=False, rug=True)
+    # plt.show()
+    """
 
 
 if __name__ == '__main__':

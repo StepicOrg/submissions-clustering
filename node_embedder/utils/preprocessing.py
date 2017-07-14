@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def pad_sequences(sequences, maxlen=None, dtype='int32',
+def pad_sequences(sequences, maxlen=None,
                   padding='pre', truncating='pre', value=0.):
     """Pads each sequence to the same length (length of the longest sequence).
     If maxlen is provided, any sequence longer
@@ -12,7 +12,6 @@ def pad_sequences(sequences, maxlen=None, dtype='int32',
     # Arguments
         sequences: list of lists where each element is a sequence
         maxlen: int, maximum length
-        dtype: type to cast the resulting sequence.
         padding: 'pre' or 'post', pad either before or after each sequence.
         truncating: 'pre' or 'post', remove values from sequences larger than
             maxlen either in the beginning or in the end of the sequence
@@ -44,7 +43,7 @@ def pad_sequences(sequences, maxlen=None, dtype='int32',
             sample_shape = np.asarray(s).shape[1:]
             break
 
-    x = (np.ones((num_samples, maxlen) + sample_shape) * value).astype(dtype)
+    x = (np.ones((num_samples, maxlen) + sample_shape) * value)
     for idx, s in enumerate(sequences):
         if not len(s):
             continue  # empty list/array was found
@@ -56,7 +55,7 @@ def pad_sequences(sequences, maxlen=None, dtype='int32',
             raise ValueError('Truncating type "%s" not understood' % truncating)
 
         # check `trunc` has expected shape
-        trunc = np.asarray(trunc, dtype=dtype)
+        trunc = np.asarray(trunc)
         if trunc.shape[1:] != sample_shape:
             raise ValueError('Shape of sample %s of sequence at position %s is different from expected shape %s' %
                              (trunc.shape[1:], idx, sample_shape))

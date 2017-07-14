@@ -13,14 +13,14 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 # goo.gl/aefJaE
 
 class ParentChildrenEmbedding:
-    def __init__(self, N_f=32, delta=1, lr=1e-2, momentum=0.1, alpha=None,
-                 batch_size=128, epochs=30, codes_num=0, max_children_num=15,
+    def __init__(self, N_f=32, delta=1, lr=1e-3, momentum=0.9, alpha=0,
+                 batch_size=128, epochs=1, codes_num=0, max_children_num=15,
                  variables_dump=None):
         self.N_f = N_f
         self.delta = delta
         self.lr = lr
         self.momentum = momentum
-        self.alpha = alpha or lr / (1 - momentum)
+        self.alpha = alpha
         self.batch_size = batch_size
         self.epochs = epochs
         self.codes_num = codes_num
@@ -61,7 +61,7 @@ class ParentChildrenEmbedding:
         batch_right_coef = pad_sequences(batch_right_coef, maxlen=self.max_children_num, padding="post")
 
         return batch_parent, batch_children, \
-               batch_children_num, batch_children_leaves_nums, \
+               batch_children_leaves_nums, \
                batch_parent_c, batch_children_c, \
                batch_leaves_coef, batch_left_coef, batch_right_coef
 
@@ -72,7 +72,6 @@ class ParentChildrenEmbedding:
 
         parent = tf.placeholder(tf.float32, [None])
         children = tf.placeholder(tf.float32, [None, self.max_children_num])
-        children_num = tf.placeholder(tf.float32, [None])
         children_leaves_nums = tf.placeholder(tf.float32, [None, self.max_children_num])
         parent_c = tf.placeholder(tf.float32, [None])
         children_c = tf.placeholder(tf.float32, [None, self.max_children_num])
@@ -80,7 +79,7 @@ class ParentChildrenEmbedding:
         left_coef = tf.placeholder(tf.float32, [None, self.max_children_num])
         right_coef = tf.placeholder(tf.float32, [None, self.max_children_num])
 
-        placeholders = parent, children, children_num, children_leaves_nums, \
+        placeholders = parent, children, children_leaves_nums, \
                        parent_c, children_c, leaves_coef, left_coef, right_coef
 
         theta = {
@@ -111,20 +110,23 @@ class ParentChildrenEmbedding:
         l2 = l2_c * (tf.norm(theta["W_l"], ord="fro", axis=[0, 1]) ** 2
                      + tf.norm(theta["W_r"], ord="fro", axis=[0, 1]) ** 2)
         cost = 0.5 * tf.reduce_mean(y) + l2
+
         # optimizer = tf.train.AdamOptimizer(learning_rate=self.lr).minimize(cost)
         optimizer = tf.train.MomentumOptimizer(learning_rate=self.lr, momentum=self.momentum).minimize(cost)
         # optimizer = tf.train.AdadeltaOptimizer().minimize(cost)
 
         saver = tf.train.Saver()
         with tf.Session() as sess:
-            if self.variables_dump and os.path.isfile(self.variables_dump):
+            if self.variables_dump and os.path.exists(self.variables_dump + ".index"):
+                print("Restoring variables from \"{}\".".format(self.variables_dump))
                 saver.restore(sess, self.variables_dump)
             else:
+                print("Initialize variables.")
                 sess.run(tf.global_variables_initializer())
 
-            N = 100000
+            N = 10000
 
-            print("Optimization begin!")
+            print("Optimization begin.")
             for epoch in range(self.epochs):
                 avg_cost = 0
                 total_batch = N // self.batch_size
@@ -133,9 +135,13 @@ class ParentChildrenEmbedding:
                     _, c = sess.run([optimizer, cost], feed_dict=feed_dict)
                     avg_cost += c / total_batch
                 print("epoch= {} cost= {}".format(epoch, avg_cost))
-            print("Optimization finished!")
+                # saver.save(sess, self.variables_dump)
+            print("Optimization finished.")
 
+            """
             if self.variables_dump:
+                print("Dump variables to \"{}\".".format(self.variables_dump))
                 saver.save(sess, self.variables_dump)
+            """
 
             return theta["vec"].eval()

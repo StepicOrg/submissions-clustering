@@ -13,9 +13,9 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 # goo.gl/aefJaE
 
 class ParentChildrenEmbedding:
-    def __init__(self, N_f=32, delta=1, lr=1e-3, momentum=0.9, alpha=0,
-                 batch_size=128, epochs=1, codes_num=0, max_children_num=15,
-                 variables_dump=None):
+    def __init__(self, N_f=32, delta=1, lr=1e-2, momentum=0.9, alpha=1e-1,
+                 batch_size=64, epochs=10, codes_num=0, max_children_num=15,
+                 N=None, variables_dump=None):
         self.N_f = N_f
         self.delta = delta
         self.lr = lr
@@ -25,6 +25,7 @@ class ParentChildrenEmbedding:
         self.epochs = epochs
         self.codes_num = codes_num
         self.max_children_num = max_children_num
+        self.N = N
         self.variables_dump = variables_dump
 
     def generate_input(self, next_batch):
@@ -94,7 +95,7 @@ class ParentChildrenEmbedding:
             * tf.tile(tf.reshape(theta["W_l"], [1, 1, self.N_f, self.N_f]), [batch_size, self.max_children_num, 1, 1])
         W += tf.reshape(right_coef, [batch_size, self.max_children_num, 1, 1]) \
              * tf.tile(tf.reshape(theta["W_r"], [1, 1, self.N_f, self.N_f]), [batch_size, self.max_children_num, 1, 1])
-        W += tf.reshape(leaves_coef, [batch_size, self.max_children_num, 1, 1]) * W
+        W = tf.reshape(leaves_coef, [batch_size, self.max_children_num, 1, 1]) * W
 
         def make_dist_tensor(p, cs):
             dist = W @ tf.expand_dims(tf.gather(theta["vec"], tf.cast(cs, tf.int32)), -1)
@@ -106,14 +107,16 @@ class ParentChildrenEmbedding:
         d_c = make_dist_tensor(parent_c, children_c)
         y = tf.nn.relu(self.delta + d - d_c)
 
-        l2_c = (self.alpha / (2 * (self.N_f ** 2)))
-        l2 = l2_c * (tf.norm(theta["W_l"], ord="fro", axis=[0, 1]) ** 2
-                     + tf.norm(theta["W_r"], ord="fro", axis=[0, 1]) ** 2)
-        cost = 0.5 * tf.reduce_mean(y) + l2
+        l2_coef = tf.constant(self.alpha / (2 * (self.N_f ** 2)))
+        W_l_norm = tf.norm(theta["W_l"], ord="fro", axis=[0, 1]) ** 2
+        W_r_norm = tf.norm(theta["W_r"], ord="fro", axis=[0, 1]) ** 2
+        l2_reg = l2_coef * (W_l_norm + W_r_norm)
+        cost_wo_reg = 0.5 * tf.reduce_mean(y)
+        cost = cost_wo_reg + l2_reg
 
         # optimizer = tf.train.AdamOptimizer(learning_rate=self.lr).minimize(cost)
-        optimizer = tf.train.MomentumOptimizer(learning_rate=self.lr, momentum=self.momentum).minimize(cost)
         # optimizer = tf.train.AdadeltaOptimizer().minimize(cost)
+        optimizer = tf.train.MomentumOptimizer(learning_rate=self.lr, momentum=self.momentum).minimize(cost)
 
         saver = tf.train.Saver()
         with tf.Session() as sess:
@@ -124,24 +127,22 @@ class ParentChildrenEmbedding:
                 print("Initialize variables.")
                 sess.run(tf.global_variables_initializer())
 
-            N = 10000
-
             print("Optimization begin.")
+            N = self.N or len(X)
             for epoch in range(self.epochs):
                 avg_cost = 0
+                avg_pure_cost = 0
                 total_batch = N // self.batch_size
                 for batch in split_into_batches(X, self.batch_size, max_elem=N):
                     feed_dict = {a: b for a, b in zip(placeholders, self.generate_input(batch))}
-                    _, c = sess.run([optimizer, cost], feed_dict=feed_dict)
+                    _, c, p_c = sess.run([optimizer, cost, cost_wo_reg], feed_dict=feed_dict)
                     avg_cost += c / total_batch
-                print("epoch= {} cost= {}".format(epoch, avg_cost))
-                # saver.save(sess, self.variables_dump)
+                    avg_pure_cost += p_c / total_batch
+                print("epoch= {} cost= {} pure_cost= {}".format(epoch, avg_cost, avg_pure_cost))
+                if self.variables_dump:
+                    if epoch == self.epochs - 1:
+                        print("Dump variables to \"{}\".".format(self.variables_dump))
+                    saver.save(sess, self.variables_dump)
             print("Optimization finished.")
-
-            """
-            if self.variables_dump:
-                print("Dump variables to \"{}\".".format(self.variables_dump))
-                saver.save(sess, self.variables_dump)
-            """
 
             return theta["vec"].eval()

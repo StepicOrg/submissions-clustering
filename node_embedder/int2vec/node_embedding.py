@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import tensorflow as tf
+from tqdm import tqdm
 from ..utils.preprocessing import pad_sequences, split_into_batches
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -133,7 +134,8 @@ class ParentChildrenEmbedding:
                 avg_cost = 0
                 avg_pure_cost = 0
                 total_batch = N // self.batch_size
-                for batch in split_into_batches(X, self.batch_size, max_elem=N):
+                for batch in tqdm(split_into_batches(X, self.batch_size, max_elem=N),
+                                  total=total_batch, dynamic_ncols=True):
                     feed_dict = {a: b for a, b in zip(placeholders, self.generate_input(batch))}
                     _, c, p_c = sess.run([optimizer, cost, cost_wo_reg], feed_dict=feed_dict)
                     avg_cost += c / total_batch

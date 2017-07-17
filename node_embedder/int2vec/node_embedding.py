@@ -32,11 +32,11 @@ class ParentChildrenEmbedding:
     def generate_input(self, next_batch):
         batch_parent = next_batch["parent"].as_matrix()
         batch_children = pad_sequences(next_batch["children"].as_matrix(),
-                                       maxlen=self.max_children_num, padding="post")
+                                       max_len=self.max_children_num, padding="post")
 
         batch_children_num = next_batch["children"].map(len).as_matrix()
         batch_children_leaves_nums = pad_sequences(next_batch["children_leaves_nums"].as_matrix(),
-                                                   maxlen=self.max_children_num, padding="post")
+                                                   max_len=self.max_children_num, padding="post")
 
         batch_parent_c = batch_parent.copy()
         batch_children_c = batch_children.copy()
@@ -59,8 +59,8 @@ class ParentChildrenEmbedding:
             else:
                 batch_left_coef.append((np.arange(n - 1, -1, -1) / (n - 1)).tolist())
                 batch_right_coef.append((np.arange(n) / (n - 1)).tolist())
-        batch_left_coef = pad_sequences(batch_left_coef, maxlen=self.max_children_num, padding="post")
-        batch_right_coef = pad_sequences(batch_right_coef, maxlen=self.max_children_num, padding="post")
+        batch_left_coef = pad_sequences(batch_left_coef, max_len=self.max_children_num, padding="post")
+        batch_right_coef = pad_sequences(batch_right_coef, max_len=self.max_children_num, padding="post")
 
         return batch_parent, batch_children, \
                batch_children_leaves_nums, \
@@ -134,7 +134,7 @@ class ParentChildrenEmbedding:
                 avg_cost = 0
                 avg_pure_cost = 0
                 total_batch = N // self.batch_size
-                for batch in tqdm(split_into_batches(X, self.batch_size, max_elem=N),
+                for batch in tqdm(split_into_batches(X, self.batch_size, max_len=N),
                                   total=total_batch, dynamic_ncols=True):
                     feed_dict = {a: b for a, b in zip(placeholders, self.generate_input(batch))}
                     _, c, p_c = sess.run([optimizer, cost, cost_wo_reg], feed_dict=feed_dict)

@@ -1,49 +1,39 @@
-class Tree:
-    """A simple tree to store value at each node."""
+from collections import Collection
+from itertools import chain
 
-    def __init__(self, value=None, children=None):
-        """Init method for tree.
 
-        :param value: Value to store at root node.
-        :param children: List of children, Tree objects.
-        """
+class Tree(Collection):
+    def __init__(self, value, children=None):
+        assert value is not None
         self.value = value
         self.children = children or []
+        self._len = None
         self._leaves_num = None
 
+    def __contains__(self, item):
+        return item in self.__iter__()
+
+    def __iter__(self):
+        yield from chain((self.value,), *(child for child in self.children))
+
+    def __len__(self):
+        self._len = self._len \
+                    or 1 + sum(len(child) for child in self.children)
+        return self._len
+
     def map(self, mapping):
-        """
-        Map each value at each node using mapping dict/func. Not inplace,
-        returning new tree object with same structure.
-        """
         _mapping = (lambda x: mapping[x]) if hasattr(mapping, "__getitem__") else mapping
         return Tree(_mapping(self.value), [child.map(_mapping) for child in self.children])
 
-    def pretty_print(self, level=0, indent="  "):
-        """
-        A simple func to print out tree with values and structure using
-        indent.
-        """
-        pfx = level * indent
-        print("{}{}".format(pfx, self.value))
-        for child in self.children:
-            child.pretty_print(level + 1)
-
-    def flatten(self, add_children_leaves_nums=False):
-        """Flatten tree into a list of (parent value, children values) tuples."""
-        if len(self.children):
-            result = [[self.value, [child.value for child in self.children]]]
-            if add_children_leaves_nums:
-                result[0].append([child.leaves_num for child in self.children])
-            for child in self.children:
-                result.extend(child.flatten(add_children_leaves_nums))
-            return result
-        else:
-            return []
+    def flatten(self, add_leaves=False, add_children_leaves_num=False):
+        if len(self.children) or add_leaves:
+            d = {"value": self.value, "children": [child.value for child in self.children]}
+            if add_children_leaves_num:
+                d["children_leaves_num"] = [child.leaves_num for child in self.children]
+            yield from chain((d,), *(child.flatten(add_leaves, add_children_leaves_num) for child in self.children))
 
     @property
     def leaves_num(self):
-        """Return number of leaves in tree. Lazy-evaluated."""
         self._leaves_num = self._leaves_num \
                            or int(len(self.children) == 0) \
                            or sum(child.leaves_num for child in self.children)

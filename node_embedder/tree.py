@@ -9,13 +9,15 @@ class Tree:
         """
         self.value = value
         self.children = children or []
+        self._leaves_num = None
 
     def map(self, mapping):
         """
-        Map each value at each node using mapping dict. Not inplace,
+        Map each value at each node using mapping dict/func. Not inplace,
         returning new tree object with same structure.
         """
-        return Tree(mapping[self.value], [child.map(mapping) for child in self.children])
+        _mapping = (lambda x: mapping[x]) if hasattr(mapping, "__getitem__") else mapping
+        return Tree(_mapping(self.value), [child.map(_mapping) for child in self.children])
 
     def pretty_print(self, level=0, indent="  "):
         """
@@ -26,3 +28,23 @@ class Tree:
         print("{}{}".format(pfx, self.value))
         for child in self.children:
             child.pretty_print(level + 1)
+
+    def flatten(self, add_children_leaves_nums=False):
+        """Flatten tree into a list of (parent value, children values) tuples."""
+        if len(self.children):
+            result = [[self.value, [child.value for child in self.children]]]
+            if add_children_leaves_nums:
+                result[0].append([child.leaves_num for child in self.children])
+            for child in self.children:
+                result.extend(child.flatten(add_children_leaves_nums))
+            return result
+        else:
+            return []
+
+    @property
+    def leaves_num(self):
+        """Return number of leaves in tree. Lazy-evaluated."""
+        self._leaves_num = self._leaves_num \
+                           or int(len(self.children) == 0) \
+                           or sum(child.leaves_num for child in self.children)
+        return self._leaves_num

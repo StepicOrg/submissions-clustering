@@ -17,6 +17,9 @@ class Bijection(Mapping):
     def __len__(self):
         return len(self.one2two)
 
+    def __repr__(self):
+        return str(list(self))
+
 
 class DefaultIntBijection(Bijection):
     def __init__(self, type2=str, zero_value=None):

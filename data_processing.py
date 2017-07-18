@@ -1,11 +1,10 @@
 import os
 import pickle as pkl
+
 import pandas as pd
-import seaborn as sns
-import numpy as np
-import matplotlib.pyplot as plt
-from parsers.python import parse
+
 from node_embedder.node2int.python import node_embedding
+from parsers.python import parse
 
 # TODO: chetverg:
 # 1) progranat na pip failax, sobrat statistiky

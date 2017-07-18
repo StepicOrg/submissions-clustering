@@ -1,8 +1,11 @@
 import pickle as pkl
+
 import pandas as pd
-from parsers.python import parse
-from node_embedder.node2int.python import node_embedding
-from node_embedder.int2vec.node_embedding import ParentChildrenEmbedding
+
+# from models.node_embedding import ParentChildrenEmbedding
+from node_embedder.code_gens import FromCSV, Walk
+# from node_embedder.node2int.python import node_embedding
+from node_embedder.preprocessor import Preprocessor
 
 
 def parse_correct_py_programs(codes):
@@ -64,5 +67,17 @@ def main():
         .to_csv("data/emb_coding.dump", sep='\t', index=False, header=None)
 
 
+import parser
+
+
+def main1():
+    # print(next(Preprocessor(FromCSV("data/step-12768-submissions.csv"))))
+    code_gen = Walk("venv/lib/python3.6/", ext=".py")
+    print(parser.st2list(parser.suite(next(code_gen))))
+    # preprocessor = Preprocessor(code_gen)
+    # print(next(preprocessor))
+    # print(preprocessor.encoding)
+
+
 if __name__ == '__main__':
-    main()
+    main1()

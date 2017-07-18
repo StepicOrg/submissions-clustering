@@ -1,15 +1,16 @@
 import os
+
 import numpy as np
 import tensorflow as tf
 from tqdm import tqdm
-from ..utils.preprocessing import pad_sequences, split_into_batches
+
+from models.utils import pad_sequences, split_into_batches
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 
 # TODO: 1) data download scripts + data processing scripts
 # TODO: 3) deal with how we gonna train and retrain our emb model, with changing num_codes / max_children_num
-# TODO: 6) max children num?
 
 # goo.gl/aefJaE
 

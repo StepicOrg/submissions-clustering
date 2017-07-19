@@ -2,8 +2,10 @@ import pickle as pkl
 
 import pandas as pd
 
+from node_embedder.code_gens import *
 # from models.node_embedding import ParentChildrenEmbedding
-from node_embedder.code_gens import FromCSV, Walk
+from node_embedder.languages import *
+from node_embedder.methods import *
 # from node_embedder.node2int.python import node_embedding
 from node_embedder.preprocessor import Preprocessor
 
@@ -67,13 +69,13 @@ def main():
         .to_csv("data/emb_coding.dump", sep='\t', index=False, header=None)
 
 
-import parser
-
-
 def main1():
-    # print(next(Preprocessor(FromCSV("data/step-12768-submissions.csv"))))
-    code_gen = Walk("venv/lib/python3.6/", ext=".py")
-    print(parser.st2list(parser.suite(next(code_gen))))
+    code_gen = FromCSV("data/step-12768-submissions.csv")
+    # code_gen = Walk("venv/lib/python3.6/", ext=".py")
+    preprocessor = Preprocessor(code_gen, language=Python(), method=Grammarize())
+    for seq in preprocessor:
+        print(seq)
+    print("MEM")
     # preprocessor = Preprocessor(code_gen)
     # print(next(preprocessor))
     # print(preprocessor.encoding)

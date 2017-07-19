@@ -1,13 +1,9 @@
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod, ABC
 
 
-class Language(metaclass=ABCMeta):
+class Language(ABC):
     @abstractmethod
     def check(self, code):
-        pass
-
-    @abstractmethod
-    def parse(self, code):
         pass
 
     @abstractmethod

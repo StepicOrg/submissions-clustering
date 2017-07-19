@@ -1,7 +1,8 @@
-from collections import Mapping, Hashable, MutableMapping
+from abc import ABC
+from collections import Mapping, Hashable
 
 
-class Bijection(Mapping):
+class Bijection(ABC, Mapping):
     def __init__(self, type1=int, type2=str):
         assert not issubclass(type1, type2) and not issubclass(type2, type1)
         assert issubclass(type1, Hashable) and issubclass(type2, Hashable)
@@ -34,18 +35,3 @@ class DefaultIntBijection(Bijection):
             self.one2two[next_int] = item
             self.two2one[item] = next_int
         return super().__getitem__(item)
-
-
-class MutableBijection(MutableMapping, Bijection):
-    def __setitem__(self, key, value):
-        key, value = (key, value) if isinstance(key, self.type1) else (value, key)
-        if key in self:
-            del self[key]
-        if value in self:
-            del self[value]
-        self.one2two[key], self.two2one[value] = value, key
-
-    def __delitem__(self, key):
-        key, value = (key, self[key]) if isinstance(key, self.type1) else (self[key], key)
-        del self.one2two[key]
-        del self.two2one[value]

@@ -11,17 +11,16 @@ class CodeGen(Iterator, metaclass=ABCMeta):
 
 
 class FromCSV(CodeGen):
-    def __init__(self, path, column="code", chunk_size=1000000):
+    def __init__(self, path, column="code"):
         self.path = path
         self.column = column
-        self.chunk_size = chunk_size
-        self.it = self.read_csv()
+        self._it = self._read_csv()
 
     def __next__(self):
-        return next(self.it)
+        return next(self._it)
 
-    def read_csv(self):
-        yield from chain(*pd.read_csv(self.path, usecols=[self.column], squeeze=True, chunksize=self.chunk_size))
+    def _read_csv(self):
+        yield from chain(*pd.read_csv(self.path, usecols=[self.column], squeeze=True))
 
 
 class Walk(CodeGen):
@@ -31,12 +30,12 @@ class Walk(CodeGen):
         self.path = path
         self.ext = ext
         self.ignore_hidden = ignore_hidden
-        self.it = self.walk()
+        self._it = self._walk()
 
     def __next__(self):
-        return next(self.it)
+        return next(self._it)
 
-    def walk(self):
+    def _walk(self):
         for dir_path, dir_names, file_names in os.walk(self.path):
             for file_name in file_names:
                 if file_name.endswith(self.ext) \

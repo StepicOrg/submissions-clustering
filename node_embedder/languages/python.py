@@ -1,11 +1,20 @@
 import ast
+import parser
+import symbol as _symbol
+import token as _token
+import tokenize as _tokenize
 from io import BytesIO
 from keyword import iskeyword
-from tokenize import tokenize, NAME, NUMBER, STRING, COMMENT, ERRORTOKEN, NL, ENCODING
 
-from node_embedder.tree import Tree
 from .language import Language
-from ..methods import Tokenize, Treeize
+from ..methods import *
+from ..primitives import Tree
+
+SUPPORTED_METHODS = ASTize, Tokenize, Grammarize
+
+
+def code2ast(code):
+    return ast.parse(code)
 
 
 class SimpleVisitor(ast.NodeVisitor):
@@ -18,34 +27,53 @@ class SimpleVisitor(ast.NodeVisitor):
         return Tree(code, children)
 
 
+def astize(method, code, encoding):
+    return SimpleVisitor(encoding).visit(code2ast(code))
+
+
+IGNORED_TOKENS = {_tokenize.COMMENT, _tokenize.NL, _tokenize.ENCODING, _tokenize.ERRORTOKEN}
+TOKEN_MAP = dict(list(_symbol.sym_name.items()) + list(_token.tok_name.items()))
+
+
+def tokenize(method, code, encoding):
+    result = []
+    for token in _tokenize.tokenize(BytesIO(code.encode('utf-8')).readline):
+        num, val, exact_type = token.type, token.string, token.exact_type
+        if num in IGNORED_TOKENS:
+            continue
+        elif num == _tokenize.NAME and not iskeyword(val):
+            val = "<name>"
+        elif num == _tokenize.NUMBER:
+            val = "<number>"
+        elif num == _tokenize.STRING:
+            val = "<string>"
+        elif num == _tokenize.OP:
+            val = TOKEN_MAP[exact_type]
+        result.append(encoding[val])
+    return result
+
+
+def grammar2tree(node, encoding):
+    value = encoding[TOKEN_MAP[node[0]]]
+    children = [grammar2tree(child, encoding) for child in filter(lambda x: isinstance(x, list), node[1:])]
+    return Tree(value, children)
+
+
+def grammarize(method, code, encoding):
+    return grammar2tree(parser.suite(code).tolist(), encoding)
+
+
 class Python(Language):
     def check(self, code):
         try:
-            if isinstance(code, str) and self.parse(code) is not None:
+            if isinstance(code, str) and code2ast(code) is not None:
                 return True
         except SyntaxError:
             pass
         return False
 
-    def parse(self, code):
-        return ast.parse(code)
-
-    # TODO: почитать про парсинг https://docs.python.org/3/library/parser.html
     def process(self, method, code, encoding):
-        if isinstance(method, Tokenize):
-            result = []
-            for output in tokenize(BytesIO(code.encode('utf-8')).readline):
-                tok_num, tok_val, ex_type = output.type, output.string, output.exact_type
-                if tok_num in {COMMENT, ERRORTOKEN, NL, ENCODING}:
-                    continue
-                elif tok_num == NAME and not iskeyword(tok_val):
-                    print(tok_val)
-                    tok_val = "<name>"
-                elif tok_num == NUMBER:
-                    tok_val = "<number>"
-                elif tok_num == STRING:
-                    tok_val = "<string>"
-                result.append(encoding[tok_val])
-            return result
-        elif isinstance(method, Treeize):
-            return SimpleVisitor(encoding).visit(self.parse(code))
+        if not isinstance(method, SUPPORTED_METHODS):
+            raise UnsupportedMethod()
+
+        return globals()[method.__class__.__name__.lower()](method, code, encoding)

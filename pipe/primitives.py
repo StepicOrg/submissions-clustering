@@ -37,6 +37,9 @@ class DefaultIntBijection(Bijection):
             self.two2one[item] = next_int
         return super().__getitem__(item)
 
+    def __iter__(self):
+        yield from ((i, self[i]) for i in range(len(self)))
+
 
 class Tree(Collection):
     def __init__(self, value, children=None):
@@ -63,7 +66,7 @@ class Tree(Collection):
 
     def flatten(self, add_leaves=False, add_children_leaves_num=False):
         if len(self.children) or add_leaves:
-            d = {"value": self.value, "children": [child.value for child in self.children]}
+            d = {"parent": self.value, "children": [child.value for child in self.children]}
             if add_children_leaves_num:
                 d["children_leaves_num"] = [child.leaves_num for child in self.children]
             yield from chain((d,), *(child.flatten(add_leaves, add_children_leaves_num) for child in self.children))

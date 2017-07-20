@@ -1,40 +1,29 @@
-from pipe.code_gens import *
+from models.node_embedding import *
 from pipe.cookers import *
+from pipe.initers import *
 from pipe.pickler import *
 from pipe.pipe_base import *
 from pipe.preprocessor import *
 from pipe.terminaters import *
 
 
-def main1():
-    # make_node_embedding_train_set()
-
-    def parse_nums(ss):
-        return list(map(int, ss.strip("[]").split(", ")))
-
-    X_train = pd.read_csv("data/node_embedding_train_set.csv",
-                          converters={"children": parse_nums, "children_leaves_nums": parse_nums})
-
-    pcEmbedding = ParentChildrenEmbedding(epochs=3, N=10000, variables_dump="data/model.ckpt")
-    emb = pcEmbedding.fit(X_train)
-
-    pd.DataFrame(emb[1:]) \
-        .to_csv("data/node_emb.dump", sep='\t', index=False, header=None)
-
-    node_coding = unpickle("data/node_coding.dump")
-    pd.DataFrame(node_coding.sorted_kinds()) \
-        .to_csv("data/emb_coding.dump", sep='\t', index=False, header=None)
+def train_vec(node_embedding):
+    pc_embedding = ParentChildrenEmbedding(epochs=10, N=1000000, variables_dump="data/model.ckpt")
+    node_vec = pc_embedding.fit(node_embedding.dataset)
+    pd.DataFrame(node_vec).to_csv("data/node_vec.dump", sep='\t', index=False, header=None)
+    node_list = list(item[1] for item in node_embedding.encoding)
+    pd.DataFrame(node_list).to_csv("data/node_list.dump", sep='\t', index=False, header=None)
 
 
 def do_if_not_exists(path):
     if exists(path):
         node_embedding = unpickle(path)
     else:
-        pipe = Pipe(FromCSV("data/step-12768-submissions.csv"))
+        pipe = Pipe(Walk("data/dummyenv/lib/python3.6/", ext=".py"))
         pipe.transform(Preprocessor(language="python", method="astize"))
         pipe.transform(ForNodeEmbedding())
         node_embedding = pipe.terminate(Pickle(path))
-    print(len(node_embedding.dataset))
+    train_vec(node_embedding)
 
 
 def main():

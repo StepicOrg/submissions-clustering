@@ -28,7 +28,10 @@ class Walk(Initer):
             for file_name in file_names:
                 if file_name.endswith(self.ext) \
                         and (not self.ignore_hidden or file_name[0] not in self.HIDDEN_PREFIX_CHAR):
-                    yield open(os.path.join(dir_path, file_name)).read()
+                    try:
+                        yield open(os.path.join(dir_path, file_name)).read()
+                    except UnicodeDecodeError:
+                        continue
 
 
 class SingleFile(Initer):

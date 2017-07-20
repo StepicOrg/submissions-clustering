@@ -1,10 +1,9 @@
 import os
 
-import numpy as np
 import tensorflow as tf
 from tqdm import tqdm
 
-from models.utils import pad_sequences, split_into_batches
+from .utils.preprocessing import *
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
@@ -36,7 +35,7 @@ class ParentChildrenEmbedding:
                                        max_len=self.max_children_num, padding="post")
 
         batch_children_num = next_batch["children"].map(len).as_matrix()
-        batch_children_leaves_nums = pad_sequences(next_batch["children_leaves_nums"].as_matrix(),
+        batch_children_leaves_nums = pad_sequences(next_batch["children_leaves_num"].as_matrix(),
                                                    max_len=self.max_children_num, padding="post")
 
         batch_parent_c = batch_parent.copy()

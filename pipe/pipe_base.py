@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from tqdm import tqdm
+
 from bunch import Bunch
 from more_itertools import flatten
 
@@ -14,7 +16,8 @@ class Pipe:
         return self
 
     def terminate(self, terminater):
-        return terminater.terminate(self.gen, self.state)
+        gen = iter(tqdm(self.gen))
+        return terminater.terminate(gen, self.state)
 
 
 class Initer(ABC):

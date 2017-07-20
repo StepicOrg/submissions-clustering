@@ -1,5 +1,6 @@
 import pandas as pd
 from bunch import Bunch
+from tqdm import tqdm
 
 from .pickler import pickle
 from .pipe_base import Terminater

@@ -13,6 +13,10 @@ def code2ast(code):
     return ast.parse(code)
 
 
+# import sys
+# sys.setrecursionlimit(10 * sys.getrecursionlimit())
+
+
 class SimpleVisitor(ast.NodeVisitor):
     def __init__(self, encoding):
         self.encoding = encoding

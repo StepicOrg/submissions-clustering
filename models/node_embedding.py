@@ -1,5 +1,4 @@
-import os
-
+import matplotlib.pyplot as plt
 import tensorflow as tf
 from tqdm import tqdm
 
@@ -16,7 +15,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 class ParentChildrenEmbedding:
     def __init__(self, N_f=32, delta=1, lr=1e-2, momentum=0.9, alpha=1e-1,
                  batch_size=64, epochs=10, codes_num=0, max_children_num=15,
-                 N=None, variables_dump=None):
+                 N=None, variables_dump=None, draw_cost_plot=True):
         self.N_f = N_f
         self.delta = delta
         self.lr = lr
@@ -28,6 +27,7 @@ class ParentChildrenEmbedding:
         self.max_children_num = max_children_num
         self.N = N
         self.variables_dump = variables_dump
+        self.draw_cost_plot = draw_cost_plot
 
     def generate_input(self, next_batch):
         batch_parent = next_batch["parent"].as_matrix()
@@ -130,7 +130,8 @@ class ParentChildrenEmbedding:
 
             print("Optimization begin.")
             N = self.N or len(X)
-            for epoch in range(self.epochs):
+            cost_line = []
+            for epoch in range(1, self.epochs + 1):
                 avg_cost = 0
                 avg_pure_cost = 0
                 total_batch = N // self.batch_size
@@ -140,11 +141,19 @@ class ParentChildrenEmbedding:
                     _, c, p_c = sess.run([optimizer, cost, cost_wo_reg], feed_dict=feed_dict)
                     avg_cost += c / total_batch
                     avg_pure_cost += p_c / total_batch
+                cost_line.append(avg_cost)
                 print("epoch= {} cost= {} pure_cost= {}".format(epoch, avg_cost, avg_pure_cost))
                 if self.variables_dump:
                     if epoch == self.epochs - 1:
                         print("Dump variables to \"{}\".".format(self.variables_dump))
                     saver.save(sess, self.variables_dump)
+                telegram_send("cost= {} pure_cost= {}".format(avg_cost, avg_pure_cost))
             print("Optimization finished.")
+            telegram_send("Optimization finished.")
+
+            if self.draw_cost_plot:
+                plt.plot(cost_line)
+                plt.savefig("data/error_plot.png")
+                plt.show()
 
             return theta["vec"].eval()

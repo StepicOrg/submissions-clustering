@@ -1,4 +1,5 @@
 import numpy as np
+import os
 
 
 def pad_sequences(sequences, max_len=None,
@@ -52,3 +53,7 @@ def split_into_batches(df, batch_size, max_len=None):
     k = max_len // batch_size
     for batch in np.array_split(df.sample(frac=1).head(k * batch_size), k):
         yield batch
+
+
+def telegram_send(msg, path_to_cli="~/tg/bin/telegram-cli", user="Stanislav_Belyaev"):
+    os.system("{} -W -e \"msg {} {}\" >/dev/null".format(path_to_cli, user, msg))

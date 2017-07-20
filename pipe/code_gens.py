@@ -1,43 +1,39 @@
 import os
-from abc import ABCMeta
-from collections import Iterator
-from itertools import chain
 
 import pandas as pd
 
-
-class CodeGen(Iterator, metaclass=ABCMeta):
-    pass
+from .pipe_base import Initer
 
 
-class FromCSV(CodeGen):
-    def __init__(self, path, column="code"):
+class FromCSV(Initer):
+    def __init__(self, path, column="code", memory_map=False):
         self.path = path
         self.column = column
-        self._it = self._read_csv()
+        self.memory_map = memory_map
 
-    def __next__(self):
-        return next(self._it)
-
-    def _read_csv(self):
-        yield from chain(*pd.read_csv(self.path, usecols=[self.column], squeeze=True))
+    def init(self, state):
+        yield from pd.read_csv(self.path, usecols=[self.column], squeeze=True, memory_map=self.memory_map)
 
 
-class Walk(CodeGen):
+class Walk(Initer):
     HIDDEN_PREFIX_CHAR = {'.', '_'}
 
     def __init__(self, path, ext, ignore_hidden=True):
         self.path = path
         self.ext = ext
         self.ignore_hidden = ignore_hidden
-        self._it = self._walk()
 
-    def __next__(self):
-        return next(self._it)
-
-    def _walk(self):
+    def init(self, state):
         for dir_path, dir_names, file_names in os.walk(self.path):
             for file_name in file_names:
                 if file_name.endswith(self.ext) \
                         and (not self.ignore_hidden or file_name[0] not in self.HIDDEN_PREFIX_CHAR):
                     yield open(os.path.join(dir_path, file_name)).read()
+
+
+class SingleFile(Initer):
+    def __init__(self, path):
+        self.path = path
+
+    def init(self, state):
+        yield open(self.path).read()

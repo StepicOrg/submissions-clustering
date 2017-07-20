@@ -3,7 +3,7 @@ import pickle as pkl
 
 import pandas as pd
 
-from node_embedder.node2int.python import node_embedding
+from pipe.node2int.python import node_embedding
 from parsers.python import parse
 
 # TODO: chetverg:

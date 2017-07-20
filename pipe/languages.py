@@ -6,11 +6,7 @@ import tokenize as _tokenize
 from io import BytesIO
 from keyword import iskeyword
 
-from .language import Language
-from ..methods import *
-from ..primitives import Tree
-
-SUPPORTED_METHODS = ASTize, Tokenize, Grammarize
+from .primitives import Tree
 
 
 def code2ast(code):
@@ -27,15 +23,30 @@ class SimpleVisitor(ast.NodeVisitor):
         return Tree(code, children)
 
 
-def astize(method, code, encoding):
+IGNORED_TOKENS = {_tokenize.COMMENT, _tokenize.NL, _tokenize.ENCODING, _tokenize.ERRORTOKEN}
+TOKEN_MAP = {**_symbol.sym_name, **_token.tok_name}
+
+
+def grammar2tree(node, encoding):
+    value = encoding[TOKEN_MAP[node[0]]]
+    children = [grammar2tree(child, encoding) for child in filter(lambda x: isinstance(x, list), node[1:])]
+    return Tree(value, children)
+
+
+def check(code):
+    try:
+        if isinstance(code, str) and code2ast(code) is not None:
+            return True
+    except SyntaxError:
+        pass
+    return False
+
+
+def astize(code, encoding):
     return SimpleVisitor(encoding).visit(code2ast(code))
 
 
-IGNORED_TOKENS = {_tokenize.COMMENT, _tokenize.NL, _tokenize.ENCODING, _tokenize.ERRORTOKEN}
-TOKEN_MAP = dict(list(_symbol.sym_name.items()) + list(_token.tok_name.items()))
-
-
-def tokenize(method, code, encoding):
+def tokenize(code, encoding):
     result = []
     for token in _tokenize.tokenize(BytesIO(code.encode('utf-8')).readline):
         num, val, exact_type = token.type, token.string, token.exact_type
@@ -53,27 +64,17 @@ def tokenize(method, code, encoding):
     return result
 
 
-def grammar2tree(node, encoding):
-    value = encoding[TOKEN_MAP[node[0]]]
-    children = [grammar2tree(child, encoding) for child in filter(lambda x: isinstance(x, list), node[1:])]
-    return Tree(value, children)
-
-
-def grammarize(method, code, encoding):
+def grammarize(code, encoding):
     return grammar2tree(parser.suite(code).tolist(), encoding)
 
 
-class Python(Language):
-    def check(self, code):
-        try:
-            if isinstance(code, str) and code2ast(code) is not None:
-                return True
-        except SyntaxError:
-            pass
-        return False
+PYTHON = {
+    "check": check,
+    "astize": astize,
+    "tokenize": tokenize,
+    "grammarize": grammarize
+}
 
-    def process(self, method, code, encoding):
-        if not isinstance(method, SUPPORTED_METHODS):
-            raise UnsupportedMethod()
-
-        return globals()[method.__class__.__name__.lower()](method, code, encoding)
+LANGUAGES = {
+    "python": PYTHON
+}

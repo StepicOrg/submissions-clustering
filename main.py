@@ -1,55 +1,12 @@
-import pickle as pkl
-
-import pandas as pd
-
-from node_embedder.code_gens import *
-# from models.node_embedding import ParentChildrenEmbedding
-from node_embedder.languages import *
-from node_embedder.methods import *
-# from node_embedder.node2int.python import node_embedding
-from node_embedder.preprocessor import Preprocessor
+from pipe.code_gens import *
+from pipe.cookers import *
+from pipe.pickler import *
+from pipe.pipe_base import *
+from pipe.preprocessor import *
+from pipe.terminaters import *
 
 
-def parse_correct_py_programs(codes):
-    py_asts = []
-    for code in codes:
-        try:
-            if isinstance(code, str):
-                py_asts.append(parse(code))
-        except SyntaxError:
-            pass
-    return py_asts
-
-
-def pickle(obj, filename=None):
-    filename = filename or obj.__class__.__name__
-    with open(filename, "wb") as f:
-        pkl.dump(obj, f, pkl.HIGHEST_PROTOCOL)
-
-
-def unpickle(filename):
-    with open(filename, "rb") as f:
-        obj = pkl.load(f)
-    return obj
-
-
-def trees_to_train_set(trees):
-    result = []
-    for tree in trees:
-        result.extend(tree.flatten(add_children_leaves_nums=True))
-    return pd.DataFrame(result, columns=["parent", "children", "children_leaves_nums"])
-
-
-def make_node_embedding_train_set():
-    dataset = pd.read_csv("data/step-12768-submissions.csv")
-    py_asts = parse_correct_py_programs(dataset["code"].values)
-    trees, node_coding = node_embedding(py_asts)
-    pickle(node_coding, "data/node_coding.dump")
-    train_set = trees_to_train_set(trees)
-    train_set.to_csv("data/node_embedding_train_set.csv", index=False)
-
-
-def main():
+def main1():
     # make_node_embedding_train_set()
 
     def parse_nums(ss):
@@ -69,17 +26,20 @@ def main():
         .to_csv("data/emb_coding.dump", sep='\t', index=False, header=None)
 
 
-def main1():
-    code_gen = FromCSV("data/step-12768-submissions.csv")
-    # code_gen = Walk("venv/lib/python3.6/", ext=".py")
-    preprocessor = Preprocessor(code_gen, language=Python(), method=Grammarize())
-    for seq in preprocessor:
-        print(seq)
-    print("MEM")
-    # preprocessor = Preprocessor(code_gen)
-    # print(next(preprocessor))
-    # print(preprocessor.encoding)
+def do_if_not_exists(path):
+    if exists(path):
+        node_embedding = unpickle(path)
+    else:
+        pipe = Pipe(FromCSV("data/step-12768-submissions.csv"))
+        pipe.transform(Preprocessor(language="python", method="astize"))
+        pipe.transform(ForNodeEmbedding())
+        node_embedding = pipe.terminate(Pickle(path))
+    print(len(node_embedding.dataset))
+
+
+def main():
+    do_if_not_exists("data/node_embedding.dump")
 
 
 if __name__ == '__main__':
-    main1()
+    main()

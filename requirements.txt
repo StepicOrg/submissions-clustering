@@ -1,9 +1,13 @@
 backports.weakref==1.0rc1
 bleach==1.5.0
+bunch==1.0.1
 cycler==0.10.0
+h5py==2.7.0
 html5lib==0.9999999
 Markdown==2.6.8
 matplotlib==2.0.2
+more-itertools==3.2.0
+numexpr==2.6.2
 numpy==1.13.1
 pandas==0.20.3
 protobuf==3.3.0
@@ -14,6 +18,7 @@ scikit-learn==0.18.2
 scipy==0.19.1
 seaborn==0.8
 six==1.10.0
+tables==3.4.2
 tensorflow==1.2.1
 tqdm==4.14.0
 Werkzeug==0.12.2

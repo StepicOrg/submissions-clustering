@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
-
-from tqdm import tqdm
+from functools import wraps
 
 from bunch import Bunch
 from more_itertools import flatten
+from tqdm import tqdm
 
 
 class Pipe:
@@ -48,6 +48,18 @@ class Expander(Transformer):
 
     def transform(self, gen, state):
         return flatten(self.expand(elem, state) for elem in gen)
+
+
+def LinPoint(transformer_cls):
+    old_transform = transformer_cls.transform
+
+    @wraps(transformer_cls.transform)
+    def new_transform(self, gen, state):
+        gen = (elem for elem in list(gen))
+        return old_transform(gen, state)
+
+    transformer_cls.transform = new_transform
+    return transformer_cls
 
 
 class Terminater(ABC):

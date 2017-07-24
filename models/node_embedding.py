@@ -153,7 +153,7 @@ class ParentChildrenEmbedding:
 
             if self.draw_cost_plot:
                 plt.plot(cost_line)
-                plt.savefig("data/error_plot.png")
+                plt.savefig("data/node_emb_error_plot.png")
                 plt.show()
 
             return theta["vec"].eval()

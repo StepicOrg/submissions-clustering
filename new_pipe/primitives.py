@@ -45,9 +45,11 @@ class tree(Collection):
     def __init__(self, value, children=None):
         assert value is not None
         self.value = value
-        self.children = list(children) or []
+        self.children = [] if children is None else list(children)
         self._len = None
         self._leaves_num = None
+        self._height = None
+        self._depth = None
 
     def __contains__(self, item):
         return item in self.__iter__()
@@ -71,9 +73,34 @@ class tree(Collection):
                 d["children_leaves_num"] = [child.leaves_num for child in self.children]
             yield from chain((d,), *(child.flatten(add_leaves, add_children_leaves_num) for child in self.children))
 
+    def subtree(self, height=2):
+        if height:
+            if height == 1:
+                return self.value,
+            else:
+                return tuple(chain((self.value,), (child.subtree(height - 1) for child in self.children)))
+
+    def subtrees(self, height=2):
+        if self.height >= height:
+            yield from chain((self.subtree(height),), *(child.subtrees(height) for child in self.children))
+
     @property
     def leaves_num(self):
         self._leaves_num = self._leaves_num \
                            or int(len(self.children) == 0) \
                            or sum(child.leaves_num for child in self.children)
         return self._leaves_num
+
+    @property
+    def height(self):
+        self._height = self._height \
+                       or int(len(self.children) == 0) \
+                       or min(child.height for child in self.children) + 1
+        return self._height
+
+    @property
+    def depth(self):
+        self._depth = self._depth \
+                      or int(len(self.children) == 0) \
+                      or max(child.height for child in self.children) + 1
+        return self._depth

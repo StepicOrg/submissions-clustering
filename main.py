@@ -8,7 +8,7 @@ from pipe.terminaters import *
 
 
 def train_vec(node_embedding):
-    pc_embedding = ParentChildrenEmbedding(epochs=30, N=10000000, variables_dump="data/model.ckpt")
+    pc_embedding = ParentChildrenEmbedding(epochs=10, N=10000000, variables_dump="data/model.ckpt")
     node_vec = pc_embedding.fit(node_embedding.dataset)
     pd.DataFrame(node_vec).to_csv("data/node_vec.dump", sep='\t', index=False, header=None)
     node_list = list(item[1] for item in node_embedding.encoding)

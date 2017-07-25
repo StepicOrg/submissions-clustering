@@ -8,6 +8,8 @@ from new_pipe.code_gens import *
 from new_pipe.cookers import *
 from new_pipe.preprocessor import Preprocessor
 
+from amorph import patch_with_closest
+
 if __name__ == '__main__':
     X = np.array(list(from_csv("data/step-12768-submissions.csv", nrows=1000)))
     pipeline = Pipeline([("pre", Preprocessor(language="python", method="tokenize")),
@@ -22,3 +24,5 @@ if __name__ == '__main__':
     print(labels)
     X = X[pipeline.named_steps["pre"].correct_ind]
     print(calinski_harabaz_score(vecs.toarray(), labels))
+
+    print(list(patch_with_closest("kek", ["mem"]))[0])

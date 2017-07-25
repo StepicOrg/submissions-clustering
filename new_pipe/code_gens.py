@@ -3,8 +3,8 @@ import os
 import pandas as pd
 
 
-def from_csv(path, column="code", memory_map=False):
-    yield from pd.read_csv(path, usecols=[column], squeeze=True, memory_map=memory_map)
+def from_csv(path, column="code", nrows=None, memory_map=False):
+    yield from pd.read_csv(path, usecols=[column], squeeze=True, nrows=nrows, memory_map=memory_map)
 
 
 def walk(path, ext, ignore_hidden=True, hidden_prefix_char=frozenset({'.', '_'})):

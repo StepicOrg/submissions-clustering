@@ -13,6 +13,10 @@ def parse(s):
 
 
 class BagOfWords(CountVectorizer):
+    def __init__(self, *args, **kwargs):
+        kwargs["token_pattern"] = "[0-9]+"
+        super().__init__(*args, **kwargs)
+
     # noinspection PyAttributeOutsideInit
     def fit_transform(self, X, y=None):
         X = list(map(lambda x: " ".join(str(i) for i in x), X))

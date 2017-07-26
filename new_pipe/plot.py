@@ -1,36 +1,73 @@
+import matplotlib.pyplot as plt
+import numpy as np
 import plotly.graph_objs as go
 import plotly.offline as py
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 
 
-def plot(X, y, *, method="pca", n_dim=2, code=None, correct=None, centroid_p=None, title=None, path=None):
+def matplotlib_to_plotly(cmap, pl_entries, add_black=False):
+    h = 1.0 / (pl_entries - 1)
+    pl_colorscale = []
+    for k in range(1 if add_black else 0, pl_entries):
+        C = list(map(np.uint8, np.array(cmap(k * h)[:3]) * 255))
+        pl_colorscale.append([k * h, 'rgb' + str((C[0], C[1], C[2]))])
+    if add_black:
+        pl_colorscale.insert(0, [.0, "black"])
+    return pl_colorscale
+
+
+def plot(X, Y, *, method="pca", n_dim=2, code=None, correct=None,
+         scaling=None, centres=None, centroids=None, title=None, path="plots/temp_plot.html"):
     if method == "pca":
-        X = PCA(n_components=n_dim).fit_transform(X)
+        reduced_X = PCA(n_components=n_dim).fit_transform(X)
     elif method == "lda":
-        X = LDA(n_components=n_dim, solver="eigen", shrinkage="auto").fit_transform(X, y)
+        reduced_X = LDA(n_components=n_dim, solver="eigen", shrinkage="auto").fit_transform(X, Y)
     else:
         raise ValueError("Such method is't supported yet")
 
+    if scaling is None:
+        centroid_p = np.ones(X.shape[0]) * .5
+    elif scaling == "auto":
+        # TODO: implement
+        raise ValueError("Such scaling is't supported yet")
+    elif scaling == "centers" and centres is not None:
+        centroid_p = np.linalg.norm(X - centres[Y], axis=1) ** 2
+        max_d = np.zeros(Y.max() + 1)
+        for i, c_p in enumerate(centroid_p):
+            max_d[Y[i]] = max(max_d[Y[i]], c_p)
+        centroid_p = 1 - centroid_p / max_d[Y]
+    elif scaling == "centroids" and centroids is not None:
+        # TODO: implement
+        raise ValueError("Such scaling is't supported yet")
+    else:
+        raise ValueError("Such scaling is't supported yet")
+    centroid_p[Y == -1] = .0
+
     if n_dim == 2:
-        print(y)
+        min_size, max_size = 8, 25
+        colorscale = matplotlib_to_plotly(plt.cm.Paired, Y.max() + 1, add_black=Y.min() == -1)
         cluster_marker = dict(
-            size=20,
-            color=y,
-            colorscale="Electric",
-            cmin=0,
-            cmax=y.max(),
-            opacity=0.7
+            size=min_size + centroid_p * (max_size - min_size),
+            color=Y,
+            colorscale=colorscale,
+            opacity=0.85,
+            line=dict(
+                width=0
+            )
         )
         status_marker = dict(
-            size=20,
-            color=correct.astype(int),
+            size=15,
+            color=correct,
             colorscale=[[0, "#EF233C"], [1, "#20BF55"]],
-            opacity=0.8
+            opacity=0.8,
+            line=dict(
+                width=0
+            )
         )
         trace = go.Scattergl(
-            x=X[:, 0],
-            y=X[:, 1],
+            x=reduced_X[:, 0],
+            y=reduced_X[:, 1],
             mode="markers",
             text=code,
             marker=cluster_marker,
@@ -61,31 +98,33 @@ def plot(X, y, *, method="pca", n_dim=2, code=None, correct=None, centroid_p=Non
                 zeroline=False,
                 showticklabels=False
             ),
-            updatemenus=list([
-                dict(
-                    buttons=list([
-                        dict(
-                            args=['marker', [cluster_marker]],
-                            label='Clusters',
-                            method='restyle'
-                        ),
-                        dict(
-                            args=['marker', [status_marker]],
-                            label='Status',
-                            method='restyle'
-                        )
-                    ]),
-                    direction='left',
-                    pad={'r': 10, 't': 10},
-                    showactive=False,
-                    type='buttons',
-                    x=0.1,
-                    xanchor='left',
-                    y=1.1,
-                    yanchor='top'
-                )
-            ])
         )
+        updatemenus = list([
+            dict(
+                buttons=list([
+                    dict(
+                        args=['marker', [cluster_marker]],
+                        label='Clusters',
+                        method='restyle'
+                    ),
+                    dict(
+                        args=['marker', [status_marker]],
+                        label='Status',
+                        method='restyle'
+                    )
+                ]),
+                direction='left',
+                pad={'r': 10, 't': 10},
+                showactive=False,
+                type='buttons',
+                x=0.1,
+                xanchor='left',
+                y=1.1,
+                yanchor='top'
+            )
+        ])
+        if correct is not None:
+            layout["updatemenus"] = updatemenus
     elif n_dim == 3:
         # TODO: implement
         raise ValueError("Such dim is't supported yet")
@@ -96,4 +135,4 @@ def plot(X, y, *, method="pca", n_dim=2, code=None, correct=None, centroid_p=Non
         data=data,
         layout=layout
     )
-    py.plot(fig, filename=path or "temp_plot.html")
+    py.plot(fig, filename=path)

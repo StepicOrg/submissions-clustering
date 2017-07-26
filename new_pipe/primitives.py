@@ -81,7 +81,7 @@ class tree(Collection):
                 return tuple(chain((self.value,), (child.subtree(height - 1) for child in self.children)))
 
     def subtrees(self, height=2):
-        if self.height >= height:
+        if self.depth >= height:
             yield from chain((self.subtree(height),), *(child.subtrees(height) for child in self.children))
 
     @property

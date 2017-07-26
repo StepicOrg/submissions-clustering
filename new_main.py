@@ -1,32 +1,34 @@
-from sklearn.cluster import MiniBatchKMeans
-from sklearn.feature_extraction.text import TfidfTransformer
-from sklearn.metrics import calinski_harabaz_score
-from sklearn.pipeline import Pipeline
-
-from new_pipe.code_gens import *
-from new_pipe.cookers import *
-from new_pipe.preprocessor import Preprocessor
-from sklearn.cluster import DBSCAN
-
 from difflib import SequenceMatcher
 
-from models.utils.preprocessing import telegram_send
+from sklearn.cluster import DBSCAN
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.pipeline import Pipeline
 
+from models.utils.preprocessing import telegram_send
+from new_pipe.code_gens import *
+from new_pipe.cookers import *
 from new_pipe.plot import plot
+from new_pipe.preprocessor import Preprocessor
 
 
 def make_pipe():
     X = pd.read_csv("data/step-12768-submissions.csv", nrows=1000)
     pipeline = Pipeline([("pre", Preprocessor(language="python", method="astize")),
-                         ("bot", BagOfTrees(ngram_range=(2, 3))),
+                         ("bot", BagOfTrees(ngram_range=(1, 2))),
                          ("idf", TfidfTransformer())])
     vecs = pipeline.fit_transform(X["code"]).toarray()
     X = X.iloc[pipeline.named_steps["pre"].correct_ind]
     # clu = MiniBatchKMeans(n_clusters=10)
-    clu = DBSCAN(eps=0.1, min_samples=5, n_jobs=-1)
+    clu = DBSCAN(eps=0.3, min_samples=3, n_jobs=-1)
+    # clu = AffinityPropagation(damping=.95)
     labels = clu.fit_predict(vecs)
 
-    plot(vecs, labels, method="pca", code=X["code"], correct=X["status"] == "correct",
+    plot(vecs, labels,
+         method="pca",
+         code=X["code"],
+         correct=(X["status"] == "correct").astype(int),
+         # scaling="centers",
+         # centres=clu.cluster_centers_,
          title="Submissions of step №12768 clustering")
 
     """

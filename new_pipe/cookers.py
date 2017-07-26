@@ -27,15 +27,16 @@ class BagOfWords(CountVectorizer):
 
 
 class BagOfTrees(BaseEstimator, TransformerMixin):
-    def __init__(self, height=2):
-        self.height = height
+    def __init__(self, ngram_range=(2, 2)):
+        self.ngram_range = ngram_range
 
     def fit(self, X, y=None):
         return self
 
     def transform(self, X):
         n = len(X)
-        X = list(list(x.subtrees(self.height)) for x in X)
+        left_ngr, right_ngr = self.ngram_range
+        X = list(list(chain.from_iterable(x.subtrees(height) for height in range(left_ngr, right_ngr + 1))) for x in X)
         dib = DefaultIntBijection(type2=tuple)
         for subtree in chain.from_iterable(X):
             _ = dib[subtree]

@@ -1,6 +1,6 @@
 from difflib import SequenceMatcher
 
-from sklearn.cluster import DBSCAN
+from sklearn.cluster import MiniBatchKMeans
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.pipeline import Pipeline
 
@@ -9,6 +9,7 @@ from pipe.code_gens import *
 from pipe.cookers import *
 from pipe.plot import plot
 from pipe.preprocessor import Preprocessor
+from pipe.score import score_ratio
 
 """
 def train_vec(node_embedding):
@@ -31,24 +32,37 @@ def do_if_not_exists(path):
 """
 
 
-def make_pipe():
+def do_score():
+    transform = Pipeline([("pre", Preprocessor(language="python", method="astize")),
+                          ("bot", BagOfTrees(ngram_range=(1, 2))),
+                          ("idf", TfidfTransformer())])
+    cluster = MiniBatchKMeans(n_clusters=10)
+    mratio = score_ratio(transform,
+                         cluster=cluster,
+                         method="cluster",
+                         nrows=100)
+    print(mratio)
+
+
+def do_plot():
     X = pd.read_csv("data/step-12768-submissions.csv", nrows=1000)
+    # X = X[X["status"] == "correct"]
     pipeline = Pipeline([("pre", Preprocessor(language="python", method="astize")),
                          ("bot", BagOfTrees(ngram_range=(1, 2))),
                          ("idf", TfidfTransformer())])
     vecs = pipeline.fit_transform(X["code"]).toarray()
-    X = X.iloc[pipeline.named_steps["pre"].correct_ind]
-    # clu = MiniBatchKMeans(n_clusters=10)
-    clu = DBSCAN(eps=0.25, min_samples=2, n_jobs=-1)
+    X = X.iloc[pipeline.named_steps["pre"].icorrect]
+    clu = MiniBatchKMeans(n_clusters=10)
+    # clu = DBSCAN(eps=0.25, min_samples=2, n_jobs=-1)
     # clu = AffinityPropagation(damping=.95)
     labels = clu.fit_predict(vecs)
 
     plot(vecs, labels,
-         method="pca",
+         method="tsne",
          code=X["code"],
          correct=(X["status"] == "correct").astype(int),
-         # scaling="centers",
-         # centres=clu.cluster_centers_,
+         scaling="centers",
+         centres=clu.cluster_centers_,
          title="Submissions of step №12768 clustering")
 
     """
@@ -84,4 +98,5 @@ def make_dataset_with_ratio():
 
 
 if __name__ == '__main__':
-    make_pipe()
+    do_score()
+    # do_plot()

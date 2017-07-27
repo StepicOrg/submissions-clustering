@@ -4,6 +4,7 @@ import plotly.graph_objs as go
 import plotly.offline as py
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+from sklearn.manifold import Isomap, LocallyLinearEmbedding as LLE, MDS, TSNE
 
 
 def matplotlib_to_plotly(cmap, pl_entries, add_black=False):
@@ -17,12 +18,30 @@ def matplotlib_to_plotly(cmap, pl_entries, add_black=False):
     return pl_colorscale
 
 
-def plot(X, Y, *, method="pca", n_dim=2, code=None, correct=None,
+def plot(X, Y, *, method="pca", n_dim=2, code=None, correct=None, n_neighbors=5, eigen_solver="dense",
          scaling=None, centres=None, centroids=None, title=None, path="plots/temp_plot.html"):
     if method == "pca":
         reduced_X = PCA(n_components=n_dim).fit_transform(X)
     elif method == "lda":
         reduced_X = LDA(n_components=n_dim, solver="eigen", shrinkage="auto").fit_transform(X, Y)
+    elif method == "isomap":
+        reduced_X = Isomap(n_neighbors=n_neighbors, n_components=n_dim).fit_transform(X)
+    elif method == "lle":
+        reduced_X = LLE(n_neighbors=n_neighbors, n_components=n_dim,
+                        eigen_solver=eigen_solver).fit_transform(X)
+    elif method == "mlle":
+        reduced_X = LLE(n_neighbors=n_neighbors, n_components=n_dim,
+                        method="modified", eigen_solver=eigen_solver).fit_transform(X)
+    elif method == "heig":
+        reduced_X = LLE(n_neighbors=n_neighbors, n_components=n_dim,
+                        method="hessian", eigen_solver=eigen_solver).fit_transform(X)
+    elif method == "ltsa":
+        reduced_X = LLE(n_neighbors=n_neighbors, n_components=n_dim,
+                        method="ltsa", eigen_solver=eigen_solver).fit_transform(X)
+    elif method == "mds":
+        reduced_X = MDS(n_components=n_dim).fit_transform(X)
+    elif method == "tsne":
+        reduced_X = TSNE(n_components=n_dim).fit_transform(X)
     else:
         raise ValueError("Such method is't supported yet")
 
@@ -33,7 +52,7 @@ def plot(X, Y, *, method="pca", n_dim=2, code=None, correct=None,
         raise ValueError("Such scaling is't supported yet")
     elif scaling == "centers" and centres is not None:
         centroid_p = np.linalg.norm(X - centres[Y], axis=1) ** 2
-        max_d = np.zeros(Y.max() + 1)
+        max_d = np.zeros(Y.max() + 1, dtype=np.float)
         for i, c_p in enumerate(centroid_p):
             max_d[Y[i]] = max(max_d[Y[i]], c_p)
         centroid_p = 1 - centroid_p / max_d[Y]
@@ -60,6 +79,8 @@ def plot(X, Y, *, method="pca", n_dim=2, code=None, correct=None,
             size=15,
             color=correct,
             colorscale=[[0, "#EF233C"], [1, "#20BF55"]],
+            cmin=0,
+            cmax=1,
             opacity=0.8,
             line=dict(
                 width=0

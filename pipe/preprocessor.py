@@ -20,7 +20,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         self.unk_str = unk_str
 
         self.encoding = DefaultIntBijection(zero_value=unk_str if add_unk else None)
-        self.correct_ind = []
+        self.icorrect = []
 
     def fit(self, X, y=None):
         return self
@@ -30,7 +30,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         nX = []
         for i, x in enumerate(X):
             if not self.filter_correct or (self.filter_correct and language.check(x)):
-                self.correct_ind.append(i)
+                self.icorrect.append(i)
                 nX.append(x)
         X = nX
         X = map(language[self.method], X)

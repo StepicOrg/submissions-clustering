@@ -1,6 +1,6 @@
 from difflib import SequenceMatcher
 
-from sklearn.cluster import MiniBatchKMeans
+from sklearn.cluster import MiniBatchKMeans, DBSCAN
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.pipeline import Pipeline
 
@@ -36,26 +36,42 @@ def do_score():
     transform = Pipeline([("pre", Preprocessor(language="python", method="astize")),
                           ("bot", BagOfTrees(ngram_range=(1, 3))),
                           ("idf", TfidfTransformer())])
-    cluster = MiniBatchKMeans(n_clusters=25)
-    mratio = score_ratio(transform,
-                         cluster=cluster,
-                         method="centroid",
-                         nrows=10000)
-    # cluster: 0.0832918921115 06:34
-    # nn: 0.0549278530719 11:09
-    # centroid:
-    print(mratio)
+    cluster = MiniBatchKMeans(n_clusters=20, random_state=322)
+    # cluster = DBSCAN(eps=0.25)
+    mean_ratio, var_ratio = score_ratio(transform,
+                                        cluster=cluster,
+                                        method="nn",
+                                        max_c=200,
+                                        dist_c=1.,
+                                        leaf_size=50,
+                                        nrows=1000)
+    # Фиксируем, что берем первые 10k сэмплов и разбиваем k-means на 20 кластеров, random_state=322:
+    # astize => bot13 => idf
+    # nn: 0.0549278530719 04:25 100/1/50
+    # nn: 0.044127134928 07:38 200/1/50
+    # nn: 0.0792895666744 05:02 200/.4/50
+    # nn: 0.0529916075506 03:44 100/.65/50
+    # nn: 0.0721556336773 01:28 40/.65/50
+    # cluster: 0.0971029847274 02:58 100/1/50
+    # cluster: 0.0826496169388 08:06 300/1/50
+    # cluster: 0.081424651518 08:09 300/2/50
+    # centroid: 0.137870521269 03:19 100/1/50
+    print("mean= {}, var= {}".format(mean_ratio, var_ratio))
 
 
 def do_plot():
     X = pd.read_csv("data/step-12768-submissions.csv", nrows=1000)
     # X = X[X["status"] == "correct"]
-    pipeline = Pipeline([("pre", Preprocessor(language="python", method="astize")),
-                         ("bot", BagOfTrees(ngram_range=(1, 2))),
-                         ("idf", TfidfTransformer())])
+    pipeline1 = Pipeline([("pre", Preprocessor(language="python", method="astize")),
+                          ("bot", BagOfTrees(ngram_range=(1, 2))),
+                          ("idf", TfidfTransformer())])
+    pipeline2 = Pipeline([("pre", Preprocessor(language="python", method="tokenize")),
+                          ("bot", BagOfWords(ngram_range=(1, 3))),
+                          ("idf", TfidfTransformer())])
+    pipeline = pipeline1
     vecs = pipeline.fit_transform(X["code"]).toarray()
     X = X.iloc[pipeline.named_steps["pre"].icorrect]
-    clu = MiniBatchKMeans(n_clusters=10)
+    clu = MiniBatchKMeans(n_clusters=25, random_state=322)
     # clu = DBSCAN(eps=0.25, min_samples=2, n_jobs=-1)
     # clu = AffinityPropagation(damping=.95)
     labels = clu.fit_predict(vecs)

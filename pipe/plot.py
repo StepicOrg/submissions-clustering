@@ -24,7 +24,7 @@ def plot(X, Y, *, method="pca", n_dim=2, code=None, correct=None, n_neighbors=5,
         reduced_X = PCA(n_components=n_dim).fit_transform(X)
     elif method == "lda":
         reduced_X = LDA(n_components=n_dim, solver="eigen", shrinkage="auto").fit_transform(X, Y)
-    elif method == "isomap":
+    elif method == "imap":
         reduced_X = Isomap(n_neighbors=n_neighbors, n_components=n_dim).fit_transform(X)
     elif method == "lle":
         reduced_X = LLE(n_neighbors=n_neighbors, n_components=n_dim,
@@ -41,7 +41,7 @@ def plot(X, Y, *, method="pca", n_dim=2, code=None, correct=None, n_neighbors=5,
     elif method == "mds":
         reduced_X = MDS(n_components=n_dim).fit_transform(X)
     elif method == "tsne":
-        reduced_X = TSNE(n_components=n_dim).fit_transform(X)
+        reduced_X = TSNE(n_components=n_dim, early_exaggeration=1.).fit_transform(X)
     else:
         raise ValueError("Such method is't supported yet")
 

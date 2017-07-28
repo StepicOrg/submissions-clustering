@@ -34,13 +34,16 @@ def do_if_not_exists(path):
 
 def do_score():
     transform = Pipeline([("pre", Preprocessor(language="python", method="astize")),
-                          ("bot", BagOfTrees(ngram_range=(1, 2))),
+                          ("bot", BagOfTrees(ngram_range=(1, 3))),
                           ("idf", TfidfTransformer())])
-    cluster = MiniBatchKMeans(n_clusters=10)
+    cluster = MiniBatchKMeans(n_clusters=25)
     mratio = score_ratio(transform,
                          cluster=cluster,
-                         method="cluster",
-                         nrows=100)
+                         method="centroid",
+                         nrows=10000)
+    # cluster: 0.0832918921115 06:34
+    # nn: 0.0549278530719 11:09
+    # centroid:
     print(mratio)
 
 

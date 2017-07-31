@@ -79,8 +79,8 @@ def score_ratio(transform, *, cluster=None,
             if start_from_center and label != -1:
                 dist, ind = nn.kneighbors(centers[label][np.newaxis, :])
                 dist, ind = dist[0], ind[0]
-                est_codes = map(lambda t: train_codes[t[1]],
-                                takewhile(lambda t: t[0] <= dist_c, zip(dist, ind)))
+                est_codes = list(map(lambda t: train_codes[t[1]],
+                                     takewhile(lambda t: t[0] <= dist_c, zip(dist, ind))))
                 for code in test_codes:
                     est_ratios.append(ratio(code, est_codes))
             else:

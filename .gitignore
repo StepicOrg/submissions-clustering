@@ -3,6 +3,8 @@
 
 # Distribution
 venv/
+build/
+*.egg-info
 
 # Idea
 .idea

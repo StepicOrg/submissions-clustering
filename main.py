@@ -1,6 +1,6 @@
 from difflib import SequenceMatcher
 
-from sklearn.cluster import MiniBatchKMeans, DBSCAN
+from sklearn.cluster import MiniBatchKMeans, DBSCAN, KMeans
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.pipeline import Pipeline
 
@@ -33,18 +33,15 @@ def do_if_not_exists(path):
 
 
 def do_score():
-    transform = Pipeline([("pre", Preprocessor(language="python", method="astize")),
-                          ("bot", BagOfTrees(ngram_range=(1, 3))),
+    transform = Pipeline([("pre", Preprocessor(language="python", method="tokenize")),
+                          ("bot", BagOfWords(ngram_range=(1, 2))),
                           ("idf", TfidfTransformer())])
     cluster = MiniBatchKMeans(n_clusters=20, random_state=322)
     # cluster = DBSCAN(eps=0.25)
-    mean_ratio, var_ratio = score_ratio(transform,
-                                        cluster=cluster,
-                                        method="nn",
-                                        max_c=200,
-                                        dist_c=1.,
-                                        leaf_size=50,
-                                        nrows=1000)
+    mean_ratio, var_ratio = score_ratio(transform, cluster=cluster,
+                                        max_c=200, dist_c=1.5,
+                                        nrows=10000,
+                                        show_dist_plot=True)
     # Фиксируем, что берем первые 10k сэмплов и разбиваем k-means на 20 кластеров, random_state=322:
     # astize => bot13 => idf
     # nn: 0.0549278530719 04:25 100/1/50

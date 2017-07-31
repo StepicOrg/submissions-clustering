@@ -34,25 +34,18 @@ def do_if_not_exists(path):
 
 def do_score():
     transform = Pipeline([("pre", Preprocessor(language="python", method="tokenize")),
-                          ("bot", BagOfWords(ngram_range=(1, 2))),
+                          ("bot", BagOfWords(ngram_range=(2, 3))),
                           ("idf", TfidfTransformer())])
     cluster = MiniBatchKMeans(n_clusters=20, random_state=322)
     # cluster = DBSCAN(eps=0.25)
     mean_ratio, var_ratio = score_ratio(transform, cluster=cluster,
-                                        max_c=200, dist_c=1.5,
-                                        nrows=10000,
+                                        start_from_center=False, inside_cluster=False,
+                                        max_c=300, dist_c=2.,
+                                        nrows=20000,
                                         show_dist_plot=True)
     # Фиксируем, что берем первые 10k сэмплов и разбиваем k-means на 20 кластеров, random_state=322:
-    # astize => bot13 => idf
-    # nn: 0.0549278530719 04:25 100/1/50
-    # nn: 0.044127134928 07:38 200/1/50
-    # nn: 0.0792895666744 05:02 200/.4/50
-    # nn: 0.0529916075506 03:44 100/.65/50
-    # nn: 0.0721556336773 01:28 40/.65/50
-    # cluster: 0.0971029847274 02:58 100/1/50
-    # cluster: 0.0826496169388 08:06 300/1/50
-    # cluster: 0.081424651518 08:09 300/2/50
-    # centroid: 0.137870521269 03:19 100/1/50
+    # tokenize => bow12 => idf
+    # fff mean= 0.03353417738778997, var= 0.002961114989888911, time= 10:06 [300/2./10/30]
     print("mean= {}, var= {}".format(mean_ratio, var_ratio))
 
 
@@ -94,6 +87,13 @@ def do_plot():
     """
 
 
+def do_pipe_test():
+    X = pd.read_csv("data/step-12768-submissions.csv")
+    pipeline = Pipeline([("pre", Preprocessor(language="python", method="astize")),
+                         ("fem", ForNodeEmbedding())])
+    print(pipeline.fit_transform(X["code"]))
+
+
 def make_dataset_with_ratio():
     df = pd.read_csv("data/step-12768-submissions.csv")
     correct_code = df[df.status == "correct"]["code"]
@@ -116,3 +116,4 @@ def make_dataset_with_ratio():
 if __name__ == '__main__':
     do_score()
     # do_plot()
+    # do_pipe_test()

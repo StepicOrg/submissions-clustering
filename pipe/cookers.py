@@ -1,6 +1,8 @@
 from itertools import chain
 
 import numpy as np
+import pandas as pd
+from more_itertools import flatten
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.feature_extraction.text import CountVectorizer
 
@@ -10,6 +12,14 @@ from .primitives import DefaultIntBijection
 def parse(s):
     t = tuple(map(int, s.split()))
     return t[0] if len(t) == 1 else t
+
+
+class ForNodeEmbedding(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        return pd.DataFrame.from_records(flatten(x.flatten(add_children_leaves_num=True) for x in X))
 
 
 class BagOfWords(CountVectorizer):

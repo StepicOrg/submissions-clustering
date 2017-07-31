@@ -1,13 +1,14 @@
 from collections import Iterable
 from difflib import SequenceMatcher
-from itertools import chain
 
 
-def _ratio(s1, s2):
-    return SequenceMatcher(None, s1, s2).ratio()
-
-
-def ratio(s1, s2):
-    if not isinstance(s2, Iterable):
-        s2 = (s2,)
-    return max(chain((_ratio(s1, _s2) for _s2 in s2), (0,)))
+def ratio(ps, ss):
+    if not isinstance(ss, Iterable):
+        ss = (ss,)
+    max_ratio = 0.
+    for s in ss:
+        sm = SequenceMatcher(None, ps, s)
+        if sm.real_quick_ratio() <= max_ratio or sm.quick_ratio() <= max_ratio:
+            continue
+        max_ratio = max(max_ratio, sm.ratio())
+    return max_ratio

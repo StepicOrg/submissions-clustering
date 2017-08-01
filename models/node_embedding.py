@@ -6,13 +6,15 @@ from .utils.preprocessing import *
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
+from sklearn.base import BaseEstimator, TransformerMixin
+
 
 # TODO: 1) data download scripts + data processing scripts
 # TODO: 3) deal with how we gonna train and retrain our emb model, with changing num_codes / max_children_num
 
 # goo.gl/aefJaE
 
-class ParentChildrenEmbedding:
+class ParentChildrenEmbedding(BaseEstimator, TransformerMixin):
     def __init__(self, N_f=32, delta=1, lr=1e-2, momentum=0.9, alpha=1e-1,
                  batch_size=64, epochs=10, codes_num=0, max_children_num=15,
                  N=None, variables_dump=None, draw_cost_plot=True):

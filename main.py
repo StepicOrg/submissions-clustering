@@ -40,8 +40,8 @@ def do_score():
     # cluster = DBSCAN(eps=0.25)
     mean_ratio, var_ratio = score_ratio(transform, cluster=cluster,
                                         start_from_center=False, inside_cluster=False,
-                                        max_c=300, dist_c=2.,
-                                        nrows=20000,
+                                        max_c=500, dist_c=2.,
+                                        nrows=10000,
                                         show_dist_plot=True)
     # Фиксируем, что берем первые 10k сэмплов и разбиваем k-means на 20 кластеров, random_state=322:
     # tokenize => bow12 => idf

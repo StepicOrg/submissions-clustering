@@ -57,17 +57,13 @@ def ratio_heap(ps, ss):
     return max_ratio
 
 
-TRESHOLD = 200
+THRESHOLD = 50
 
 
 def ratio(ps, ss):
     if not isinstance(ss, Iterable):
         ss = (ss,)
-    # ss = set(ss)
-    return ratio_list(ps, ss)
-    """
-    if len(ss) < TRESHOLD:
-        return ratio_list(ps, ss)
-    else:
+    if hasattr(ss, "__len__") and len(ss) >= THRESHOLD:
         return ratio_heap(ps, ss)
-    """
+    else:
+        return ratio_list(ps, ss)

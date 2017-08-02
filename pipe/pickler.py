@@ -3,7 +3,7 @@ import gzip
 import os
 
 
-def exists(path):
+def file_exists(path):
     return os.path.exists(path)
 
 

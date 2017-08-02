@@ -3,7 +3,7 @@ import os
 
 
 def pad_sequences(sequences, max_len=None,
-                  padding='pre', truncating='pre', value=0.):
+                  padding='post', truncating='post', value=0.):
     if not hasattr(sequences, '__len__'):
         raise ValueError('`sequences` must be iterable.')
     lengths = []

@@ -19,7 +19,7 @@ class ForNodeEmbedding(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
-        return pd.DataFrame.from_records(flatten(x.flatten(add_children_leaves_num=True) for x in X))
+        return pd.DataFrame.from_records(chain.from_iterable(x.flatten(add_children_leaves_nums=True) for x in X))
 
 
 class BagOfWords(CountVectorizer):

@@ -5,6 +5,7 @@ from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.pipeline import Pipeline
 
 from models.utils.preprocessing import telegram_send
+from models.node_embedding import ParentChildrenEmbedding
 from pipe.code_gens import *
 from pipe.cookers import *
 from pipe.plot import plot
@@ -30,6 +31,14 @@ def do_if_not_exists(path):
         node_embedding = pipe.terminate(Pickle(path))
     train_vec(node_embedding)
 """
+
+
+def do_test():
+    pipeline = Pipeline([("pre", Preprocessor(language="python", method="astize")),
+                         ("fne", ForNodeEmbedding())])
+    pce = ParentChildrenEmbedding(dump_path="data/model.ckpt")
+    # X = pipeline.fit_transform(single_file("main.py"))
+    # print(pce.fit(X))
 
 
 def do_score():
@@ -114,6 +123,7 @@ def make_dataset_with_ratio():
 
 
 if __name__ == '__main__':
-    do_score()
+    do_test()
+    # do_score()
     # do_plot()
     # do_pipe_test()

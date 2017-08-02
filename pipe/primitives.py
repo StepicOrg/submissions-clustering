@@ -66,12 +66,14 @@ class tree(Collection):
         _mapping = (lambda x: mapping[x]) if hasattr(mapping, "__getitem__") else mapping
         return tree(_mapping(self.value), [child.map(_mapping) for child in self.children])
 
-    def flatten(self, add_leaves=False, add_children_leaves_num=False):
+    def flatten(self, add_leaves=False, add_children_leaves_nums=False):
         if len(self.children) or add_leaves:
             d = {"parent": self.value, "children": [child.value for child in self.children]}
-            if add_children_leaves_num:
-                d["children_leaves_num"] = [child.leaves_num for child in self.children]
-            yield from chain((d,), *(child.flatten(add_leaves, add_children_leaves_num) for child in self.children))
+            if add_children_leaves_nums:
+                d["children_leaves_nums"] = [child.leaves_num for child in self.children]
+            yield from chain((d,), chain.from_iterable(
+                child.flatten(add_leaves, add_children_leaves_nums) for child in self.children
+            ))
 
     def subtree(self, height=2):
         if height:
@@ -82,7 +84,8 @@ class tree(Collection):
 
     def subtrees(self, height=2):
         if self.depth >= height:
-            yield from chain((self.subtree(height),), *(child.subtrees(height) for child in self.children))
+            yield from chain((self.subtree(height),),
+                             chain.from_iterable(child.subtrees(height) for child in self.children))
 
     @property
     def leaves_num(self):

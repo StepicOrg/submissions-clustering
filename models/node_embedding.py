@@ -1,131 +1,192 @@
+from collections import namedtuple
+
 import matplotlib.pyplot as plt
 import tensorflow as tf
+from bunch import Bunch
+from sklearn.base import BaseEstimator, TransformerMixin
 from tqdm import tqdm
+
+from ..pipe.pickler import *
 
 from .utils.preprocessing import *
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-from sklearn.base import BaseEstimator, TransformerMixin
+Input = namedtuple("Input", ["parent", "children", "children_leaves_nums",
+                             "parent_c", "children_c",
+                             "leaves_coefs", "left_coefs", "right_coefs"])
+Theta = namedtuple("Theta", ["W_l", "W_r", "b", "vec"])
+Output = namedtuple("Output", ["cost", "optimizer", "saver"])
+Graph = namedtuple("Graph", ["input", "theta", "output"])
 
 
 # TODO: 1) data download scripts + data processing scripts
 # TODO: 3) deal with how we gonna train and retrain our emb model, with changing num_codes / max_children_num
 
-# goo.gl/aefJaE
-
 class ParentChildrenEmbedding(BaseEstimator, TransformerMixin):
-    def __init__(self, N_f=32, delta=1, lr=1e-2, momentum=0.9, alpha=1e-1,
-                 batch_size=64, epochs=10, codes_num=0, max_children_num=15,
-                 N=None, variables_dump=None, draw_cost_plot=True):
+    def __init__(self, N_f=32, delta=1, alpha=1e-1,
+                 optimizer="momentum", lr=1e-2, momentum=0.9,
+                 batch_size=64, epochs=10, children_num_c=15,
+                 N=None, dump_path=None, draw_cost_plot=False):
         self.N_f = N_f
         self.delta = delta
+        self.alpha = alpha
+        self.optimizer = optimizer
         self.lr = lr
         self.momentum = momentum
-        self.alpha = alpha
         self.batch_size = batch_size
         self.epochs = epochs
-        self.codes_num = codes_num
-        self.max_children_num = max_children_num
+        self.children_num_c = children_num_c
         self.N = N
-        self.variables_dump = variables_dump
+        self.dump_path = dump_path
         self.draw_cost_plot = draw_cost_plot
 
-    def generate_input(self, next_batch):
-        batch_parent = next_batch["parent"].as_matrix()
-        batch_children = pad_sequences(next_batch["children"].as_matrix(),
-                                       max_len=self.max_children_num, padding="post")
+        self.codes_num = None
+        self.children_num = None
+        self.theta = None
+        self.graph = None
 
-        batch_children_num = next_batch["children"].map(len).as_matrix()
-        batch_children_leaves_nums = pad_sequences(next_batch["children_leaves_num"].as_matrix(),
-                                                   max_len=self.max_children_num, padding="post")
+        if self.dump_path:
+            consts_dump = self.dump_path + ".consts"
+            if file_exists(consts_dump):
+                self.codes_num, self.children_num = unpickle(consts_dump)
+            if (self.codes_num, self.children_num) != (None, None):
+                self.graph = self.build_graph()
+                saver = self.graph.output.saver
+                with tf.Session() as sess:
+                    if file_exists(self.dump_path + ".index"):
+                        saver.restore(sess, self.dump_path)
+                    else:
+                        sess.run(tf.global_variables_initializer())
 
-        batch_parent_c = batch_parent.copy()
-        batch_children_c = batch_children.copy()
-        for i in range(len(next_batch)):
-            k = np.random.randint(batch_children_num[i] + 1)
+        if self.dump_path:
+            consts_dump = self.dump_path + ".consts"
+            if file_exists(consts_dump):
+                self.codes_num, self.children_num = unpickle(consts_dump) if file_exists(consts_dump) else None, None
+
+            if file_exists(consts_dump):
+                self.codes_num, self.children_num = unpickle(self.dump_path + ".consts") if file_exists(consts_dump)
+        else:
+            self.codes_num, self.children_num, self.theta = None, None, None
+
+        self.codes_num, self.children_num = unpickle(self.dump_path + ".consts") if self.dump_path else 0, 0
+
+        # _, theta, _ = self.build_graph()
+
+        with tf.Session() as sess:
+            saver = tf.train.Saver()
+            saver = saver.restore(sess, self.dump_path)
+            print(tf.all_variables())
+            # print(theta.b.eval())
+
+        self.theta = None
+
+    def pre_fit(self, X):
+        self.codes_num = max(self.codes_num or 0, max(X["parent"].max(), X["children"].map(max).max()))
+        self.children_num = min(self.children_num_c, max(self.children_num or 0, X["children"].map(len).max()))
+        X = X[X["children"].map(len) <= self.children_num].copy()
+        X["children_num"] = X["children"].map(len)
+        X["children"] = list(pad_sequences(X["children"].as_matrix(), max_len=self.children_num))
+        children_leaves_nums = pad_sequences(X["children_leaves_nums"].as_matrix(), max_len=self.children_num)
+        X["children_leaves_nums"] = list(children_leaves_nums)
+        X["leaves_coefs"] = list((children_leaves_nums / np.sum(children_leaves_nums, axis=1)[:, np.newaxis]))
+        left_coefs, right_coefs = [], []
+        for i, n in enumerate(X["children_num"]):
+            if n == 1:
+                left_coefs.append([0.5])
+                right_coefs.append([0.5])
+            else:
+                left_coefs.append((np.arange(n - 1, -1, -1) / (n - 1)).tolist())
+                right_coefs.append((np.arange(n) / (n - 1)).tolist())
+        X["left_coefs"] = list(pad_sequences(left_coefs, max_len=self.children_num))
+        X["right_coefs"] = list(pad_sequences(right_coefs, max_len=self.children_num))
+        return X
+
+    def generate_input(self, batch):
+        cols = {column: np.squeeze(np.vstack(batch[column].as_matrix())).astype(float) for column in batch.columns}
+        parent_c = cols["parent"].copy()
+        children_c = cols["children"].copy()
+        for i, n in enumerate(cols.pop("children_num")):
+            k = np.random.randint(n + 1)
             new_code = np.random.randint(1, self.codes_num + 1)
             if k:
-                batch_children_c[i, k - 1] = new_code
+                children_c[i, k - 1] = new_code
             else:
-                batch_parent_c[i] = new_code
+                parent_c[i] = new_code
+        cols["parent_c"] = parent_c
+        cols["children_c"] = children_c
+        return Input(**cols)
 
-        batch_leaves_coef = batch_children_leaves_nums / np.sum(batch_children_leaves_nums, axis=1)[:, np.newaxis]
+    def build_graph(self):
+        ph = Input(
+            parent=tf.placeholder(tf.float32, [None]),
+            children=tf.placeholder(tf.float32, [None, self.children_num_c]),
+            children_leaves_nums=tf.placeholder(tf.float32, [None, self.children_num_c]),
+            parent_c=tf.placeholder(tf.float32, [None]),
+            children_c=tf.placeholder(tf.float32, [None, self.children_num_c]),
+            leaves_coefs=tf.placeholder(tf.float32, [None, self.children_num_c]),
+            left_coefs=tf.placeholder(tf.float32, [None, self.children_num_c]),
+            right_coefs=tf.placeholder(tf.float32, [None, self.children_num_c])
+        )
 
-        batch_left_coef, batch_right_coef = [], []
-        for i in range(len(next_batch)):
-            n = batch_children_num[i]
-            if n == 1:
-                batch_left_coef.append([0.5])
-                batch_right_coef.append([0.5])
-            else:
-                batch_left_coef.append((np.arange(n - 1, -1, -1) / (n - 1)).tolist())
-                batch_right_coef.append((np.arange(n) / (n - 1)).tolist())
-        batch_left_coef = pad_sequences(batch_left_coef, max_len=self.max_children_num, padding="post")
-        batch_right_coef = pad_sequences(batch_right_coef, max_len=self.max_children_num, padding="post")
+        tt = Theta(
+            W_l=tf.Variable(tf.random_normal([self.N_f, self.N_f])),
+            W_r=tf.Variable(tf.random_normal([self.N_f, self.N_f])),
+            b=tf.Variable(tf.random_normal([self.N_f])),
+            vec=tf.Variable(tf.random_normal([self.codes_num + 1, self.N_f]))
+        )
 
-        return batch_parent, batch_children, \
-               batch_children_leaves_nums, \
-               batch_parent_c, batch_children_c, \
-               batch_leaves_coef, batch_left_coef, batch_right_coef
-
-    def fit(self, X):
-        self.codes_num = X["children"].map(max).max()
-        self.max_children_num = min(self.max_children_num, X["children"].map(len).max())
-        X = X[X["children"].map(len) <= self.max_children_num]
-
-        parent = tf.placeholder(tf.float32, [None])
-        children = tf.placeholder(tf.float32, [None, self.max_children_num])
-        children_leaves_nums = tf.placeholder(tf.float32, [None, self.max_children_num])
-        parent_c = tf.placeholder(tf.float32, [None])
-        children_c = tf.placeholder(tf.float32, [None, self.max_children_num])
-        leaves_coef = tf.placeholder(tf.float32, [None, self.max_children_num])
-        left_coef = tf.placeholder(tf.float32, [None, self.max_children_num])
-        right_coef = tf.placeholder(tf.float32, [None, self.max_children_num])
-
-        placeholders = parent, children, children_leaves_nums, \
-                       parent_c, children_c, leaves_coef, left_coef, right_coef
-
-        theta = {
-            "W_l": tf.Variable(tf.random_normal([self.N_f, self.N_f])),
-            "W_r": tf.Variable(tf.random_normal([self.N_f, self.N_f])),
-            "b": tf.Variable(tf.random_normal([self.N_f])),
-            "vec": tf.Variable(tf.random_normal([self.codes_num + 1, self.N_f]))
-        }
-
-        batch_size = tf.shape(parent)[0]
-        W = tf.reshape(left_coef, [batch_size, self.max_children_num, 1, 1]) \
-            * tf.tile(tf.reshape(theta["W_l"], [1, 1, self.N_f, self.N_f]), [batch_size, self.max_children_num, 1, 1])
-        W += tf.reshape(right_coef, [batch_size, self.max_children_num, 1, 1]) \
-             * tf.tile(tf.reshape(theta["W_r"], [1, 1, self.N_f, self.N_f]), [batch_size, self.max_children_num, 1, 1])
-        W = tf.reshape(leaves_coef, [batch_size, self.max_children_num, 1, 1]) * W
+        batch_size = tf.shape(ph.parent)[0]
+        W = tf.reshape(ph.left_coefs, [batch_size, self.children_num_c, 1, 1]) \
+            * tf.tile(tf.reshape(tt.W_l, [1, 1, self.N_f, self.N_f]), [batch_size, self.children_num_c, 1, 1])
+        W += tf.reshape(ph.right_coefs, [batch_size, self.children_num_c, 1, 1]) \
+             * tf.tile(tf.reshape(tt.W_r, [1, 1, self.N_f, self.N_f]), [batch_size, self.children_num_c, 1, 1])
+        W = tf.reshape(ph.leaves_coefs, [batch_size, self.children_num_c, 1, 1]) * W
 
         def make_dist_tensor(p, cs):
-            dist = W @ tf.expand_dims(tf.gather(theta["vec"], tf.cast(cs, tf.int32)), -1)
-            dist = tf.tanh(tf.squeeze(tf.reduce_sum(dist, axis=1)) + tf.expand_dims(theta["b"], 0))
-            dist = tf.norm(tf.gather(theta["vec"], tf.cast(p, tf.int32)) - dist, axis=1) ** 2
+            dist = W @ tf.expand_dims(tf.gather(tt.vec, tf.cast(cs, tf.int32)), -1)
+            dist = tf.tanh(tf.squeeze(tf.reduce_sum(dist, axis=1)) + tf.expand_dims(tt.b, 0))
+            dist = tf.norm(tf.gather(tt.vec, tf.cast(p, tf.int32)) - dist, axis=1) ** 2
             return dist
 
-        d = make_dist_tensor(parent, children)
-        d_c = make_dist_tensor(parent_c, children_c)
+        d = make_dist_tensor(ph.parent, ph.children)
+        d_c = make_dist_tensor(ph.parent_c, ph.children_c)
         y = tf.nn.relu(self.delta + d - d_c)
 
         l2_coef = tf.constant(self.alpha / (2 * (self.N_f ** 2)))
-        W_l_norm = tf.norm(theta["W_l"], ord="fro", axis=[0, 1]) ** 2
-        W_r_norm = tf.norm(theta["W_r"], ord="fro", axis=[0, 1]) ** 2
+        W_l_norm = tf.norm(tt.W_l, ord="fro", axis=[0, 1]) ** 2
+        W_r_norm = tf.norm(tt.W_r, ord="fro", axis=[0, 1]) ** 2
         l2_reg = l2_coef * (W_l_norm + W_r_norm)
         cost_wo_reg = 0.5 * tf.reduce_mean(y)
-        cost = cost_wo_reg + l2_reg
+        ct = cost_wo_reg + l2_reg
 
-        # optimizer = tf.train.AdamOptimizer(learning_rate=self.lr).minimize(cost)
-        # optimizer = tf.train.AdadeltaOptimizer().minimize(cost)
-        optimizer = tf.train.MomentumOptimizer(learning_rate=self.lr, momentum=self.momentum).minimize(cost)
+        return ph, tt, ct
+
+    def choose_optimizer(self):
+        if self.optimizer == "momentum":
+            optimizer = tf.train.MomentumOptimizer(learning_rate=self.lr, momentum=self.momentum)
+        elif self.optimizer == "adam":
+            optimizer = tf.train.AdamOptimizer(learning_rate=self.lr)
+        elif self.optimizer == "adadelta":
+            optimizer = tf.train.AdadeltaOptimizer(learning_rate=self.lr)
+        else:
+            raise ValueError("No such optimizer supported yet")
+        return optimizer
+
+    def fit(self, X, y=None):
+
+        X = self.pre_fit(X)
+
+        placeholders, theta, cost = self.build_graph()
+
+        optimizer = self.choose_optimizer().minimize(cost)
 
         saver = tf.train.Saver()
+
         with tf.Session() as sess:
-            if self.variables_dump and os.path.exists(self.variables_dump + ".index"):
-                print("Restoring variables from \"{}\".".format(self.variables_dump))
-                saver.restore(sess, self.variables_dump)
+            if self.dump_path and os.path.exists(self.dump_path + ".index"):
+                print("Restoring variables from \"{}\".".format(self.dump_path))
+                saver.restore(sess, self.dump_path)
             else:
                 print("Initialize variables.")
                 sess.run(tf.global_variables_initializer())
@@ -135,27 +196,23 @@ class ParentChildrenEmbedding(BaseEstimator, TransformerMixin):
             cost_line = []
             for epoch in range(1, self.epochs + 1):
                 avg_cost = 0
-                avg_pure_cost = 0
                 total_batch = N // self.batch_size
                 for batch in tqdm(split_into_batches(X, self.batch_size, max_len=N),
                                   total=total_batch, dynamic_ncols=True):
                     feed_dict = {a: b for a, b in zip(placeholders, self.generate_input(batch))}
-                    _, c, p_c = sess.run([optimizer, cost, cost_wo_reg], feed_dict=feed_dict)
+                    _, c = sess.run([optimizer, cost], feed_dict=feed_dict)
                     avg_cost += c / total_batch
-                    avg_pure_cost += p_c / total_batch
                 cost_line.append(avg_cost)
-                print("epoch= {} cost= {} pure_cost= {}".format(epoch, avg_cost, avg_pure_cost))
-                if self.variables_dump:
-                    if epoch == self.epochs - 1:
-                        print("Dump variables to \"{}\".".format(self.variables_dump))
-                    saver.save(sess, self.variables_dump)
-                telegram_send("cost= {} pure_cost= {}".format(avg_cost, avg_pure_cost))
+                print("epoch= {} cost= {}".format(epoch, avg_cost))
+                if self.dump_path and epoch == self.epochs:
+                    if epoch == self.epochs:
+                        print("Dump variables to \"{}\".".format(self.dump_path))
+                    saver.save(sess, self.dump_path)
             print("Optimization finished.")
-            telegram_send("Optimization finished.")
 
             if self.draw_cost_plot:
                 plt.plot(cost_line)
                 plt.savefig("data/node_emb_error_plot.png")
                 plt.show()
 
-            return theta["vec"].eval()
+            return theta.vec.eval()

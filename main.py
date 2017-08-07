@@ -122,8 +122,56 @@ def make_dataset_with_ratio():
     df.to_csv("data/step-12768-submissions-with-ratio.csv")
 
 
+from amorph.tokens.patch import get_tokens
+
+
+def token_metric(src1, src2):
+    return SequenceMatcher(None, get_tokens(src1), get_tokens(src2)).ratio()
+
+
+def do_token_ratio():
+    df = pd.read_csv("data/step-12768-submissions.csv")
+    pipeline = Pipeline([("pre", Preprocessor(language="python", method="astize"))])
+    pipeline.fit_transform(df.code.values)
+
+    old_df = df
+    lc = pipeline.named_steps["pre"].icorrect
+    df = df.iloc[pipeline.named_steps["pre"].icorrect]
+
+    df["code"] = list(map(get_tokens, df.code))
+    c_code = df[df.status == "correct"]["code"]
+
+    best_ratio, best_ind = [], []
+    for ind, tkns, status in zip(df.index, df.code, df.status):
+        if ind % 100 == 0:
+            print(ind)
+            telegram_send("step= {}".format(ind))
+
+        if status == "correct":
+            _best_ratio = 1.
+            _best_ind = ind
+        else:
+            _best_ratio = -1
+            _best_ind = None
+            for c_ind, c_tkns in zip(c_code.index, c_code):
+                mtr = SequenceMatcher(None, tkns, c_tkns).ratio()
+                if mtr > _best_ratio:
+                    _best_ratio = mtr
+                    _best_ind = c_ind
+
+        best_ratio.append(_best_ratio)
+        best_ind.append(_best_ind)
+
+    old_df["best_ratio"] = .0
+    old_df["best_ind"] = 0
+    old_df.loc[lc, "best_ratio"] = best_ratio
+    old_df.loc[lc, "best_ind"] = best_ind
+    old_df.to_csv("data/step-12768-submissions-tokens-ratio.csv")
+
+
 if __name__ == '__main__':
-    do_test()
+    do_token_ratio()
+    # do_test()
     # do_score()
     # do_plot()
     # do_pipe_test()

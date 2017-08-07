@@ -7,7 +7,12 @@
 
 ## Usage
 
-**TODO**
+
+```python
+ss = SubmissionsSimilarity()
+ss.fit(pd.read_csv("...")["code"])
+ss.neibours("...")
+```
 
 
 ## Test

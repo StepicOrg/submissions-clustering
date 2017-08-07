@@ -59,6 +59,24 @@ def tokenize(code):
     return result
 
 
+from asttokens import ASTTokens
+
+IGNORED_ASTTOKENS = {_token.ENDMARKER, _token.NEWLINE, _token.DEDENT, _token.ERRORTOKEN,
+                     _tokenize.COMMENT, _tokenize.NL, _tokenize.ENCODING}
+
+
+def not_junk(token):
+    return token.type not in IGNORED_ASTTOKENS
+
+
+def tok_to_str(token):
+    return str((token.type, token.string))
+
+
+def asttokenize(code):
+    return list(map(tok_to_str, filter(not_junk, ASTTokens(code).tokens)))
+
+
 def grammarize(code):
     return grammar2tree(parser.suite(code).tolist())
 
@@ -70,6 +88,7 @@ def astize(code):
 python = Bunch({
     "check": check,
     "tokenize": tokenize,
+    "asttokenize": asttokenize,
     "grammarize": grammarize,
     "astize": astize
 })

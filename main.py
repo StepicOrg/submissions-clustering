@@ -1,16 +1,16 @@
 from difflib import SequenceMatcher
 
-from sklearn.cluster import MiniBatchKMeans, DBSCAN, KMeans
+from sklearn.cluster import MiniBatchKMeans
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.pipeline import Pipeline
 
-from models.utils.preprocessing import telegram_send
-from models.node_embedding import ParentChildrenEmbedding
 from pipe.code_gens import *
 from pipe.cookers import *
+from pipe.node_embedding import NodeEmbedding
 from pipe.plot import plot
 from pipe.preprocessor import Preprocessor
 from pipe.score import score_ratio
+from pipe.utils.preprocessing import telegram_send
 
 """
 def train_vec(node_embedding):
@@ -34,11 +34,11 @@ def do_if_not_exists(path):
 
 
 def do_test():
-    pipeline = Pipeline([("pre", Preprocessor(language="python", method="astize")),
-                         ("fne", ForNodeEmbedding())])
-    pce = ParentChildrenEmbedding(dump_path="data/model.ckpt")
-    # X = pipeline.fit_transform(single_file("main.py"))
-    # print(pce.fit(X))
+    pipeline = Pipeline([("pre", Preprocessor(language="python", method="astize"))])
+    ne = NodeEmbedding(dump_path="data/model.ckpt")
+    print(ne.theta.vec)
+    X = pipeline.fit_transform(single_file("main.py"))
+    print(ne.transform(X))
 
 
 def do_score():

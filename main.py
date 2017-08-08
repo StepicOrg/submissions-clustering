@@ -169,8 +169,20 @@ def do_token_ratio():
     old_df.to_csv("data/step-12768-submissions-tokens-ratio.csv")
 
 
+from pipe.ss import *
+
+
+def do_test_ss():
+    method = Method.from_predefined("python", "diff")
+    ss = SubmissionsSimilarity(method=method)
+    df = pd.read_csv("data/step-12768-submissions.csv", nrows=1000)
+    ss.fit(r for _, r in df.iterrows())
+    # print(ss.submissions)
+
+
 if __name__ == '__main__':
-    do_token_ratio()
+    do_test_ss()
+    # do_token_ratio()
     # do_test()
     # do_score()
     # do_plot()

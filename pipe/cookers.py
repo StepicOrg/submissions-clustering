@@ -1,31 +1,25 @@
 from itertools import chain
 
 import numpy as np
+from more_itertools import flatten, windowed
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.feature_extraction.text import CountVectorizer
 
 from .primitives import DefaultIntBijection
 
 
-def parse(s):
-    t = tuple(map(int, s.split()))
-    return t[0] if len(t) == 1 else t
+class BagOfNgrams(CountVectorizer):
+    def build_analyzer(self):
+        left_bound, right_bound = self.ngram_range
+
+        def analyzer(x):
+            n = len(x)
+            return flatten(windowed(x, i) for i in range(left_bound, min(n, right_bound) + 1))
+
+        return analyzer
 
 
-class BagOfWords(CountVectorizer):
-    def __init__(self, *args, **kwargs):
-        kwargs["token_pattern"] = "[0-9]+"
-        super().__init__(*args, **kwargs)
-
-    # noinspection PyAttributeOutsideInit
-    def fit_transform(self, X, y=None):
-        X = list(map(lambda x: " ".join(str(i) for i in x), X))
-        result = super().fit_transform(X, y)
-        self.vocabulary_ = {parse(k): v for k, v in self.vocabulary_.items()}
-        self.stop_words_ = set(map(parse, self.stop_words_))
-        return result
-
-
+# TODO: same as above
 class BagOfTrees(BaseEstimator, TransformerMixin):
     def __init__(self, ngram_range=(2, 2)):
         self.ngram_range = ngram_range

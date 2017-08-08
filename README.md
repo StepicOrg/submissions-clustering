@@ -9,6 +9,7 @@
 
 
 ```python
+method = Method.predefined(language="python", method="diff")
 ss = SubmissionsSimilarity()
 ss.fit(pd.read_csv("...")["code"])
 ss.neibours("...")

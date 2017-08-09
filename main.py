@@ -1,15 +1,13 @@
 from difflib import SequenceMatcher
 
-from sklearn.cluster import MiniBatchKMeans
-from sklearn.feature_extraction.text import TfidfTransformer
+import numpy as np
 from sklearn.pipeline import Pipeline
 
 from pipe.code_gens import *
-from pipe.cookers import *
 from pipe.node_embedding import NodeEmbedding
 from pipe.plot import plot
-from pipe.preprocessor import Preprocessor
 from pipe.score import score_ratio
+from pipe.seekers import Seeker
 from pipe.utils.preprocessing import telegram_send
 
 """
@@ -169,9 +167,6 @@ def do_token_ratio():
     old_df.to_csv("data/step-12768-submissions-tokens-ratio.csv")
 
 
-from pipe.ss import *
-
-
 def do_test_ss():
     method = Method.from_predefined("python", "diff")
     ss = SubmissionsSimilarity(method=method)
@@ -180,8 +175,16 @@ def do_test_ss():
     # print(ss.submissions)
 
 
+def do_test_seeker():
+    s = Seeker.from_predefined("nn")
+    s.set_params(insider_cluster=True, start_from_center=True, only_centroids=True)
+    s.fit(np.array([[1, 2, 3], [1, 2, 5.1]]))
+    print(s.neighbors(np.array([[1, 2, 4]])))
+
+
 if __name__ == '__main__':
-    do_test_ss()
+    do_test_seeker()
+    # do_test_ss()
     # do_token_ratio()
     # do_test()
     # do_score()

@@ -6,7 +6,7 @@ import tensorflow as tf
 from sklearn.base import BaseEstimator, TransformerMixin
 from tqdm import tqdm
 
-from .pickler import *
+from pipe.utils.pickler import *
 from .utils.preprocessing import *
 
 Input = namedtuple("Input", ["parent", "children", "children_leaves_nums",

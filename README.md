@@ -9,10 +9,18 @@
 
 
 ```python
-method = Method.predefined(language="python", method="diff")
-ss = SubmissionsSimilarity()
+method = Method.from_predefined("python", "diff")
+ss = SubmissionsSimilarity(method=method)
 ss.fit(pd.read_csv("...")["code"])
-ss.neibours("...")
+ss.neighbors("...")
+```
+
+Stages:
+
+```python
+# 1: Preprocessor
+# 2: Vectorizer
+# 3: Clusterizer
 ```
 
 

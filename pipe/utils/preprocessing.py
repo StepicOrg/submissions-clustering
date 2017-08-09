@@ -58,3 +58,14 @@ def split_into_batches(df, batch_size, max_len=None):
 
 def telegram_send(msg, path_to_cli="~/tg/bin/telegram-cli", user="Stanislav_Belyaev"):
     os.system("{} -W -e \"msg {} {}\" >/dev/null".format(path_to_cli, user, msg))
+
+
+def find_centers(X, y):
+    c = []
+    for label in range(y.max() + 1):
+        c.append(X[y == label].mean(axis=0).tolist())
+    return np.array(c)
+
+
+def file_exists(path):
+    return os.path.exists(path)

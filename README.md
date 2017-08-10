@@ -2,7 +2,7 @@
 
 ## Installation
 
-`pip install -r requirements.txt`
+`pip install git+https://github.com/StepicOrg/submissions-clustering.git`
 
 
 ## Usage

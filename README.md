@@ -9,10 +9,13 @@
 
 
 ```python
-method = Method.from_predefined("python", "diff")
-ss = SubmissionsSimilarity(method=method)
-ss.fit(pd.read_csv("...")["code"])
-ss.neighbors("...")
+>>> from sc.sc import SubmissionsClustering
+>>> from sc.utils import from_csv
+
+>>> sc = SubmissionsClustering.from_str("python", "diff")
+>>> codes, statuses = from_csv("data/step-12768-submissions.csv", nrows=1000)
+>>> print(len(sc.fit_neighbors(codes, statuses)[0]))
+200
 ```
 
 Stages:
@@ -21,8 +24,8 @@ Stages:
 # 1: Preprocessor
 # 2: Vectorizer
 # 3: Clusterizer
+# 4: Seeker
 ```
-
 
 ## Test
 

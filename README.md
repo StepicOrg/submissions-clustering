@@ -1,14 +1,31 @@
 # submissions-clustering
 
-## Instalation
+## Installation
 
-`pip install -r requirements.txt`
+`pip install git+https://github.com/StepicOrg/submissions-clustering.git`
 
 
 ## Usage
 
-**TODO**
 
+```python
+>>> from sc.sc import SubmissionsClustering
+>>> from sc.utils import from_csv
+
+>>> sc = SubmissionsClustering.from_str("python", "diff")
+>>> codes, statuses = from_csv("data/step-12768-submissions.csv", nrows=1000)
+>>> print(len(sc.fit_neighbors(codes, statuses)[0]))
+200
+```
+
+Stages:
+
+```python
+# 1: Preprocessor
+# 2: Vectorizer
+# 3: Clusterizer
+# 4: Seeker
+```
 
 ## Test
 

@@ -1,35 +1,26 @@
 import ast
 import parser
-import symbol as _symbol
+import symbol
 import token as _token
 import tokenize as _tokenize
 from io import BytesIO
 from keyword import iskeyword
 
-from bunch import Bunch
+from asttokens import ASTTokens
 
-from ..primitives import Tree
+from sc.primitives import Tree
+from .language import Language
+
+__all__ = ["Python"]
 
 
 def code2ast(code):
     return ast.parse(code)
 
 
-# import sys
-# sys.setrecursionlimit(10 * sys.getrecursionlimit())
-
-
-class SimpleVisitor(ast.NodeVisitor):
-    def generic_visit(self, node):
-        return Tree(node.__class__.__name__, map(self.visit, ast.iter_child_nodes(node)))
-
-
-IGNORED_TOKENS = {_tokenize.COMMENT, _tokenize.NL, _tokenize.ENCODING, _tokenize.ERRORTOKEN}
-TOKEN_MAP = {**_symbol.sym_name, **_token.tok_name}
-
-
-def grammar2tree(node):
-    return Tree(TOKEN_MAP[node[0]], map(grammar2tree, filter(lambda x: isinstance(x, list), node[1:])))
+IGNORED_TOKENS = {_token.ENDMARKER, _token.NEWLINE, _token.DEDENT, _token.ERRORTOKEN,
+                  _tokenize.COMMENT, _tokenize.NL, _tokenize.ENCODING}
+TOKEN_MAP = {**symbol.sym_name, **_token.tok_name}
 
 
 def check(code):
@@ -59,14 +50,8 @@ def tokenize(code):
     return result
 
 
-from asttokens import ASTTokens
-
-IGNORED_ASTTOKENS = {_token.ENDMARKER, _token.NEWLINE, _token.DEDENT, _token.ERRORTOKEN,
-                     _tokenize.COMMENT, _tokenize.NL, _tokenize.ENCODING}
-
-
 def not_junk(token):
-    return token.type not in IGNORED_ASTTOKENS
+    return token.type not in IGNORED_TOKENS
 
 
 def tok_to_str(token):
@@ -77,18 +62,26 @@ def asttokenize(code):
     return list(map(tok_to_str, filter(not_junk, ASTTokens(code).tokens)))
 
 
+class SimpleVisitor(ast.NodeVisitor):
+    def generic_visit(self, node):
+        return Tree(node.__class__.__name__, map(self.visit, ast.iter_child_nodes(node)))
+
+
+SIMPLE_VISITOR = SimpleVisitor()
+
+
+def astize(code):
+    return SIMPLE_VISITOR.visit(code2ast(code))
+
+
+def grammar2tree(node):
+    return Tree(TOKEN_MAP[node[0]], map(grammar2tree, filter(lambda x: isinstance(x, list), node[1:])))
+
+
 def grammarize(code):
     return grammar2tree(parser.suite(code).tolist())
 
 
-def astize(code):
-    return SimpleVisitor().visit(code2ast(code))
-
-
-python = Bunch({
-    "check": check,
-    "tokenize": tokenize,
-    "asttokenize": asttokenize,
-    "grammarize": grammarize,
-    "astize": astize
-})
+class Python(Language):
+    def __init__(self):
+        super().__init__(check, tokenize, asttokenize, astize, grammarize)

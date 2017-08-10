@@ -6,8 +6,8 @@ import tensorflow as tf
 from sklearn.base import BaseEstimator, TransformerMixin
 from tqdm import tqdm
 
-from pipe.utils.pickler import *
-from .utils.preprocessing import *
+from sc.utils.pickler import *
+from .utils.cookers import *
 
 Input = namedtuple("Input", ["parent", "children", "children_leaves_nums",
                              "parent_c", "children_c",

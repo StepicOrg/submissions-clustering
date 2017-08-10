@@ -2,11 +2,12 @@ import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator
 
-from .cookers import KADNearestNeighbors
-from .utils.preprocessing import find_centers
+from .kad_nn import KADNearestNeighbors
+
+__all__ = ["NNSeeker"]
 
 
-class Seeker(BaseEstimator):
+class NNSeeker(BaseEstimator):
     def __init__(self, *, insider_cluster=False, start_from_center=False, only_centroids=False,
                  max_c=200, dist_c=1., cmax_c=20, cdist_c=.1,
                  leaf_size=30, parralel=False):
@@ -23,24 +24,13 @@ class Seeker(BaseEstimator):
         self._c = None
         self._nns = None
 
-    @staticmethod
-    def from_predefined(seeker):
-        if seeker == "nn":
-            return Seeker()
-        else:
-            raise ValueError("No such seeker supported yet")
-
     @property
     def _n_jobs(self):
         return -1 if self.parralel else 1
 
-    def fit(self, X, y=None, c=None):
-        if y is None:
-            y = -np.ones(X.shape[0], dtype=int)
+    def fit(self, X, y, c, i=None):
         y = pd.Series.from_array(y)
-
-        if c is None:
-            c = find_centers(X, y)
+        i = i if i is not None else np.arange(X.shape[0])
 
         if self.only_centroids:
             new_y_list = [y[y == -1]]
@@ -51,8 +41,8 @@ class Seeker(BaseEstimator):
                                              radius=self.cdist_c,
                                              leaf_size=self.leaf_size,
                                              n_jobs=self._n_jobs)
-                    i = y[train].index.values
-                    nn.fit(X[i], i)
+                    ii = y[train].index.values
+                    nn.fit(X[ii], i[ii])
                     ind = nn.neighbors(c[label][np.newaxis, :])
                     new_y_list.append(y.iloc[ind[0]])
             y = pd.concat(new_y_list)
@@ -68,17 +58,14 @@ class Seeker(BaseEstimator):
                                              radius=self.dist_c,
                                              leaf_size=self.leaf_size,
                                              n_jobs=self._n_jobs)
-                    i = y[train].index.values
-                    nn.fit(X[i], i)
+                    ii = y[train].index.values
+                    nn.fit(X[ii], i[ii])
                     nns[label] = nn
 
         self._c = c
         self._nns = nns
 
-    def neighbors(self, X, y=None):
-        if y is None:
-            y = -np.ones(X.shape[0], dtype=int)
-
+    def neighbors(self, X, y):
         ans = [[]] * X.shape[0]
 
         for label in np.unique(y):

@@ -2,9 +2,11 @@ import os
 
 import pandas as pd
 
+__all__ = ["from_csv", "walk", "single_file"]
 
-def from_csv(path, column="code", nrows=None, memory_map=False):
-    yield from pd.read_csv(path, usecols=[column], squeeze=True, nrows=nrows, memory_map=memory_map)
+
+def from_csv(path, columns=("code",), nrows=None, memory_map=False):
+    yield from pd.read_csv(path, usecols=columns, nrows=nrows, memory_map=memory_map)[columns].itertuples(index=False)
 
 
 def walk(path, ext, ignore_hidden=True, hidden_prefix_char=frozenset({'.', '_'})):

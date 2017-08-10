@@ -1,7 +1,8 @@
 import heapq as hp
-from collections import Iterable
-from collections import namedtuple
+from collections import Iterable, namedtuple
 from difflib import SequenceMatcher
+
+__all__ = ["ratio"]
 
 
 def ratio_list(ps, ss):

@@ -1,10 +1,10 @@
-from abc import ABC
-from collections import Mapping
+from collections import Mapping, Hashable
 
 __all__ = ["DefaultIntBijection"]
 
 
-class Bijection(ABC, Mapping):
+# TODO: review once more time
+class Bijection(Mapping):
     def __init__(self, type1=int, type2=str):
         assert not issubclass(type1, type2) and not issubclass(type2, type1)
         assert issubclass(type1, Hashable) and issubclass(type2, Hashable)

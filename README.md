@@ -4,9 +4,7 @@
 
 `pip install git+https://github.com/StepicOrg/submissions-clustering.git`
 
-
 ## Usage
-
 
 ```python
 >>> from sc.sc import SubmissionsClustering
@@ -25,6 +23,15 @@ Stages:
 # 2: Vectorizer
 # 3: Clusterizer
 # 4: Seeker
+```
+
+### Visualization
+
+```python
+>>> from sc.plotters import PlotlyPlotter
+
+>>> plotter = PlotlyPlotter()
+>>> sc.plot_with(plotter)
 ```
 
 ## Test

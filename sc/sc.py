@@ -3,6 +3,7 @@ from itertools import repeat
 import pandas as pd
 
 from sc.pipe import *
+from sc.plotters import *
 from sc.utils import find_centers
 
 
@@ -20,7 +21,8 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin):
         if language == "python" and approach == "diff":
             return SubmissionsClustering(
                 preprocessor=SimplePreprocessor(
-                    language="python", method="tokenize"
+                    language="python",
+                    method="tokenize"
                 ),
                 vectorizer=make_pipeline(
                     BagOfNgrams(ngram_range=(1, 2)),
@@ -49,8 +51,9 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin):
 
         :param codes: code samples
         :type codes: list[str]
-        :param statuses: submissions status of samples, either "correct" either something else
+        :param statuses: submissions status of samples, either "correct" or something else
         :type statuses: None | list[str]
+
         :return: self
         :rtype: SubmissionsClustering
         """
@@ -70,6 +73,7 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin):
         :type codes: list[str]
         :param statuses: submissions status of samples, either "correct" either something else
         :type statuses: None | list[str]
+
         :return: self
         :rtype: SubmissionsClustering
         """
@@ -97,3 +101,6 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin):
         y = self.clusterizer.predict(X)
         I = self.seeker.neighbors(X, y)
         return self._gather_neighbors(len(codes), ci, I)
+
+    def plot_with(self, plotter):
+        pass

@@ -45,6 +45,15 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin):
         self._submissions.drop(self._submissions.index, inplace=True)
 
     def fit(self, codes, statuses=None):
+        """Fit model with past submissions plus new codes and statuses.
+
+        :param codes: code samples
+        :type codes: list[str]
+        :param statuses: submissions status of samples, either "correct" either something else
+        :type statuses: None | list[str]
+        :return: self
+        :rtype: SubmissionsClustering
+        """
         self._add_submissions(codes, statuses)
         data = self._submissions
         ci, s = self.preprocessor.fit_sanitize(data["code"].tolist())
@@ -55,6 +64,15 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin):
         return self
 
     def refit(self, codes, statuses=None):
+        """Same as .fit, just deleting previosly submissions.
+
+        :param codes: code samples
+        :type codes: list[str]
+        :param statuses: submissions status of samples, either "correct" either something else
+        :type statuses: None | list[str]
+        :return: self
+        :rtype: SubmissionsClustering
+        """
         self._del_submissions()
         return self.fit(codes, statuses)
 

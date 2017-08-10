@@ -3,8 +3,10 @@ from itertools import takewhile
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
 
+from sc.pipe.base import NeighborsMixin
 
-class KADNearestNeighbors(NearestNeighbors):
+
+class KADNearestNeighbors(NearestNeighbors, NeighborsMixin):
     def __init__(self, n_neighbors=5, radius=1.0,
                  algorithm='auto', leaf_size=30, metric='minkowski',
                  p=2, metric_params=None, n_jobs=1, **kwargs):

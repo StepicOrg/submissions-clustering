@@ -1,10 +1,12 @@
+from itertools import repeat
+
 import pandas as pd
 
 from sc.pipe import *
 from sc.utils import find_centers
 
 
-class SubmissionsClustering(BaseEstimator):
+class SubmissionsClustering(BaseEstimator, NeighborsMixin):
     def __init__(self, preprocessor, vectorizer, clusterizer, seeker):
         self.preprocessor = preprocessor
         self.vectorizer = vectorizer
@@ -31,21 +33,9 @@ class SubmissionsClustering(BaseEstimator):
         else:
             raise ValueError("No such language and approach supported yet")
 
-    @staticmethod
-    def norm_submission(submission):
-        if isinstance(submission, tuple) and len(submission) == 2:
-            return submission
-        elif isinstance(submission, str):
-            return submission, "correct"
-        else:
-            try:
-                return str(submission), "correct"
-            except Exception as e:
-                raise ValueError("Wrong submission form") from e
-
-    def _add_submissions(self, submissions):
+    def _add_submissions(self, codes, statuses):
+        submissions = zip(codes, statuses or repeat("correct"))
         self._submissions = pd.DataFrame(columns=["code", "status"]) if self._submissions is None else self._submissions
-        submissions = (self.norm_submission(submission) for submission in submissions)
         self._submissions = self._submissions.append(
             pd.DataFrame.from_records(submissions, columns=list(self._submissions.columns)),
             ignore_index=True
@@ -54,18 +44,19 @@ class SubmissionsClustering(BaseEstimator):
     def _del_submissions(self):
         self._submissions.drop(self._submissions.index, inplace=True)
 
-    def fit(self, submissions):
-        self._add_submissions(submissions)
+    def fit(self, codes, statuses=None):
+        self._add_submissions(codes, statuses)
         data = self._submissions
         ci, s = self.preprocessor.fit_sanitize(data["code"].tolist())
         X = self.vectorizer.fit_transform(s)
         y = self.clusterizer.fit_predict(X)
         mask = data.loc[ci].status == "correct"
         self.seeker.fit(X[mask], y[mask], find_centers(X, y), ci[mask])
+        return self
 
-    def refit(self, submissions):
+    def refit(self, codes, statuses=None):
         self._del_submissions()
-        self.fit(submissions)
+        return self.fit(codes, statuses)
 
     def _gather_neighbors(self, n, ci, nci):
         codes = self._submissions.code.values

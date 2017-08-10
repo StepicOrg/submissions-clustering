@@ -2,12 +2,13 @@ import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator
 
+from sc.pipe.base import NeighborsMixin
 from .kad_nn import KADNearestNeighbors
 
 __all__ = ["NNSeeker"]
 
 
-class NNSeeker(BaseEstimator):
+class NNSeeker(BaseEstimator, NeighborsMixin):
     def __init__(self, *, insider_cluster=False, start_from_center=False, only_centroids=False,
                  max_c=200, dist_c=1., cmax_c=20, cdist_c=.1,
                  leaf_size=30, parralel=False):
@@ -64,6 +65,7 @@ class NNSeeker(BaseEstimator):
 
         self._c = c
         self._nns = nns
+        return self
 
     def neighbors(self, X, y):
         ans = [[]] * X.shape[0]

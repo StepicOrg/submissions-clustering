@@ -1,3 +1,9 @@
+# Emacs
+*~
+
+# Cache
+*__pycache__*
+
 # Distribution
 venv/
 build/

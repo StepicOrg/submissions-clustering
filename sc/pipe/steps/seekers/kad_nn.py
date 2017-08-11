@@ -3,7 +3,7 @@ from itertools import takewhile
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
 
-from sc.pipe.base import NeighborsMixin
+from sc.pipe.bases import NeighborsMixin
 
 
 class KADNearestNeighbors(NearestNeighbors, NeighborsMixin):

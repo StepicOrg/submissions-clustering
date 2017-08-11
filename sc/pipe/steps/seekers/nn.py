@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator
 
-from sc.pipe.base import NeighborsMixin
+from sc.pipe.bases import NeighborsMixin
 from .kad_nn import KADNearestNeighbors
 
 __all__ = ["NNSeeker"]

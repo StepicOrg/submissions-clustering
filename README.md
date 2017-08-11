@@ -6,6 +6,8 @@
 
 ## Usage
 
+### Example
+
 ```python
 >>> from sc.sc import SubmissionsClustering
 >>> from sc.utils import from_csv
@@ -16,7 +18,7 @@
 200
 ```
 
-Stages:
+### Steps
 
 ```python
 # 1: Preprocessor

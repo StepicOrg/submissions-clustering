@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.base import BaseEstimator
 
 from sc.languages import Language
-from sc.pipe.base import SanitizerMixin
+from sc.pipe.bases import SanitizerMixin
 from sc.primitives import Tree, DefaultIntBijection
 
 __all__ = ["SimplePreprocessor"]

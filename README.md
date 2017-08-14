@@ -4,9 +4,9 @@
 
 `pip install git+https://github.com/StepicOrg/submissions-clustering.git`
 
-
 ## Usage
 
+### Example
 
 ```python
 >>> from sc.sc import SubmissionsClustering
@@ -18,13 +18,24 @@
 200
 ```
 
-Stages:
+### Steps
 
 ```python
 # 1: Preprocessor
 # 2: Vectorizer
 # 3: Clusterizer
 # 4: Seeker
+```
+
+### Visualization
+
+```python
+>>> sc = SubmissionsClustering.from_str("python", "diff")
+>>> codes, statuses = utils.from_csv("data/step-12768-submissions.csv", nrows=1000)
+>>> sc.fit(codes, statuses)
+
+>>> plotter = plotters.from_spec("plotly")
+>>> sc.plot_with(plotter, title="Test plotting", path="plots/temp_plot.html")
 ```
 
 ## Test

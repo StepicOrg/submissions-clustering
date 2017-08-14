@@ -1,11 +1,11 @@
 from difflib import SequenceMatcher
 
 import numpy as np
+from sc.plot import plot
 from sklearn.pipeline import Pipeline
 
 from sc.node_embedding import NodeEmbedding
-from sc.pipe.seekers import Seeker
-from sc.plot import plot
+from sc.pipe.steps.seekers import Seeker
 from sc.score import score_ratio
 from sc.utils.code import *
 from sc.utils.cookers import telegram_send

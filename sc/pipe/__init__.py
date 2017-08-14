@@ -1,7 +1,5 @@
-from .base import *
-from .clusterizers import *
-from .preprocessors import *
-from .seekers import *
-from .vectorizers import *
+from .bases import *
+from .commons import *
+from .steps import *
 
-__all__ = base.__all__ + clusterizers.__all__ + preprocessors.__all__ + seekers.__all__ + vectorizers.__all__
+__all__ = bases.__all__ + commons.__all__ + steps.__all__

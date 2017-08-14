@@ -1,4 +1,7 @@
-# Byte-compiled
+# Emacs
+*~
+
+# Cache
 *__pycache__*
 
 # Distribution

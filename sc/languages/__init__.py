@@ -1,6 +1,6 @@
 from .python import *
 
-__all__ = ["from_spec"] + python.__all__
+__all__ = python.__all__
 
 VALID_NAMES = "python",
 

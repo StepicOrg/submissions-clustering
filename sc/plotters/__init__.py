@@ -1,7 +1,7 @@
 from sc.pipe.commons import reducers
 from .plotly import *
 
-__all__ = ["from_spec"] + plotly.__all__
+__all__ = plotly.__all__
 
 VALID_NAMES = "plotly2d",
 

@@ -1,7 +1,7 @@
 from sklearn.decomposition import PCA, TruncatedSVD
 from sklearn.manifold import TSNE
 
-__all__ = ["from_spec", "PCA", "TruncatedSVD", "TSNE"]
+__all__ = ["PCA", "TruncatedSVD", "TSNE"]
 
 VALID_NAMES = "pca", "lsa", "lsi", "tsne"
 

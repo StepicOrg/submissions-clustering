@@ -1,13 +1,9 @@
-from sc import plotters
-from sc import utils
-from sc.sc import SubmissionsClustering
-from sc.pipe.commons import reducers
-from sc import languages
-
-
 def test():
-    language = languages.from_spec("python")
-    print(language.check("a=3"))
+    def f():
+        pass
+
+    a = BunchOfMethods(f)
+    print("kek" in a)
 
 
 def plot():

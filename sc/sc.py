@@ -2,12 +2,10 @@ from itertools import repeat
 
 import pandas as pd
 
-from sc.pipe import *
-from sc.plotters import *
-from sc.utils import find_centers
+from sc import utils
+from sc.pipe.bases import BaseEstimator, NeighborsMixin
 
-from sklearn.preprocessing import Normalizer
-from sklearn.cluster import AffinityPropagation, DBSCAN
+__all__ = ["SubmissionsClustering"]
 
 
 class SubmissionsClustering(BaseEstimator, NeighborsMixin):
@@ -19,27 +17,7 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin):
 
         self.__submissions = None
 
-    @staticmethod
-    def from_str(language, approach):
-        if language == "python" and approach == "diff":
-            return SubmissionsClustering(
-                preprocessor=SimplePreprocessor(
-                    language="python",
-                    method="tokenize"
-                ),
-                vectorizer=make_pipeline(
-                    BagOfNgrams(ngram_range=(1, 2)),
-                    TfidfTransformer(),
-                    TruncatedSVD(n_components=100),
-                    Normalizer()
-                ),
-                clusterizer=DBSCAN(),
-                seeker=NNSeeker()
-            )
-        else:
-            raise ValueError("No such language and approach supported yet")
-
-    def _add_submissions(self, codes, statuses):
+    def __add_submissions(self, codes, statuses):
         submissions = zip(codes, statuses or repeat("correct"))
         self.__submissions = pd.DataFrame(
             columns=["code", "status"]) if self.__submissions is None else self.__submissions
@@ -48,7 +26,7 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin):
             ignore_index=True
         )
 
-    def _del_submissions(self):
+    def __del_submissions(self):
         self.__submissions.drop(self.__submissions.index, inplace=True)
 
     def fit(self, codes, statuses=None):
@@ -62,13 +40,13 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin):
         :return: self
         :rtype: SubmissionsClustering
         """
-        self._add_submissions(codes, statuses)
+        self.__add_submissions(codes, statuses)
         data = self.__submissions
         ci, s = self.preprocessor.fit_sanitize(data["code"].tolist())
         X = self.vectorizer.fit_transform(s)
         y = self.clusterizer.fit_predict(X)
         mask = data.loc[ci].status == "correct"
-        self.seeker.fit(X[mask], y[mask], find_centers(X, y), ci[mask])
+        self.seeker.fit(X[mask], y[mask], utils.find_centers(X, y), ci[mask])
         return self
 
     def refit(self, codes, statuses=None):
@@ -82,10 +60,10 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin):
         :return: self
         :rtype: SubmissionsClustering
         """
-        self._del_submissions()
+        self.__del_submissions()
         return self.fit(codes, statuses)
 
-    def _gather_neighbors(self, n, ci, nci):
+    def __gather_neighbors(self, n, ci, nci):
         codes = self.__submissions.code.values
         ans = [[]] * n
         for i, n in zip(ci, nci):
@@ -105,14 +83,14 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin):
         X = self.vectorizer.transform(s)
         y = self.clusterizer.predict(X)
         I = self.seeker.neighbors(X, y)
-        return self._gather_neighbors(len(codes), ci, I)
+        return self.__gather_neighbors(len(codes), ci, I)
 
     def plot_with(self, plotter, title, path):
         data = self.__submissions
         ci, s = self.preprocessor.fit_sanitize(data["code"].tolist())
         X = self.vectorizer.fit_transform(s)
         y = self.clusterizer.fit_predict(X)
-        centers = self.clusterizer.centers_ if hasattr(self.clusterizer, "centers_") else find_centers(X, y)
+        centers = self.clusterizer.centers_ if hasattr(self.clusterizer, "centers_") else utils.find_centers(X, y)
         centroids = self.clusterizer.centroids_ if hasattr(self.clusterizer, "centroids_") else None
         codes = data.loc[ci].code
         statuses = data.loc[ci].status

@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.base import BaseEstimator
 
-from sc.languages import Language
+from sc import languages
 from sc.pipe.bases import SanitizerMixin
 from sc.primitives import Tree, DefaultIntBijection
 
@@ -30,7 +30,7 @@ class SimplePreprocessor(BaseEstimator, SanitizerMixin):
             raise ValueError("No such struct supported yet")
 
     def sanitize(self, X):
-        language = Language.from_str(self.language)
+        language = languages.from_spec(self.language)
         method = language[self.method]
         self._encoding = DefaultIntBijection(zero_value=self.unk_str if self.add_unk else None)
         ci, s = [], []

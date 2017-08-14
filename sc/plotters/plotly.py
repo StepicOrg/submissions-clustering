@@ -49,7 +49,7 @@ class Plotly2DPlotter:
     def __make_status_marker(self, statuses):
         return dict(
             size=15,
-            color=statuses,
+            color=(statuses == "correct").astype(float),
             colorscale=[[0, "#EF233C"], [1, "#20BF55"]],
             cmin=0,
             cmax=1,
@@ -81,7 +81,7 @@ class Plotly2DPlotter:
             trace["text"] = codes.map(lambda s: s.replace("\n", "<br>"))
         return [trace]
 
-    def __make_layout(self, cluster_marker, status_marker, title):
+    def __make_layout(self, cluster_marker, status_marker, statuses, title):
         layout = dict(
             title=title or "Clustering",
             titlefont=dict(
@@ -120,7 +120,7 @@ class Plotly2DPlotter:
                 yanchor='top'
             )
         ])
-        if status is not None:
+        if statuses is not None:
             layout["updatemenus"] = updatemenus
         return layout
 

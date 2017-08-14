@@ -6,6 +6,9 @@ from sc.pipe import *
 from sc.plotters import *
 from sc.utils import find_centers
 
+from sklearn.preprocessing import Normalizer
+from sklearn.cluster import AffinityPropagation, DBSCAN
+
 
 class SubmissionsClustering(BaseEstimator, NeighborsMixin):
     def __init__(self, preprocessor, vectorizer, clusterizer, seeker):
@@ -14,7 +17,7 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin):
         self.clusterizer = clusterizer
         self.seeker = seeker
 
-        self._submissions = None
+        self.__submissions = None
 
     @staticmethod
     def from_str(language, approach):
@@ -27,9 +30,10 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin):
                 vectorizer=make_pipeline(
                     BagOfNgrams(ngram_range=(1, 2)),
                     TfidfTransformer(),
-                    DenseTransformer()
+                    TruncatedSVD(n_components=100),
+                    Normalizer()
                 ),
-                clusterizer=StupidClusterizer(),
+                clusterizer=DBSCAN(),
                 seeker=NNSeeker()
             )
         else:
@@ -37,14 +41,15 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin):
 
     def _add_submissions(self, codes, statuses):
         submissions = zip(codes, statuses or repeat("correct"))
-        self._submissions = pd.DataFrame(columns=["code", "status"]) if self._submissions is None else self._submissions
-        self._submissions = self._submissions.append(
-            pd.DataFrame.from_records(submissions, columns=list(self._submissions.columns)),
+        self.__submissions = pd.DataFrame(
+            columns=["code", "status"]) if self.__submissions is None else self.__submissions
+        self.__submissions = self.__submissions.append(
+            pd.DataFrame.from_records(submissions, columns=list(self.__submissions.columns)),
             ignore_index=True
         )
 
     def _del_submissions(self):
-        self._submissions.drop(self._submissions.index, inplace=True)
+        self.__submissions.drop(self.__submissions.index, inplace=True)
 
     def fit(self, codes, statuses=None):
         """Fit model with past submissions plus new codes and statuses.
@@ -58,7 +63,7 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin):
         :rtype: SubmissionsClustering
         """
         self._add_submissions(codes, statuses)
-        data = self._submissions
+        data = self.__submissions
         ci, s = self.preprocessor.fit_sanitize(data["code"].tolist())
         X = self.vectorizer.fit_transform(s)
         y = self.clusterizer.fit_predict(X)
@@ -81,7 +86,7 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin):
         return self.fit(codes, statuses)
 
     def _gather_neighbors(self, n, ci, nci):
-        codes = self._submissions.code.values
+        codes = self.__submissions.code.values
         ans = [[]] * n
         for i, n in zip(ci, nci):
             ans[i] = codes[n].tolist()
@@ -102,5 +107,14 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin):
         I = self.seeker.neighbors(X, y)
         return self._gather_neighbors(len(codes), ci, I)
 
-    def plot_with(self, plotter):
-        pass
+    def plot_with(self, plotter, title, path):
+        data = self.__submissions
+        ci, s = self.preprocessor.fit_sanitize(data["code"].tolist())
+        X = self.vectorizer.fit_transform(s)
+        y = self.clusterizer.fit_predict(X)
+        centers = self.clusterizer.centers_ if hasattr(self.clusterizer, "centers_") else find_centers(X, y)
+        centroids = self.clusterizer.centroids_ if hasattr(self.clusterizer, "centroids_") else None
+        codes = data.loc[ci].code
+        statuses = data.loc[ci].status
+        plotter.plot(X, y, centers=centers, centroids=centroids,
+                     codes=codes, statuses=statuses, title=title, path=path)

@@ -15,7 +15,7 @@ setup(
     dependency_links=dependency_links,
     author="Stanislav Belyaev",
     author_email="stasbelyaev96@gmail.com",
-    packages=find_packages(exclude=["test", "*.test", "*.test.*"]),
+    packages=find_packages(exclude=("test", "*.test", "*.test.*"), include=("sc",)),
     include_package_data=True,
     url="https://github.com/StepicOrg/submissions-clustering",
     license="MIT",

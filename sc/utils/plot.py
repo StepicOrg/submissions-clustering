@@ -1,9 +1,9 @@
 import numpy as np
 
-__all__ = ["matplotlib_to_plotly"]
+__all__ = ["colorscale_from_mpl"]
 
 
-def matplotlib_to_plotly(cmap, pl_entries, add_black=False):
+def colorscale_from_mpl(cmap, pl_entries, add_black=False):
     h = 1.0 / (pl_entries - 1)
     pl_colorscale = []
     for k in range(1 if add_black else 0, pl_entries):

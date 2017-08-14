@@ -1,12 +1,15 @@
-# from sc.sc import SubmissionsClustering
-# from sc import utils
-# from sc.pipe.commons import reducers as rdc
-from sc.pipe.commons import reducers
+from sc import plotters
+from sc import utils
+from sc.sc import SubmissionsClustering
 
 
 def test():
-    reducer = reducers.from_spec("pca", 10)
-    print(reducer)
+    sc = SubmissionsClustering.from_str("python", "diff")
+    codes, statuses = utils.from_csv("data/step-12768-submissions.csv", nrows=1000)
+    sc.fit(codes, statuses)
+
+    plotter = plotters.from_spec("plotly2d")
+    sc.plot_with(plotter)
 
 
 def main():

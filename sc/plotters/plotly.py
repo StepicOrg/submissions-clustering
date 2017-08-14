@@ -2,8 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import plotly.graph_objs as go
 import plotly.offline as py
+from scipy.ndimage import maximum
 
-from sc.utils import matplotlib_to_plotly
+from sc.utils.plot import colorscale_from_mpl
 
 __all__ = ["Plotly2DPlotter"]
 
@@ -11,45 +12,31 @@ __all__ = ["Plotly2DPlotter"]
 class Plotly2DPlotter:
     VALID_SCALINGS = "centers", "centroids"
 
-    def __init__(self, reducer, scaling=None):
+    def __init__(self, reducer, scaling=None, size_range=(8, 25)):
         self.reducer = reducer
         self.scaling = scaling
+        self.size_range = size_range
 
     def __calc_centroid_p(self, X, y, centers, centroids):
         if self.scaling is None:
-            pass
+            centroid_p = np.full(X.shape[0], .5)
+            centroid_p[y == -1] = .0
+            return centroid_p
         elif self.scaling == "centers":
-            pass
+            dists = np.linalg.norm(X - centers[y], axis=1) ** 2
+            centroid_p = 1 - dists / maximum(dists, y)[y]
+            centroid_p[y == -1] = .0
+            return centroid_p
         elif self.scaling == "centroids":
+            # TODO: implement
             pass
         else:
             raise ValueError(f"scaling must be one of the {self.VALID_SCALINGS}")
 
-    def plot(self, X, y, *, code=None, status=None,
-             centres=None, centroids=None, title=None, path="plots/temp_plot.html"):
-        reduced_X = self.reducer.fit_transform(X, y)
-
-        if scaling is None:
-            centroid_p = np.ones(X.shape[0]) * .5
-        elif scaling == "auto":
-            # TODO: implement
-            raise ValueError("Such scaling is't supported yet")
-        elif scaling == "centers" and centres is not None:
-            centroid_p = np.linalg.norm(X - centres[y], axis=1) ** 2
-            max_d = np.zeros(y.max() + 1, dtype=np.float)
-            for i, c_p in enumerate(centroid_p):
-                max_d[y[i]] = max(max_d[y[i]], c_p)
-            centroid_p = 1 - centroid_p / max_d[y]
-        elif scaling == "centroids" and centroids is not None:
-            # TODO: implement
-            raise ValueError("Such scaling is't supported yet")
-        else:
-            raise ValueError("Such scaling is't supported yet")
-        centroid_p[y == -1] = .0
-
-        min_size, max_size = 8, 25
-        colorscale = matplotlib_to_plotly(plt.cm.Paired, y.max() + 1, add_black=y.min() == -1)
-        cluster_marker = dict(
+    def __make_cluster_marker(self, y, centroid_p):
+        min_size, max_size = self.size_range
+        colorscale = colorscale_from_mpl(plt.cm.Paired, y.max() + 1, add_black=y.min() == -1)
+        return dict(
             size=min_size + centroid_p * (max_size - min_size),
             color=y,
             colorscale=colorscale,
@@ -58,9 +45,11 @@ class Plotly2DPlotter:
                 width=0
             )
         )
-        status_marker = dict(
+
+    def __make_status_marker(self, statuses):
+        return dict(
             size=15,
-            color=status,
+            color=statuses,
             colorscale=[[0, "#EF233C"], [1, "#20BF55"]],
             cmin=0,
             cmax=1,
@@ -69,11 +58,13 @@ class Plotly2DPlotter:
                 width=0
             )
         )
+
+    def __make_data(self, reduced_X, cluster_marker, codes):
         trace = go.Scattergl(
             x=reduced_X[:, 0],
             y=reduced_X[:, 1],
             mode="markers",
-            text=code,
+            text=codes,
             marker=cluster_marker,
             name="trace2d",
             hoverinfo="text",
@@ -86,9 +77,11 @@ class Plotly2DPlotter:
                 )
             )
         )
-        if code is not None:
-            trace["text"] = code.map(lambda s: s.replace("\n", "<br>"))
-        data = [trace]
+        if codes is not None:
+            trace["text"] = codes.map(lambda s: s.replace("\n", "<br>"))
+        return [trace]
+
+    def __make_layout(self, cluster_marker, status_marker, title):
         layout = dict(
             title=title or "Clustering",
             titlefont=dict(
@@ -129,9 +122,15 @@ class Plotly2DPlotter:
         ])
         if status is not None:
             layout["updatemenus"] = updatemenus
+        return layout
 
-        fig = dict(
-            data=data,
-            layout=layout
-        )
+    def plot(self, X, y, centers=None, centroids=None,
+             codes=None, statuses=None, title=None, path="temp_plot.html"):
+        reduced_X = self.reducer.fit_transform(X, y)
+        centroid_p = self.__calc_centroid_p(X, y, centers, centroids)
+        cluster_marker = self.__make_cluster_marker(y, centroid_p)
+        status_marker = self.__make_status_marker(statuses)
+        data = self.__make_data(reduced_X, cluster_marker, codes)
+        layout = self.__make_layout(cluster_marker, status_marker, statuses, title)
+        fig = dict(data=data, layout=layout)
         py.plot(fig, filename=path)

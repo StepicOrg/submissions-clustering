@@ -2,7 +2,13 @@
 
 ## Installation
 
+### Pip
+
 `pip install git+https://github.com/StepicOrg/submissions-clustering.git`
+
+### Building
+
+`make`
 
 ## Usage
 

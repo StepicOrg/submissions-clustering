@@ -4,7 +4,7 @@ from .sc import *
 
 __all__ = sc.__all__
 
-VALID_ARGS = ("python", "diff"),
+VALID_ARGS = ("python", "diff"), ("python", "test")
 
 
 def from_spec(language, approach):
@@ -21,6 +21,21 @@ def from_spec(language, approach):
                 Normalizer()
             ),
             clusterizer=MiniBatchKMeans(n_clusters=20),
+            seeker=NNSeeker()
+        )
+    elif language == "python" and approach == "test":
+        return SubmissionsClustering(
+            preprocessors=preprocessors.from_spec(
+                language="python",
+                method="astize"
+            ),
+            vectorizer=make_pipeline(
+                BagOfTrees(ngram_range=(1, 2)),
+                TfidfTransformer(),
+                TruncatedSVD(n_components=100),
+                Normalizer()
+            ),
+            clusterizer=StupidClusterizer(),
             seeker=NNSeeker()
         )
     else:

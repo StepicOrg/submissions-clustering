@@ -1,8 +1,9 @@
 from .count import *
+from .hash import *
 from .simple import *
 from .sklearn import *
 
-__all__ = count.__all__ + simple.__all__ + sklearn.__all__
+__all__ = count.__all__ + hash.__all__ + simple.__all__ + sklearn.__all__
 
 VALID_NAMES = "bon", "bot", "dense", "tfid"
 

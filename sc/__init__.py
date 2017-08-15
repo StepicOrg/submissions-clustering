@@ -1,5 +1,5 @@
-from sc import languages
 from sc.pipe.steps import *
+from sc.pipe.steps import preprocessors
 from .sc import *
 
 __all__ = sc.__all__
@@ -10,9 +10,9 @@ VALID_ARGS = ("python", "diff"),
 def from_spec(language, approach):
     if language == "python" and approach == "diff":
         return SubmissionsClustering(
-            preprocessor=SimplePreprocessor(
-                language=languages.from_spec("python"),
-                method="tokenize",
+            preprocessor=preprocessors.from_spec(
+                language="python",
+                method="asttokenize"
             ),
             vectorizer=make_pipeline(
                 BagOfNgrams(ngram_range=(1, 2)),
@@ -20,7 +20,7 @@ def from_spec(language, approach):
                 TruncatedSVD(n_components=100),
                 Normalizer()
             ),
-            clusterizer=AffinityPropagation(),
+            clusterizer=MiniBatchKMeans(n_clusters=20),
             seeker=NNSeeker()
         )
     else:

@@ -1,4 +1,5 @@
 from sc.pipe.steps import *
+from sc.pipe.commons import *
 from sc.pipe.steps import preprocessors
 from .sc import *
 
@@ -25,7 +26,7 @@ def from_spec(language, approach):
         )
     elif language == "python" and approach == "test":
         return SubmissionsClustering(
-            preprocessors=preprocessors.from_spec(
+            preprocessor=preprocessors.from_spec(
                 language="python",
                 method="astize"
             ),

@@ -15,12 +15,13 @@
 ### Example
 
 ```python
->>> from sc.sc import SubmissionsClustering
->>> from sc.utils import from_csv
+>>> import sc
+>>> from sc import utils
 
->>> sc = SubmissionsClustering.from_str("python", "diff")
->>> codes, statuses = from_csv("data/step-12768-submissions.csv", nrows=1000)
->>> print(len(sc.fit_neighbors(codes, statuses)[0]))
+>>> snn = sc.from_spec("python", "diff")
+>>> codes, statuses = utils.from_csv("data/step-12768-submissions.csv", nrows=1000)
+>>> snn.fit(codes, statuses)
+>>> len(snn.neighbors(codes)[0])
 200
 ```
 
@@ -36,12 +37,10 @@
 ### Visualization
 
 ```python
->>> sc = SubmissionsClustering.from_str("python", "diff")
->>> codes, statuses = utils.from_csv("data/step-12768-submissions.csv", nrows=1000)
->>> sc.fit(codes, statuses)
+>>> from sc import plotters
 
->>> plotter = plotters.from_spec("plotly")
->>> sc.plot_with(plotter, title="Test plotting", path="plots/temp_plot.html")
+>>> plotter = plotters.from_spec("plotly2d")
+>>> snn.plot_with(plotter, title="Test plot", path="plots/temp_plot.html")
 ```
 
 ## Test

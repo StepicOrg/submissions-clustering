@@ -9,4 +9,4 @@ build:
 clean:
 	python setup.py clean
 
-.PHONY: all clean
+.PHONY: all init build clean

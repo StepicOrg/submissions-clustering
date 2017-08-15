@@ -7,7 +7,7 @@ from sklearn.pipeline import Pipeline
 from sc.__node_embedding import NodeEmbedding
 from sc.pipe.steps.seekers import Seeker
 from sc.__score import score_ratio
-from sc.utils.code import *
+from sc.utils.read_subs import *
 from sc.utils.cookers import telegram_send
 
 """
@@ -35,7 +35,7 @@ def do_test():
     pipeline = Pipeline([("pre", Preprocessor(language="python", method="astize"))])
     ne = NodeEmbedding(dump_path="data/model.ckpt")
     print(ne.theta.vec)
-    X = pipeline.fit_transform(single_file_gen("main.py"))
+    X = pipeline.fit_transform(__single_file_gen("main.py"))
     print(ne.transform(X))
 
 

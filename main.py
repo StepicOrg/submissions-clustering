@@ -1,6 +1,12 @@
 import sc
 from sc import plotters
 from sc import utils
+from timeit import timeit
+
+
+def time():
+    print(timeit(lambda: utils.from_sl3("data/subs.sl3"), number=3))
+    print(timeit(lambda: utils.from_csv("data/step-12768-submissions.csv"), number=3))
 
 
 def main():
@@ -13,4 +19,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    time()
+    # main()

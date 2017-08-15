@@ -7,7 +7,7 @@ import seaborn as sns
 from sklearn.neighbors import NearestNeighbors
 from tqdm import tqdm
 
-from .metrics import ratio
+from .__metrics import ratio
 
 
 def find_centers(X, y):

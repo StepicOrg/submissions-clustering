@@ -1,9 +1,9 @@
 from redux import frozenbunch
 
-__all__ = ["BunchOfMethodsMixin"]
+__all__ = ["BunchOfMethods"]
 
 
-class BunchOfMethodsMixin:
+class BunchOfMethods:
     def __new__(cls, *methods):
         class Inner:
             def __new__(cls):

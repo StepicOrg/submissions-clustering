@@ -5,7 +5,7 @@ from .tovec import *
 
 __all__ = pre.__all__ + simple.__all__ + sklearn.__all__ + tovec.__all__
 
-VALID_NAMES = "bon", "bot", "hash", "dense", "tfid", "norm", "t2v", "ts2v"
+VALID_NAMES = "bon", "bot", "hash", "dense", "suml", "meanl", "tfid", "norm", "t2v", "ts2v"
 
 
 def from_spec(name, **kwargs):
@@ -17,6 +17,10 @@ def from_spec(name, **kwargs):
         return Hasher(**kwargs)
     elif name == "dense":
         return DenseTransformer()
+    elif name == "suml":
+        return SumList()
+    elif name == "meanl":
+        return MeanList()
     elif name == "tfid":
         return TfidfTransformer(**kwargs)
     elif name == "norm":

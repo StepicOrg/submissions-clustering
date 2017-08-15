@@ -1,6 +1,4 @@
-from sc.pipe.steps import *
-from sc.pipe.commons import *
-from sc.pipe.steps import preprocessors
+from sc.pipe import *
 from .sc import *
 
 __all__ = sc.__all__
@@ -32,7 +30,8 @@ def from_spec(language, approach):
             ),
             vectorizer=make_pipeline(
                 Token2Vec(),
-                MeanList()
+                SumList(),
+                Normalizer()
             ),
             clusterizer=StupidClusterizer(),
             seeker=NNSeeker()

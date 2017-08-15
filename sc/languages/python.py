@@ -8,7 +8,7 @@ from keyword import iskeyword
 
 from asttokens import ASTTokens
 
-from sc.primitives import Tree, BunchOfMethodsMixin
+from sc.primitives import Tree, BunchOfMethods
 
 __all__ = ["Python"]
 
@@ -81,5 +81,4 @@ def grammarize(code):
     return grammar2tree(parser.suite(code).tolist())
 
 
-class Python(BunchOfMethodsMixin(check, tokenize, asttokenize, astize, grammarize)):
-    pass
+Python = BunchOfMethods(check, tokenize, asttokenize, astize, grammarize)

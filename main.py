@@ -8,8 +8,8 @@ def main():
     codes, statuses = utils.from_csv("data/step-12768-submissions.csv", nrows=1000)
     print(len(snn.fit_neighbors(codes, statuses)[0]))
 
-    plotter = plotters.from_spec("plotly2d")
-    snn.plot_with(plotter, title="Test plot", path="plots/temp_plot.html")
+    # plotter = plotters.from_spec("plotly2d")
+    # snn.plot_with(plotter, title="Test plot", path="plots/temp_plot.html")
 
 
 if __name__ == '__main__':

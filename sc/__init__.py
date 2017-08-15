@@ -26,15 +26,13 @@ def from_spec(language, approach):
         )
     elif language == "python" and approach == "test":
         return SubmissionsClustering(
-            preprocessor=preprocessors.from_spec(
+            preprocessor=SimplePreprocessor(
                 language="python",
-                method="astize"
+                method="tokenize"
             ),
             vectorizer=make_pipeline(
-                BagOfTrees(ngram_range=(1, 2)),
-                TfidfTransformer(),
-                TruncatedSVD(n_components=100),
-                Normalizer()
+                Token2Vec(),
+                MeanList()
             ),
             clusterizer=StupidClusterizer(),
             seeker=NNSeeker()

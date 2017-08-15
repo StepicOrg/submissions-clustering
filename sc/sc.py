@@ -87,9 +87,9 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin):
 
     def plot_with(self, plotter, title, path):
         data = self.__submissions
-        ci, s = self.preprocessor.fit_sanitize(data["code"].tolist())
-        X = self.vectorizer.fit_transform(s)
-        y = self.clusterizer.fit_predict(X)
+        ci, s = self.preprocessor.sanitize(data["code"].tolist())
+        X = self.vectorizer.transform(s)
+        y = self.clusterizer.predict(X)
         centers = self.clusterizer.centers_ if hasattr(self.clusterizer, "centers_") else find_centers(X, y)
         centroids = self.clusterizer.centroids_ if hasattr(self.clusterizer, "centroids_") else None
         codes = data.loc[ci].code

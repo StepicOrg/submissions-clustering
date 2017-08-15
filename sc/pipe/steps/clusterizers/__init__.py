@@ -1,8 +1,7 @@
-from sklearn.cluster import MiniBatchKMeans, AffinityPropagation
-
 from .simple import *
+from .sklearn import *
 
-__all__ = ["MiniBatchKMeans", "AffinityPropagation"] + simple.__all__
+__all__ = simple.__all__ + sklearn.__all__
 
 VALID_NAMES = "mbkmeans", "afprop", "stupid"
 

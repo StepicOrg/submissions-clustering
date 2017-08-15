@@ -1,4 +1,6 @@
-__all__ = ["SanitizerMixin", "NeighborsMixin"]
+from sklearn.base import BaseEstimator, TransformerMixin, ClusterMixin
+
+__all__ = ["BaseEstimator", "TransformerMixin", "ClusterMixin", "SanitizerMixin", "NeighborsMixin"]
 
 
 class SanitizerMixin:

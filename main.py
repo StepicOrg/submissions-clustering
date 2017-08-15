@@ -1,27 +1,16 @@
-def test():
-    def f():
-        pass
-
-    a = BunchOfMethods(f)
-    print("kek" in a)
-
-
-def plot():
-    sc = SubmissionsClustering.from_str("python", "diff")
-    codes, statuses = utils.from_csv("data/step-12768-submissions.csv", nrows=1000)
-    sc.fit(codes, statuses)
-
-    plotter = plotters.from_spec("plotly")
-    sc.plot_with(plotter, title="Test plotting", path="plots/temp_plot.html")
+import sc
+from sc import plotters
+from sc import utils
 
 
 def main():
-    sc = SubmissionsClustering.from_str("python", "diff")
+    snn = sc.from_spec("python", "diff")
     codes, statuses = utils.from_csv("data/step-12768-submissions.csv", nrows=1000)
-    print(len(sc.fit_neighbors(codes, statuses)[0]))
+    snn.fit(codes, statuses)
+
+    plotter = plotters.from_spec("plotly2d")
+    snn.plot_with(plotter, title="Test plot", path="plots/temp_plot.html")
 
 
 if __name__ == '__main__':
-    test()
-    # plot()
-    # main()
+    main()

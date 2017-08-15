@@ -1,6 +1,6 @@
-__all__ = ["BunchOfMethodsMixin"]
-
 from redux import frozenbunch
+
+__all__ = ["BunchOfMethodsMixin"]
 
 
 class BunchOfMethodsMixin:

@@ -1,9 +1,14 @@
+from sc import languages
+
 from .simple import *
 
 __all__ = simple.__all__
 
-VALID_ARGS = ("python", ""),
+VALID_LANGUAGES = "python",
 
 
-def from_spec(language, method):
-    pass
+def from_spec(language, method, **kwargs):
+    if language == "python":
+        return SimplePreprocessor(language=languages.from_spec(language), method=method, **kwargs)
+    else:
+        raise ValueError(f"language must be of the {VALID_LANGUAGES}")

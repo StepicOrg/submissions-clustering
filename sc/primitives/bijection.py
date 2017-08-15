@@ -3,7 +3,6 @@ from collections import Mapping, Hashable
 __all__ = ["DefaultIntBijection"]
 
 
-# TODO: review once more time
 class Bijection(Mapping):
     def __init__(self, type1=int, type2=str):
         assert not issubclass(type1, type2) and not issubclass(type2, type1)

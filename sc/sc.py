@@ -2,8 +2,8 @@ from itertools import repeat
 
 import pandas as pd
 
-from sc import utils
 from sc.pipe.bases import BaseEstimator, NeighborsMixin
+from sc.utils import find_centers
 
 __all__ = ["SubmissionsClustering"]
 
@@ -46,7 +46,7 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin):
         X = self.vectorizer.fit_transform(s)
         y = self.clusterizer.fit_predict(X)
         mask = data.loc[ci].status == "correct"
-        self.seeker.fit(X[mask], y[mask], utils.find_centers(X, y), ci[mask])
+        self.seeker.fit(X[mask], y[mask], find_centers(X, y), ci[mask])
         return self
 
     def refit(self, codes, statuses=None):
@@ -90,7 +90,7 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin):
         ci, s = self.preprocessor.fit_sanitize(data["code"].tolist())
         X = self.vectorizer.fit_transform(s)
         y = self.clusterizer.fit_predict(X)
-        centers = self.clusterizer.centers_ if hasattr(self.clusterizer, "centers_") else utils.find_centers(X, y)
+        centers = self.clusterizer.centers_ if hasattr(self.clusterizer, "centers_") else find_centers(X, y)
         centroids = self.clusterizer.centroids_ if hasattr(self.clusterizer, "centroids_") else None
         codes = data.loc[ci].code
         statuses = data.loc[ci].status

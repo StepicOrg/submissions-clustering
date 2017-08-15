@@ -7,8 +7,7 @@ __all__ = ["SimplePreprocessor"]
 
 
 class SimplePreprocessor(BaseEstimator, SanitizerMixin):
-    def __init__(self, language, method, filter_correct=True, check_method="check",
-                 add_unk=True, unk_str="<UNK>"):
+    def __init__(self, language, method, filter_correct=True, check_method="check", add_unk=True, unk_str="<UNK>"):
         self.language = language
         self.method = method
         self.filter_correct = filter_correct
@@ -21,13 +20,15 @@ class SimplePreprocessor(BaseEstimator, SanitizerMixin):
     def fit(self, X):
         return self
 
+    VALID_STRUCTS = list, Tree
+
     def __encode(self, struct):
         if isinstance(struct, list):
             return [self.__encoding[elem] for elem in struct]
         elif isinstance(struct, Tree):
             return struct.map(self.__encoding)
         else:
-            raise ValueError("No such struct supported yet")
+            raise ValueError(f"struct must be of the {self.VALID_STRUCTS}")
 
     def sanitize(self, X):
         method = self.language[self.method]

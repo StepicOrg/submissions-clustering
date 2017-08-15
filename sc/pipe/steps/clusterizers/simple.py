@@ -1,5 +1,6 @@
 import numpy as np
-from sklearn.base import BaseEstimator, ClusterMixin
+
+from sc.pipe.bases import BaseEstimator, ClusterMixin
 
 __all__ = ["StupidClusterizer"]
 

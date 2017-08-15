@@ -1,4 +1,5 @@
-from sc.pipe import *
+from sc import languages
+from sc.pipe.steps import *
 from .sc import *
 
 __all__ = sc.__all__
@@ -10,7 +11,7 @@ def from_spec(language, approach):
     if language == "python" and approach == "diff":
         return SubmissionsClustering(
             preprocessor=SimplePreprocessor(
-                language="python",
+                language=languages.from_spec("python"),
                 method="tokenize",
             ),
             vectorizer=make_pipeline(

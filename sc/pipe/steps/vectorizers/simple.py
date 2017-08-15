@@ -1,9 +1,9 @@
-from sklearn.base import TransformerMixin
+from sc.pipe.bases import BaseEstimator, TransformerMixin
 
 __all__ = ["DenseTransformer"]
 
 
-class DenseTransformer(TransformerMixin):
+class DenseTransformer(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
         return self
 

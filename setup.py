@@ -26,7 +26,7 @@ class CleanCommand(Command):
 
 setup(
     name="submissions-clustering",
-    version="0.1",
+    version="0.2",
     install_requires=install_requires,
     dependency_links=dependency_links,
     author="Stanislav Belyaev",

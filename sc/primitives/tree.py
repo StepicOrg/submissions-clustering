@@ -27,8 +27,8 @@ class Tree(Collection):
         return self._len
 
     def map(self, mapping):
-        _mapping = (lambda x: mapping[x]) if hasattr(mapping, "__getitem__") else mapping
-        return Tree(_mapping(self.value), [child.map(_mapping) for child in self.children])
+        mapping_ = (lambda x: mapping[x]) if hasattr(mapping, "__getitem__") else mapping
+        return Tree(mapping_(self.value), [child.map(mapping_) for child in self.children])
 
     def flatten(self, add_leaves=False, add_children_leaves_nums=False):
         if len(self.children) or add_leaves:

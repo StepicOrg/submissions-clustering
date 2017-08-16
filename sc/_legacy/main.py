@@ -4,8 +4,8 @@ import numpy as np
 from sc.plot import plot
 from sklearn.pipeline import Pipeline
 
-from sc.__legacy.ne import NodeEmbedding
-from sc.__legacy.score import score_ratio
+from sc._legacy.ne import NodeEmbedding
+from sc._legacy.score import score_ratio
 from sc.pipe.steps.seekers import Seeker
 from sc.utils.cookers import telegram_send
 

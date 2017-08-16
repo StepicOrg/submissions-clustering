@@ -1,11 +1,13 @@
 import os
 import sqlite3
+
 import pandas as pd
 
 __all__ = ["single_file", "walk_gen", "from_csv", "from_sl3"]
 
 
 def __lists(it):
+    it = ((str(a), str(b)) for a, b in it)
     return tuple(map(list, zip(*it)))
 
 

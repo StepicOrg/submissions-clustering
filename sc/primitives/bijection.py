@@ -3,7 +3,7 @@ from collections import Mapping, Hashable
 __all__ = ["DefaultIntBijection"]
 
 
-class Bijection(Mapping):
+class _Bijection(Mapping):
     def __init__(self, type1=int, type2=str):
         assert not issubclass(type1, type2) and not issubclass(type2, type1)
         assert issubclass(type1, Hashable) and issubclass(type2, Hashable)
@@ -23,7 +23,7 @@ class Bijection(Mapping):
         return str(list(self))
 
 
-class DefaultIntBijection(Bijection):
+class DefaultIntBijection(_Bijection):
     def __init__(self, type2=str, zero_value=None):
         super().__init__(type2=type2)
         assert zero_value is None or isinstance(zero_value, type2)

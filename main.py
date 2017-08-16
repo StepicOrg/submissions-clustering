@@ -1,21 +1,17 @@
 from timeit import timeit
 
 from sc import sc_from_spec
-from sc.plotters import plotter_from_spec
 from sc.scorers import scorer_from_spec
+from sc.utils import pickler
 from sc.utils import read_subs
 
 
 def score():
-    diff_scorer = scorer_from_spec("python", "diff")
-    token_scorer = scorer_from_spec("python", "token")
-    ast_scorer = scorer_from_spec("python", "ast")
+    sc = sc_from_spec("python", "diff")
+    sc.fit(*read_subs.from_sl3("data/subs.sl3", nrows=1000))
 
-    src = "a=3"
-    dst = "g=4"
-    print(diff_scorer.score(src, dst))
-    print(token_scorer.score(src, dst))
-    print(ast_scorer.score(src, dst))
+    scorer = scorer_from_spec("python", "diff")
+    sc.score_with(scorer)
 
 
 def time():
@@ -24,15 +20,21 @@ def time():
 
 
 def main():
-    sc = sc_from_spec("python", "test")
-    codes, statuses = read_subs.from_csv("data/step-12768-submissions.csv", nrows=1000)
-    print(len(sc.fit_neighbors(codes, statuses)[0]))
+    sc = sc_from_spec("python", "diff")
+    codes, statuses = read_subs.from_sl3("data/subs.sl3", nrows=10000)
+    sc.fit(codes, statuses)
+    print("BEGIN")
+    print(timeit(lambda: pickler.pickle(sc, "data/sc.dump"), number=1))
 
-    plotter = plotter_from_spec("plotly")
-    sc.plot_with(plotter, title="Test plot", path="plots/temp_plot.html")
+    del sc
+    sc = pickler.unpickle("data/sc.dump")
+    print(len(sc.neighbors([codes[0]])[0]))
+
+    # plotter = plotter_from_spec("plotly")
+    # sc.plot_with(plotter, title="Test plot", path="plots/temp_plot.html")
 
 
 if __name__ == '__main__':
-    score()
+    # score()
     # time()
-    # main()
+    main()

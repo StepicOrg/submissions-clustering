@@ -26,7 +26,7 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin):
             ignore_index=True
         )
 
-    def __del_submissions(self):
+    def clear_submissions(self):
         self.__submissions.drop(self.__submissions.index, inplace=True)
 
     def fit(self, codes, statuses=None):
@@ -60,7 +60,7 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin):
         :return: self
         :rtype: SubmissionsClustering
         """
-        self.__del_submissions()
+        self.clear_submissions()
         return self.fit(codes, statuses)
 
     def __gather_neighbors(self, n, ci, nci):
@@ -96,3 +96,6 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin):
         statuses = data.loc[ci].status
         plotter.plot(X, y, centers=centers, centroids=centroids,
                      codes=codes, statuses=statuses, title=title, path=path)
+
+    def score_with(self, scorer, presaved_best_path=None):
+        pass

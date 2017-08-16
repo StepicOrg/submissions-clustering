@@ -41,7 +41,7 @@ java 1.8 to run `ASTScorer` server
 ### Visualization
 
 ```python
->>> from sc.scorers import scorer_from_spec
+>>> from sc.plotters import plotter_from_spec
 
 >>> plotter = plotter_from_spec("plotly")
 >>> sc.plot_with(plotter, title="Test plot", path="plots/temp_plot.html")

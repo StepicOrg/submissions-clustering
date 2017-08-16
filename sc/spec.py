@@ -9,7 +9,7 @@ VALID_ARGS = ("python", "diff"), ("python", "ast"), ("python", "test")
 def sc_from_spec(language, approach):
     if (language, approach) == ("python", "diff"):
         return SubmissionsClustering(
-            preprocessor=preprocessors.from_spec(
+            preprocessor=SimplePreprocessor(
                 language="python",
                 method="asttokenize"
             ),

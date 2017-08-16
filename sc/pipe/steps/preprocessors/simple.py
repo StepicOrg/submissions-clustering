@@ -1,41 +1,61 @@
 import numpy as np
-from sklearn.base import BaseEstimator
 
-from sc.languages import Language
-from sc.pipe.bases import SanitizerMixin
+from sc import languages
+
+from sc.pipe.bases import BaseEstimator, SanitizerMixin
 from sc.primitives import Tree, DefaultIntBijection
 
 __all__ = ["SimplePreprocessor"]
 
 
 class SimplePreprocessor(BaseEstimator, SanitizerMixin):
-    def __init__(self, language, method, *, filter_correct=True, add_unk=True, unk_str="<UNK>"):
+    UNK_STR = "<UNK>"
+    VALID_STRUCTS = list, Tree
+
+    def __make_encoding(self):
+        return DefaultIntBijection(zero_value=self.UNK_STR if self.add_unk else None)
+
+    def __get_language(self):
+        return languages.from_spec(self.language)
+
+    def __init__(self, language, method, filter_correct=True, check_method="check", filter_empty=True, add_unk=True):
         self.language = language
         self.method = method
         self.filter_correct = filter_correct
+        self.check_method = check_method
+        self.filter_empty = filter_empty
         self.add_unk = add_unk
-        self.unk_str = unk_str
 
-        self._encoding = None
+        self.__encoding = self.__make_encoding()
+        self.__language = self.__get_language()
 
-    def fit(self, X):
+    def __get_method(self, method):
+        return self.__language[method] if method in self.__language else None
+
+    def __encode(self, struct):
+        if isinstance(struct, list):
+            return [self.__encoding[elem] for elem in struct]
+        elif isinstance(struct, Tree):
+            return struct.map(self.__encoding)
+        else:
+            raise ValueError(f"struct must be of the {self.VALID_STRUCTS}")
+
+    def fit(self, X, y=None):
+        method = self.__get_method(self.method)
+        check = self.__get_method(self.check_method)
+        for x in X:
+            if not self.filter_correct or check(x):
+                _ = self.__encode(method(x))
         return self
 
-    def _encode(self, struct):
-        if isinstance(struct, list):
-            return [self._encoding[elem] for elem in struct]
-        elif isinstance(struct, Tree):
-            return struct.map(self._encoding)
-        else:
-            raise ValueError("No such struct supported yet")
-
     def sanitize(self, X):
-        language = Language.from_str(self.language)
-        method = language[self.method]
-        self._encoding = DefaultIntBijection(zero_value=self.unk_str if self.add_unk else None)
-        ci, s = [], []
+        method = self.__get_method(self.method)
+        check = self.__get_method(self.check_method)
+        ci, es = [], []
         for i, x in enumerate(X):
-            if not self.filter_correct or language.check(x):
-                ci.append(i)
-                s.append(self._encode(method(x)))
-        return np.array(ci), s
+            if not self.filter_correct or check(x):
+                s = method(x)
+                if not self.filter_empty or len(s):
+                    ci.append(i)
+                    es.append(self.__encode(s))
+        return np.array(ci), es

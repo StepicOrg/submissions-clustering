@@ -4,7 +4,7 @@ import plotly.graph_objs as go
 import plotly.offline as py
 from scipy.ndimage import maximum
 
-from sc.utils.plot import colorscale_from_mpl
+from sc.utils import colorscale_from_mpl
 
 __all__ = ["Plotly2DPlotter"]
 

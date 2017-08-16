@@ -5,7 +5,7 @@ from sc.plot import plot
 from sklearn.pipeline import Pipeline
 
 from sc.__legacy.ne import NodeEmbedding
-from sc.score import score_ratio
+from sc.__legacy.score import score_ratio
 from sc.pipe.steps.seekers import Seeker
 from sc.utils.cookers import telegram_send
 

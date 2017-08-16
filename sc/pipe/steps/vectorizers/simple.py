@@ -1,5 +1,6 @@
-from sc.pipe.bases import BaseEstimator, TransformerMixin
 import numpy as np
+
+from sc.pipe.bases import BaseEstimator, TransformerMixin
 
 __all__ = ["DenseTransformer", "SumList", "MeanList"]
 

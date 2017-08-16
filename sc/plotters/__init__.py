@@ -1,13 +1,5 @@
-from sc.pipe.commons import reducers
+from .base import *
 from .plotly import *
+from .spec import *
 
-__all__ = plotly.__all__
-
-VALID_NAMES = "plotly2d",
-
-
-def from_spec(name, **kwargs):
-    if name == "plotly2d":
-        return Plotly2DPlotter(reducer=reducers.from_spec("pca", 2), **kwargs)
-    else:
-        raise ValueError(f"name must be of the {VALID_NAMES}")
+__all__ = base.__all__ + plotly.__all__ + spec.__all__

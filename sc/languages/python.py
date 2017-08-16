@@ -12,14 +12,13 @@ from sc.primitives import Tree, BunchOfMethods
 
 __all__ = ["Python"]
 
-
-def code2ast(code):
-    return ast.parse(code)
-
-
 IGNORED_TOKENS = {_token.ENDMARKER, _token.NEWLINE, _token.DEDENT, _token.ERRORTOKEN,
                   _tokenize.COMMENT, _tokenize.NL, _tokenize.ENCODING}
 TOKEN_MAP = {**symbol.sym_name, **_token.tok_name}
+
+
+def code2ast(code):
+    return ast.parse(code)
 
 
 def check(code):
@@ -66,11 +65,8 @@ class SimpleVisitor(ast.NodeVisitor):
         return Tree(node.__class__.__name__, map(self.visit, ast.iter_child_nodes(node)))
 
 
-SIMPLE_VISITOR = SimpleVisitor()
-
-
 def astize(code):
-    return SIMPLE_VISITOR.visit(code2ast(code))
+    return SimpleVisitor().visit(code2ast(code))
 
 
 def grammar2tree(node):

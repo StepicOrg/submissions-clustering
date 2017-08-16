@@ -4,12 +4,13 @@ import plotly.graph_objs as go
 import plotly.offline as py
 from scipy.ndimage import maximum
 
-from sc.utils import colorscale_from_mpl
+from sc.utils.plot import colorscale_from_mpl
+from .base import BasePlotter
 
 __all__ = ["Plotly2DPlotter"]
 
 
-class Plotly2DPlotter:
+class Plotly2DPlotter(BasePlotter):
     VALID_SCALINGS = "centers", "centroids"
 
     def __init__(self, reducer, scaling=None, size_range=(8, 25)):

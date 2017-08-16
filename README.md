@@ -10,20 +10,23 @@
 
 `make`
 
+### Addititional deps
+
+java 1.8 to run `ASTScorer` server
+
 ## Usage
 
 ### Example
 
 ```python
->>> import sc
->>> from sc import utils
+>>> from sc import sc_from_spec
+>>> from sc.utils import read_subs
 
->>> snn = sc.from_spec("python", "diff")
->>> codes, statuses = utils.from_csv("data/step-12768-submissions.csv", nrows=1000)
->>> # codes, statuses = utils.from_sl3("data/subs.sl3", nrows=1000)
->>> snn.fit(codes, statuses)
->>> len(snn.neighbors(codes)[0])
-200
+>>> sc = sc_from_spec("python", "test")
+>>> codes, statuses = read_subs.from_csv("data/step-12768-submissions.csv", nrows=1000)
+>>> # codes, statuses = read_subs.from_sl3("data/subs.sl3"), number=3)
+>>> print(len(sc.fit_neighbors(codes, statuses)[0]))
+300
 ```
 
 ### Steps
@@ -38,10 +41,10 @@
 ### Visualization
 
 ```python
->>> from sc import plotters
+>>> from sc.scorers import scorer_from_spec
 
->>> plotter = plotters.from_spec("plotly2d")
->>> snn.plot_with(plotter, title="Test plot", path="plots/temp_plot.html")
+>>> plotter = plotter_from_spec("plotly")
+>>> sc.plot_with(plotter, title="Test plot", path="plots/temp_plot.html")
 ```
 
 ## Test

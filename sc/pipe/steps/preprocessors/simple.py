@@ -1,7 +1,6 @@
 import numpy as np
 
-from sc import languages
-
+from sc.languages import language_from_spec
 from sc.pipe.bases import BaseEstimator, SanitizerMixin
 from sc.primitives import Tree, DefaultIntBijection
 
@@ -16,7 +15,7 @@ class SimplePreprocessor(BaseEstimator, SanitizerMixin):
         return DefaultIntBijection(zero_value=self.UNK_STR if self.add_unk else None)
 
     def __get_language(self):
-        return languages.from_spec(self.language)
+        return language_from_spec(self.language)
 
     def __init__(self, language, method, filter_correct=True, check_method="check", filter_empty=True, add_unk=True):
         self.language = language

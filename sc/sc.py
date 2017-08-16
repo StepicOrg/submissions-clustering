@@ -3,7 +3,7 @@ from itertools import repeat
 import pandas as pd
 
 from sc.pipe.bases import BaseEstimator, NeighborsMixin
-from sc.utils import find_centers
+from sc.utils.matrix import find_centers
 
 __all__ = ["SubmissionsClustering"]
 

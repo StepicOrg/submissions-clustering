@@ -1,7 +1,8 @@
-from gensim.models.word2vec import Word2Vec
-from gensim.models.doc2vec import TaggedDocument, Doc2Vec
-from sc.pipe.bases import BaseEstimator, TransformerMixin
 import numpy as np
+from gensim.models.doc2vec import TaggedDocument, Doc2Vec
+from gensim.models.word2vec import Word2Vec
+
+from sc.pipe.bases import BaseEstimator, TransformerMixin
 
 __all__ = ["Token2Vec", "Tokens2Vec"]
 

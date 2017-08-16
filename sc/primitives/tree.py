@@ -9,6 +9,7 @@ class Tree(Collection):
         assert value is not None
         self.value = value
         self.children = [] if children is None else list(children)
+
         self._len = None
         self._leaves_num = None
         self._height = None

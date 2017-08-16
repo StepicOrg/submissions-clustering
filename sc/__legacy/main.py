@@ -4,10 +4,9 @@ import numpy as np
 from sc.plot import plot
 from sklearn.pipeline import Pipeline
 
-from sc.__node_embedding import NodeEmbedding
-from sc.pipe.steps.seekers import Seeker
+from sc.__legacy.ne import NodeEmbedding
 from sc.__score import score_ratio
-from sc.utils.read_subs import *
+from sc.pipe.steps.seekers import Seeker
 from sc.utils.cookers import telegram_send
 
 """

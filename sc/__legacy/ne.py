@@ -7,7 +7,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from tqdm import tqdm
 
 from sc.utils.pickler import *
-from .utils.cookers import *
+from sc.utils.cookers import *
 
 Input = namedtuple("Input", ["parent", "children", "children_leaves_nums",
                              "parent_c", "children_c",

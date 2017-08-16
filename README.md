@@ -20,6 +20,7 @@
 
 >>> snn = sc.from_spec("python", "diff")
 >>> codes, statuses = utils.from_csv("data/step-12768-submissions.csv", nrows=1000)
+>>> # codes, statuses = utils.from_sl3("data/subs.sl3", nrows=1000)
 >>> snn.fit(codes, statuses)
 >>> len(snn.neighbors(codes)[0])
 200

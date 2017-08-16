@@ -3,7 +3,7 @@ from .sc import *
 
 __all__ = sc.__all__
 
-VALID_ARGS = ("python", "diff"), ("python", "test")
+VALID_ARGS = ("python", "diff"), ("python", "ast"), ("python", "test")
 
 
 def from_spec(language, approach):
@@ -19,7 +19,22 @@ def from_spec(language, approach):
                 TruncatedSVD(n_components=100),
                 Normalizer()
             ),
-            clusterizer=MiniBatchKMeans(n_clusters=20),
+            clusterizer=StupidClusterizer(),
+            seeker=NNSeeker()
+        )
+    elif language == "python" and approach == "ast":
+        return SubmissionsClustering(
+            preprocessor=SimplePreprocessor(
+                language="python",
+                method="astize"
+            ),
+            vectorizer=make_pipeline(
+                BagOfTrees(ngram_range=(1, 2)),
+                TfidfTransformer(),
+                TruncatedSVD(n_components=100),
+                Normalizer()
+            ),
+            clusterizer=StupidClusterizer(),
             seeker=NNSeeker()
         )
     elif language == "python" and approach == "test":

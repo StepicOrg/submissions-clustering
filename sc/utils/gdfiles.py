@@ -31,12 +31,12 @@ def save_response_content(response, destination):
                 f.write(chunk)
 
 
-def download_file_from_google_drive(id, destination):
+def download_file_from_google_drive(id_, destination):
     session = requests.Session()
-    response = session.get(URL, params={'id': id}, stream=True)
+    response = session.get(URL, params={'id': id_}, stream=True)
     token = get_confirm_token(response)
     if token:
-        params = {'id': id, 'confirm': token}
+        params = {'id': id_, 'confirm': token}
         response = session.get(URL, params=params, stream=True)
     save_response_content(response, destination)
 

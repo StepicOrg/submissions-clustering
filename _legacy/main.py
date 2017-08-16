@@ -1,11 +1,11 @@
 from difflib import SequenceMatcher
 
 import numpy as np
+from sc._legacy.score import score_ratio
 from sc.plot import plot
 from sklearn.pipeline import Pipeline
 
-from sc._legacy.ne import NodeEmbedding
-from sc._legacy.score import score_ratio
+from _legacy.ne import NodeEmbedding
 from sc.pipe.steps.seekers import Seeker
 from sc.utils.cookers import telegram_send
 

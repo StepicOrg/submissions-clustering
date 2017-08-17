@@ -26,6 +26,10 @@ class CleanCommand(Command):
 
 setup(
     name="submissions-clustering",
+    version="0.2"
+
+    """
+    name="submissions-clustering",
     version="0.2",
     install_requires=install_requires,
     dependency_links=dependency_links,
@@ -53,4 +57,5 @@ setup(
     cmdclass={
         # "clean": CleanCommand
     }
+    """
 )

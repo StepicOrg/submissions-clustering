@@ -2,30 +2,36 @@
 submissions-clustering
 ======================
 
+------------
 Installation
 ------------
 
 Pip
+===
 
-`pip install git+https://github.com/StepicOrg/submissions-clustering.git`
+``pip install git+https://github.com/StepicOrg/submissions-clustering.git``
 
 Addititional deps
+=================
 
 - make
 - pip
 - java 1.8 to run `ASTScorer` server
 
 Building
+========
 
-`make`
+``make``
 
+-----
 Usage
 -----
 
 Example
+=======
 
-Simple example of using. `.fit` takes iterable of `(code, status)`, fitting model and finding
-similarities. `.nighbors` gives ids of most similar code samples.
+Simple example of using. ``.fit`` takes iterable of *(code, status)*, fitting model and finding
+similarities. ``.neighbors`` gives ids of most similar code samples.
 
 >>> import subsclu
 >>> from subsclu import utils
@@ -37,6 +43,7 @@ similarities. `.nighbors` gives ids of most similar code samples.
 300
 
 Saving & Restoring
+==================
 
 Efficient save and load using joblib for faster work with numpy arrays.
 
@@ -44,18 +51,21 @@ Efficient save and load using joblib for faster work with numpy arrays.
 >>> del snn
 >>> snn = sc.SubmissionsClustering.load("data/snn.dump")
 
+----
 Test
 ----
 
-.. todo::
+``TODO``
 
+------------
 Useful Links
 ------------
 
 Articles
+========
 
 The entire project idea is based on `this article`_ "Deep Knowledge Tracing On Programming Exercises"
 
 .. _`this article`: http://dl.acm.org/citation.cfm?id=3053985
 
-.. todo::
+``TODO``

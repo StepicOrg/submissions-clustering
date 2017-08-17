@@ -6,49 +6,40 @@
 
 `pip install git+https://github.com/StepicOrg/submissions-clustering.git`
 
+### Addititional deps
+
+* make
+* pip
+* java 1.8 to run `ASTScorer` server
+
 ### Building
 
 `make`
-
-### Addititional deps
-
-java 1.8 to run `ASTScorer` server
 
 ## Usage
 
 ### Example
 
 ```python
->>> from sc import sc_from_spec
->>> from sc.utils import read_subs
+import sc
+from sc import utils
 
->>> sc = sc_from_spec("python", "test")
->>> codes, statuses = read_subs.from_csv("data/step-12768-submissions.csv", nrows=1000)
->>> # codes, statuses = read_subs.from_sl3("data/subs.sl3"), number=3)
->>> print(len(sc.fit_neighbors(codes, statuses)[0]))
-300
+snn = sc.from_spec("python", "diff")
+subs = list(utils.from_sl3("data/subs.sl3", nrows=1000))
+snn.fit(subs)
+print(len(snn.neighbors([subs[0][0]])[0]))
+# 300
 ```
 
-### Steps
+### Saving & Restoring
 
 ```python
-# 1: Preprocessor
-# 2: Vectorizer
-# 3: Clusterizer
-# 4: Seeker
-```
-
-### Visualization
-
-```python
->>> from sc.plotters import plotter_from_spec
-
->>> plotter = plotter_from_spec("plotly")
->>> sc.plot_with(plotter, title="Test plot", path="plots/temp_plot.html")
+snn.save("data/snn.dump")
+del snn
+snn = sc.SubmissionsClustering.load("data/snn.dump")
 ```
 
 ## Test
-
 
 **TODO**
 

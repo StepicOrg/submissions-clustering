@@ -20,6 +20,9 @@
 
 ### Example
 
+Simple example of using. `.fit` takes iterable of `(code, status)`, fitting model and finding
+similarities. `.nighbors` gives ids of most similar code samples.
+
 ```python
 import sc
 from sc import utils
@@ -32,6 +35,8 @@ print(len(snn.neighbors([subs[0][0]])[0]))
 ```
 
 ### Saving & Restoring
+
+Efficient save and load using joblib for faster work with numpy arrays.
 
 ```python
 snn.save("data/snn.dump")

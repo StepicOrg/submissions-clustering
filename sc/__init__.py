@@ -1,4 +1,6 @@
-from .sc import *
-from .spec import *
+from .sc import SubmissionsClustering
+from .spec import from_spec
 
-__all__ = sc.__all__ + spec.__all__
+_ = from_spec
+
+__all__ = ["SubmissionsClustering"]

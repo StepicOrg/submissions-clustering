@@ -1,5 +1,7 @@
-from .bijection import *
-from .bunch import *
-from .tree import *
+from .bijection import DefaultIntBijection
+from .bunch import BunchOfMethods
+from .tree import Tree
 
-__all__ = bijection.__all__ + bunch.__all__ + tree.__all__
+__all__ = ["DefaultIntBijection",
+           "BunchOfMethods",
+           "Tree"]

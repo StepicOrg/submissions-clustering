@@ -3,22 +3,23 @@ import os
 
 import requests
 
-__all__ = ["gdfile_from_spec"]
+__all__ = ["download_file"]
 
 URL = "https://docs.google.com/uc?export=download"
 CHUNK_SIZE = 32768
-NAME2ID = {"amorph-server.jar": "0B6udzTbX1EFPcXFQRGF2NGZUMk0"}
-VALID_NAMES = tuple(NAME2ID.keys())
+NAME2ID = {
+    "amorph-server.jar": "0B6udzTbX1EFPcXFQRGF2NGZUMk0"
+}
 
 
-def get_confirm_token(response):
+def _get_confirm_token(response):
     for key, value in response.cookies.items():
         if key.startswith('download_warning'):
             return value
     return None
 
 
-def save_response_content(response, destination):
+def _save_response_content(response, destination):
     if not os.path.exists(os.path.dirname(destination)):
         try:
             os.makedirs(os.path.dirname(destination))
@@ -31,18 +32,18 @@ def save_response_content(response, destination):
                 f.write(chunk)
 
 
-def download_file_from_google_drive(id_, destination):
+def _download_file_from_google_drive(id_, destination):
     session = requests.Session()
     response = session.get(URL, params={'id': id_}, stream=True)
-    token = get_confirm_token(response)
+    token = _get_confirm_token(response)
     if token:
         params = {'id': id_, 'confirm': token}
         response = session.get(URL, params=params, stream=True)
-    save_response_content(response, destination)
+    _save_response_content(response, destination)
 
 
-def gdfile_from_spec(name):
-    dst_path = f"data/{name}"
+def download_file(name):
+    dst_path = "data/{}".format(name)
     if not os.path.exists(dst_path):
-        download_file_from_google_drive(NAME2ID[name], dst_path)
+        _download_file_from_google_drive(NAME2ID[name], dst_path)
     return dst_path

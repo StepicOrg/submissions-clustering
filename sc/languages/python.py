@@ -1,8 +1,8 @@
 import ast
 import parser
 import symbol
-import token as _token
-import tokenize as _tokenize
+import token as token_
+import tokenize as tokenize_
 from io import BytesIO
 from keyword import iskeyword
 
@@ -12,9 +12,9 @@ from sc.primitives import Tree, BunchOfMethods
 
 __all__ = ["Python"]
 
-IGNORED_TOKENS = {_token.ENDMARKER, _token.NEWLINE, _token.DEDENT, _token.ERRORTOKEN,
-                  _tokenize.COMMENT, _tokenize.NL, _tokenize.ENCODING}
-TOKEN_MAP = {**symbol.sym_name, **_token.tok_name}
+IGNORED_TOKENS = {token_.ENDMARKER, token_.NEWLINE, token_.DEDENT, token_.ERRORTOKEN,
+                  tokenize_.COMMENT, tokenize_.NL, tokenize_.ENCODING}
+TOKEN_MAP = dict(list(symbol.sym_name.items()) + list(token_.tok_name.items()))
 
 
 def code2ast(code):
@@ -32,17 +32,17 @@ def check(code):
 
 def tokenize(code):
     result = []
-    for token in _tokenize.tokenize(BytesIO(code.encode('utf-8')).readline):
+    for token in tokenize_.tokenize(BytesIO(code.encode('utf-8')).readline):
         num, val, exact_type = token.type, token.string, token.exact_type
         if num in IGNORED_TOKENS:
             continue
-        elif num == _tokenize.NAME and not iskeyword(val):
+        elif num == tokenize_.NAME and not iskeyword(val):
             val = "<name>"
-        elif num == _tokenize.NUMBER:
+        elif num == tokenize_.NUMBER:
             val = "<number>"
-        elif num == _tokenize.STRING:
+        elif num == tokenize_.STRING:
             val = "<string>"
-        elif num == _tokenize.OP:
+        elif num == tokenize_.OP:
             val = TOKEN_MAP[exact_type]
         result.append(val)
     return result
@@ -70,7 +70,9 @@ def astize(code):
 
 
 def grammar2tree(node):
-    return Tree(TOKEN_MAP[node[0]], map(grammar2tree, filter(lambda x: isinstance(x, list), node[1:])))
+    value = TOKEN_MAP[node[0]]
+    children = map(grammar2tree, filter(lambda x: isinstance(x, list), node[1:]))
+    return Tree(value, children)
 
 
 def grammarize(code):

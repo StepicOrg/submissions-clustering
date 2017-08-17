@@ -1,10 +1,10 @@
-from collections import Collection
+from collections.abc import Set
 from itertools import chain
 
 __all__ = ["Tree"]
 
 
-class Tree(Collection):
+class Tree(Set):
     def __init__(self, value, children=None):
         assert value is not None
         self.value = value
@@ -44,12 +44,15 @@ class Tree(Collection):
             if height == 1:
                 return self.value,
             else:
-                return tuple(chain((self.value,), (child.subtree(height - 1) for child in self.children)))
+                return tuple(chain((self.value,),
+                                   (child.subtree(height - 1) for child in self.children)))
 
     def subtrees(self, height=2):
         if self.depth >= height:
             yield from chain((self.subtree(height),),
-                             chain.from_iterable(child.subtrees(height) for child in self.children))
+                             chain.from_iterable(
+                                 child.subtrees(height) for child in self.children
+                             ))
 
     @property
     def leaves_num(self):

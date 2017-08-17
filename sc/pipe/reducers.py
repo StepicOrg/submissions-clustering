@@ -14,4 +14,4 @@ def reducer_from_spec(name, n_dim, **kwargs):
     elif name == "tsne":
         return TSNE(n_components=n_dim, **kwargs)
     else:
-        raise ValueError(f"name must be of the {VALID_NAMES}")
+        raise ValueError("name must be of the {}".format(VALID_NAMES))

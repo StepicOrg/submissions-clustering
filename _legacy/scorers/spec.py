@@ -1,5 +1,5 @@
-from sc.languages import language_from_spec
-from sc.utils.gdfiles import gdfile_from_spec
+from sc.languages import from_spec
+from sc.utils.gdisk import download_file
 from .ast import *
 from .ratio import *
 
@@ -12,8 +12,8 @@ def scorer_from_spec(language, approach):
     if (language, approach) == ("python", "diff"):
         return RatioScorer(method=lambda x: x)
     elif (language, approach) == ("python", "token"):
-        return RatioScorer(method=language_from_spec("python").asttokenize)
+        return RatioScorer(method=from_spec("python").asttokenize)
     elif (language, approach) == ("python", "ast"):
-        return ASTScorer(patch_server_jar_path=gdfile_from_spec("amorph-server.jar"))
+        return ASTScorer(patch_server_jar_path=download_file("amorph-server.jar"))
     else:
-        raise ValueError(f"language and approach must be of the {VALID_ARGS}")
+        raise ValueError("language and approach must be of the {VALID_ARGS}")

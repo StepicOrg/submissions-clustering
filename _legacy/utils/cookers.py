@@ -3,8 +3,7 @@ import numpy as np
 __all__ = ["pad_sequences", "split_into_batches"]
 
 
-def pad_sequences(sequences, max_len=None,
-                  padding='post', truncating='post', value=0.):
+def pad_sequences(sequences, max_len=None, padding='post', truncating='post', value=0.):
     if not hasattr(sequences, '__len__'):
         raise ValueError('`sequences` must be iterable.')
     lengths = []

@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 
-from sc import utils
-from sc.pipe.bases import BaseEstimator, NeighborsMixin
+from subsclu import utils
+from subsclu.pipe.bases import BaseEstimator, NeighborsMixin
 
 __all__ = ["NNSeeker"]
 

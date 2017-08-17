@@ -1,10 +1,13 @@
-all: init build
+all: reqs build
 
-init:
+reqs:
 	pip install -r requirements.txt
 
 build:
 	python setup.py build
+
+check:
+	python setup.py check
 
 freeze:
 	pip freeze >requirements.txt
@@ -17,4 +20,4 @@ flake:
 clean:
 	python setup.py clean
 
-.PHONY: all init build freeze flake clean
+.PHONY: all reqs build freeze flake clean

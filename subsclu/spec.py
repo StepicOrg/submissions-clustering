@@ -1,5 +1,5 @@
 # flake8: noqa
-from sc.pipe import *
+from subsclu.pipe import *
 from .sc import SubmissionsClustering
 
 __all__ = []

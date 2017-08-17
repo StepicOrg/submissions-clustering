@@ -1,5 +1,5 @@
-from sc import languages
-from sc.utils import gdisk
+from subsclu import languages
+from subsclu.utils import gdisk
 from .ast import ASTScorer
 from .ratio import RatioScorer
 

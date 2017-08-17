@@ -1,6 +1,6 @@
 import numpy as np
 
-from sc.pipe.bases import BaseEstimator, ClusterMixin
+from subsclu.pipe.bases import BaseEstimator, ClusterMixin
 
 __all__ = ["StupidClusterizer"]
 

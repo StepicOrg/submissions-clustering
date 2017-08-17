@@ -3,7 +3,7 @@ from _metrics import scorers
 
 def main():
     """
-    snn = sc.from_spec("python", "diff")
+    snn = subsclu.from_spec("python", "diff")
     subs = list(utils.from_sl3("data/subs.sl3", nrows=1000))
     snn.fit(subs)
     """

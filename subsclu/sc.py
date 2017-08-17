@@ -1,8 +1,8 @@
 import pandas as pd
 
-from sc import utils
-from sc.pipe.bases import BaseEstimator, NeighborsMixin
-from sc.utils import LoadSaveMixin
+from subsclu import utils
+from subsclu.pipe.bases import BaseEstimator, NeighborsMixin
+from subsclu.utils import LoadSaveMixin
 
 __all__ = ["SubmissionsClustering"]
 

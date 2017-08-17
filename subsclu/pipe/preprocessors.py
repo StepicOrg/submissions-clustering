@@ -1,8 +1,8 @@
 import numpy as np
 
-from sc import languages
-from sc.pipe.bases import BaseEstimator, SanitizerMixin
-from sc.primitives import Tree, DefaultIntBijection
+from subsclu import languages
+from subsclu.pipe.bases import BaseEstimator, SanitizerMixin
+from subsclu.primitives import Tree, DefaultIntBijection
 
 __all__ = ["SimplePreprocessor"]
 

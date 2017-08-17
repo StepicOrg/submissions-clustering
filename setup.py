@@ -36,7 +36,7 @@ setup(
     url="https://github.com/StepicOrg/submissions-clustering",
     license="MIT",
     description="Fine tool to split code submissions into clusters",
-    long_description=pypandoc.convert('README.md', 'rst'),
+    long_description=pypandoc.convert('README.rst', 'rst'),
     platforms="any",
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -51,6 +51,6 @@ setup(
         "Topic :: Utilities"
     ],
     cmdclass={
-        "clean": CleanCommand
+        # "clean": CleanCommand
     }
 )

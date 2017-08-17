@@ -8,7 +8,7 @@ from keyword import iskeyword
 
 from asttokens import ASTTokens
 
-from sc.primitives import Tree, BunchOfMethods
+from subsclu.primitives import Tree, BunchOfMethods
 
 __all__ = ["Python"]
 

@@ -2,6 +2,7 @@ import ast
 import copy
 import json
 import uuid
+
 from typing import List, Dict, Union, Type, Any
 
 from .constants import NODE_DESC
@@ -39,7 +40,8 @@ class Node(object):
                 self.children.append(Node(child, self))
 
         else:
-            raise InvalidArgumentException('{} is not a valid AST node'.format(self.ast_type.__name__))
+            raise InvalidArgumentException("{} is not a valid AST node"
+                                           .format(self.ast_type.__name__))
 
     def detach_child(self, child: 'Node'):
         pos = child.children_pos

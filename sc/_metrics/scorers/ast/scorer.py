@@ -15,7 +15,7 @@ class ASTScorer(BaseScorer):
     _API_ENDPOINT = "http://localhost:4567/api/diff"
 
     def _make_process(self):
-        cmd = f"{self._CMD_PREFIX} {self.patch_server_jar_path}"
+        cmd = "{} {}".format(self._CMD_PREFIX, self.patch_server_jar_path)
         fnull = open(os.devnull, "w")
         return subprocess.Popen(cmd, stdout=fnull, stderr=subprocess.STDOUT, shell=True)
 
@@ -36,5 +36,4 @@ class ASTScorer(BaseScorer):
             "src": src_node.to_json(),
             "dst": dst_node.to_json()
         })
-        max_nodes_wo_header = max(src_node.nodes_num, dst_node.nodes_num) - 1
-        return 1. - float(len(list(result.json()))) / max_nodes_wo_header
+        return float(len(list(result.json())))

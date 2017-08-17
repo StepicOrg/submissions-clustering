@@ -1,40 +1,27 @@
 from timeit import timeit
 
-from sc import sc_from_spec
-from sc.scorers import scorer_from_spec
-from sc.utils import pickler
-from sc.utils import read_subs
-
-
-def score():
-    sc = sc_from_spec("python", "diff")
-    sc.fit(*read_subs.from_sl3("data/subs.sl3", nrows=1000))
-
-    scorer = scorer_from_spec("python", "diff")
-    sc.score_with(scorer)
-
-
-def time():
-    print(timeit(lambda: read_subs.from_sl3("data/subs.sl3"), number=3))
-    print(timeit(lambda: read_subs.from_csv("data/step-12768-submissions.csv"), number=3))
+import sc
+from sc import utils
 
 
 def main():
-    sc = sc_from_spec("python", "diff")
-    codes, statuses = read_subs.from_sl3("data/subs.sl3", nrows=10000)
-    sc.fit(codes, statuses)
+    snn = sc.from_spec("python", "diff")
+    subs = list(utils.from_sl3("data/subs.sl3", nrows=1000))
+    snn.fit(subs)
     print("BEGIN")
-    print(timeit(lambda: pickler.pickle(sc, "data/sc.dump"), number=1))
+    print(timeit(lambda: snn.save("data/snn.dump"), number=1))
+    del snn
 
-    del sc
-    sc = pickler.unpickle("data/sc.dump")
-    print(len(sc.neighbors([codes[0]])[0]))
+    print("END")
+    print(timeit(lambda: sc.SubmissionsClustering.load("data/snn.dump"), number=1))
 
-    # plotter = plotter_from_spec("plotly")
-    # sc.plot_with(plotter, title="Test plot", path="plots/temp_plot.html")
+    """
+    snn = SubmissionsClustering.load("data/snn.dump")
+    single = subs[0][0]
+    neighbors = snn.neighbors([single])[0]
+    print(neighbors[:5])
+    """
 
 
 if __name__ == '__main__':
-    # score()
-    # time()
     main()

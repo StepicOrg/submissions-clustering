@@ -1,12 +1,12 @@
 from sklearn.decomposition import PCA, TruncatedSVD
 from sklearn.manifold import TSNE
 
-__all__ = ["PCA", "TruncatedSVD", "TSNE", "reducer_from_spec"]
+__all__ = ["PCA", "TruncatedSVD", "TSNE"]
 
 VALID_NAMES = "pca", "lsa", "lsi", "tsne"
 
 
-def reducer_from_spec(name, n_dim, **kwargs):
+def from_spec(name, n_dim, **kwargs):
     if name == "pca":
         return PCA(n_components=n_dim, **kwargs)
     elif name in ("lsa", "lsi"):

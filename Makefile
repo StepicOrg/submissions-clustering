@@ -2,6 +2,9 @@ PSPPREFIX=python setup.py
 
 all: reqs build
 
+help:	## Show this help
+	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
+
 reqs:	## Install all reqs from requirements.txt
 	pip install -r requirements.txt
 
@@ -18,8 +21,5 @@ flake:	## Check if main package fit into flake standards
 clean:	## Clean-up the building output dirs
 	${PSPPREFIX} clean
 	rm -rf build dist *.egg-info
-
-help:	## Show this help
-	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 
 .PHONY: all reqs freeze build flake clean help

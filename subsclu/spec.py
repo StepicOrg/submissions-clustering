@@ -1,8 +1,6 @@
 # flake8: noqa
 from subsclu.pipe import *
-from .sc import SubmissionsClustering
-
-__all__ = []
+from .scnn import SubmissionsClustering
 
 VALID_ARGS = ("python", "diff"), ("python", "token"), ("python", "ast"), ("python", "test")
 

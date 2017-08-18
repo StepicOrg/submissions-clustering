@@ -1,16 +1,12 @@
-from _metrics import scorers
+import subsclu
+from subsclu.utils import read as read_utils
 
 
 def main():
-    """
-    snn = subsclu.from_spec("python", "diff")
-    subs = list(utils.from_sl3("data/subs.sl3", nrows=1000))
-    snn.fit(subs)
-    """
-
-    src, dst = "a=3", "b=4"
-    scorer = scorers.from_spec("python", "ast")
-    print(scorer.score(src, dst))
+    sc = subsclu.from_spec("python", "diff")
+    subs = list(read_utils.from_sl3("data/subs.sl3", nrows=1000))
+    sc.fit(subs)
+    print(len(sc.neighbors([subs[0][0]])[0]))
 
 
 if __name__ == '__main__':

@@ -1,10 +1,9 @@
 import pandas as pd
 
-from subsclu import utils
 from subsclu.pipe.bases import BaseEstimator, NeighborsMixin
-from subsclu.utils import LoadSaveMixin
-
-__all__ = ["SubmissionsClustering"]
+from subsclu.utils.dump import LoadSaveMixin
+from subsclu.utils.matrix import find_centers, fill_gaps
+from subsclu.utils.read import split_into_lists
 
 
 class SubmissionsClustering(BaseEstimator, NeighborsMixin, LoadSaveMixin):
@@ -23,20 +22,16 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin, LoadSaveMixin):
         :return: self
         :rtype: SubmissionsClustering
         """
-        codes, statuses = utils.split_into_lists(submissions)
+        codes, statuses = split_into_lists(submissions)
         correct_indicies, structs = self.preprocessor.fit_sanitize(codes)
-        del codes
         vecs = self.vectorizer.fit_transform(structs)
-        del structs
         labels = self.clusterizer.fit_predict(vecs)
         statuses = pd.Series(statuses).iloc[correct_indicies]
         train_ind = statuses.reset_index(drop=True)
         train_ind = train_ind[train_ind == "correct"].index.values
         indicies = statuses[statuses == "correct"].index.values
-        del statuses
-        del correct_indicies
         self.seeker.fit(vecs=vecs[train_ind], labels=labels[train_ind],
-                        indicies=indicies, centers=utils.find_centers(vecs, labels))
+                        indicies=indicies, centers=find_centers(vecs, labels))
         return self
 
     def neighbors(self, codes):
@@ -51,11 +46,7 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin, LoadSaveMixin):
         codes = list(codes)
         size = len(codes)
         correct_indicies, structs = self.preprocessor.sanitize(codes)
-        del codes
         vecs = self.vectorizer.transform(structs)
-        del structs
         labels = self.clusterizer.predict(vecs)
         neighbors_ind = self.seeker.neighbors(vecs, labels)
-        del vecs
-        del labels
-        return utils.fill_gaps(correct_indicies, neighbors_ind, size)
+        return fill_gaps(correct_indicies, neighbors_ind, size)

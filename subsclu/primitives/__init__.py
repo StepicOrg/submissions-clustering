@@ -1,3 +1,4 @@
-from .bijection import DefaultIntBijection  # noqa
-from .bunch import BunchOfMethods  # noqa
-from .tree import Tree  # noqa
+# flake8: noqa
+from .bijection import DefaultIntBijection
+from .bunch import BunchOfMethods
+from .tree import Tree

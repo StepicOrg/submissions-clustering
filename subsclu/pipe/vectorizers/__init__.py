@@ -1,9 +1,11 @@
-from .pre import BagOfNgrams, BagOfTrees, Hasher
-from .simple import DenseTransformer, SumList, MeanList
-from .sklearn import TfidfTransformer, Normalizer
-from .tovec import Token2Vec, Tokens2Vec
+# flake8: noqa
+from .pre import *
+from .simple import *
+from .sklearn import *
+from .tovec import *
 
-__all__ = ["BagOfNgrams", "BagOfTrees", "Hasher",
-           "DenseTransformer", "SumList", "MeanList",
-           "TfidfTransformer", "Normalizer",
-           "Token2Vec", "Tokens2Vec"]
+__all__ = []
+__all__.extend(pre.__all__)
+__all__.extend(simple.__all__)
+__all__.extend(sklearn.__all__)
+__all__.extend(tovec.__all__)

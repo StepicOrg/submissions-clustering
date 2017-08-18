@@ -1,5 +1,5 @@
-from .simple import StupidClusterizer
-from .sklearn import MiniBatchKMeans, AffinityPropagation
+# flake8: noqa
+from .simple import *
+from .sklearn import *
 
-__all__ = ["StupidClusterizer",
-           "MiniBatchKMeans", "AffinityPropagation"]
+__all__ = simple.__all__ + sklearn.__all__

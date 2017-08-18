@@ -1,1 +1,2 @@
-from .spec import Python, from_spec  # noqa
+# flake8: noqa
+from .spec import Python, from_spec

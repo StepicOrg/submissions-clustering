@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 
-from subsclu import utils
 from subsclu.pipe.bases import BaseEstimator, NeighborsMixin
+from subsclu.utils.matrix import find_centers
 
 __all__ = ["NNSeeker"]
 
@@ -59,7 +59,7 @@ class NNSeeker(BaseEstimator, NeighborsMixin):
     def fit(self, vecs, labels, indicies=None, centers=None):
         labels = pd.Series.from_array(labels)
         indicies = indicies if indicies is not None else np.arange(vecs.shape[0])
-        centers = centers if centers is not None else utils.find_centers(vecs, labels)
+        centers = centers if centers is not None else find_centers(vecs, labels)
 
         if self.only_centroids:
             new_labels_list = [labels[labels == -1]]

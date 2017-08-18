@@ -1,6 +1,3 @@
-__all__ = ["BunchOfMethods"]
-
-
 class _FrozenBunch:
     def __init__(self, *methods):
         for method in methods:
@@ -13,7 +10,7 @@ class _FrozenBunch:
         return self.__dict__[item]
 
     def __setattr__(self, key, value):
-        raise TypeError("'FrozenBunch' object does not support item assignment")
+        raise TypeError("object does not support item assignment")
 
 
 class BunchOfMethods:

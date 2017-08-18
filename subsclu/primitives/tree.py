@@ -1,12 +1,9 @@
 from collections.abc import Set
 from itertools import chain
 
-__all__ = ["Tree"]
-
 
 class Tree(Set):
     def __init__(self, value, children=None):
-        assert value is not None
         self.value = value
         self.children = [] if children is None else list(children)
 

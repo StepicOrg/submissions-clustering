@@ -1,7 +1,5 @@
 from collections import Mapping
 
-__all__ = ["DefaultIntBijection"]
-
 
 class _Bijection(Mapping):
     def __init__(self):

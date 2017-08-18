@@ -18,7 +18,7 @@ Addititional deps
 
 - make
 - pip
-- java 1.8 to run `ASTScorer` server
+- java 1.8 to run ``ASTScorer`` server
 
 Building
 ========
@@ -36,12 +36,12 @@ Simple example of using. ``.fit`` takes iterable of *(code, status)*, fitting mo
 similarities. ``.neighbors`` gives ids of most similar code samples.
 
 >>> import subsclu
->>> from subsclu import utils
+>>> from subsclu.utils import read as read_utils
 
->>> snn = sc.from_spec("python", "diff")
->>> subs = list(utils.from_sl3("data/subs.sl3", nrows=1000))
->>> snn.fit(subs)
->>> print(len(snn.neighbors([subs[0][0]])[0]))
+>>> sc = subsclu.from_spec("python", "diff")
+>>> subs = list(read_utils.from_sl3("data/subs.sl3", nrows=1000))
+>>> sc.fit(subs)
+>>> print(len(sc.neighbors([subs[0][0]])[0]))
 300
 
 Saving & Restoring
@@ -49,9 +49,9 @@ Saving & Restoring
 
 Efficient save and load using joblib for faster work with numpy arrays.
 
->>> snn.save("data/snn.dump")
->>> del snn
->>> snn = sc.SubmissionsClustering.load("data/snn.dump")
+>>> sc.save("data/snn.dump")
+>>> del sc
+>>> sc = subsclu.SubmissionsClustering.load("data/snn.dump")
 
 ----
 Test

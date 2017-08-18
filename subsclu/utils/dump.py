@@ -3,41 +3,39 @@ import gzip
 
 from sklearn.externals import joblib
 
-__all__ = ["save_object", "load_object", "LoadSaveMixin"]
 
-
-def pickle_save(object_, path):
+def pickle_save(object_, path, **kwargs):
     with gzip.open(path, "wb") as file:
-        cPickle.dump(object_, file, -1)
+        cPickle.dump(object_, file, **kwargs)
 
 
-def pickle_load(path):
+def pickle_load(path, **kwargs):
     with gzip.open(path, "rb") as file:
-        return cPickle.load(file)
+        return cPickle.load(file, **kwargs)
 
 
 _PICKLE = pickle_save, pickle_load
 
 
-def joblib_save(object_, path):
-    joblib.dump(object_, path, True, -1)
+def joblib_save(object_, path, **kwargs):
+    joblib.dump(object_, path, **kwargs)
 
 
-def joblib_load(path):
-    return joblib.load(path)
+def joblib_load(path, **kwargs):
+    return joblib.load(path, **kwargs)
 
 
 _JOBLIB = joblib_save, joblib_load
 
 _DEFAULT = _JOBLIB
 
-save_object, load_object = _DEFAULT
+default_save, default_load = _DEFAULT
 
 
 class LoadSaveMixin:
-    def save(self, path):
-        save_object(self, path)
+    def save(self, path, **kwargs):
+        default_save(self, path, **kwargs)
 
     @classmethod
-    def load(cls, path):
-        return load_object(path)
+    def load(cls, path, **kwargs):
+        return default_load(path, **kwargs)

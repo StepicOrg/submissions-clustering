@@ -1,7 +1,5 @@
 import numpy as np
 
-__all__ = ["find_centers", "fill_gaps"]
-
 
 def find_centers(X, y):
     if y.max() != -1:

@@ -3,8 +3,6 @@ import sqlite3
 
 import pandas as pd
 
-__all__ = ["split_into_lists", "from_file", "from_walk", "from_csv", "from_sl3"]
-
 
 def split_into_lists(it):
     return tuple(map(list, zip(*it)))

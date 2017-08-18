@@ -3,8 +3,6 @@ import os
 
 import requests
 
-__all__ = ["download_file"]
-
 URL = "https://docs.google.com/uc?export=download"
 CHUNK_SIZE = 32768
 NAME2ID = {

@@ -1,11 +1,10 @@
 # Emacs
 *~
 
-# Cache
+# Python cache
 *__pycache__*
 
 # Distribution
-venv/
 build/
 dist/
 *.egg-info

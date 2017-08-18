@@ -2,6 +2,8 @@
 submissions-clustering
 ======================
 
+Fine tool to split code submissions into clusters.
+
 ------------
 Installation
 ------------

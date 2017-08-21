@@ -1,10 +1,8 @@
 import heapq as hp
 from collections import namedtuple, Sized
 from difflib import SequenceMatcher
-
-from .base import BaseScorer
-
-__all__ = ["RatioScorer"]
+from functools import lru_cache
+from .base import BaseMetric
 
 
 def _ratio_list(src, dst):
@@ -70,12 +68,16 @@ def _ratio(src, dst):
         return _ratio_list(src, dst)
 
 
-class RatioScorer(BaseScorer):
+class RatioMetric(BaseMetric):
     def __init__(self, method):
         self.method = method
 
-    def best_score(self, src, dst_it):
-        return _ratio(self.method(src), (self.method(dst) for dst in dst_it))
+    @lru_cache(maxsize=None)
+    def _method(self, source):
+        return self.method(source)
 
-    def score(self, src, dst):
-        return self.best_score(src, (dst,))
+    def best_score(self, source, destinations):
+        return _ratio(self._method(source), (self._method(destination) for destination in destinations))
+
+    def score(self, source, destination):
+        return self.best_score(source, (destination,))

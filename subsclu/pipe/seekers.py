@@ -11,27 +11,13 @@ __all__ = ["NNSeeker"]
 
 
 class _KADNearestNeighbors(NearestNeighbors, NeighborsMixin):
-    def __init__(self, n_neighbors=5, radius=1.0,
-                 algorithm='auto', leaf_size=30, metric='minkowski',
-                 p=2, metric_params=None, n_jobs=1, **kwargs):
-        super().__init__(n_neighbors=n_neighbors, radius=radius,
-                         algorithm=algorithm, leaf_size=leaf_size, metric=metric,
-                         p=p, metric_params=metric_params, n_jobs=n_jobs, **kwargs)
-
-        self._indicies = None
-
-    def fit(self, vecs, indicies=None):
-        self._indicies = indicies if indicies is not None else np.arange(vecs.shape[0])
-        return super().fit(vecs)
-
     def neighbors(self, vecs):
         dist, ind = self.kneighbors(vecs)
         new_ind = []
         for odist, oind in zip(dist, ind):
-            rind = list(map(lambda x: x[1],
-                            takewhile(lambda x: x[0] <= self.radius, zip(odist, oind))
-                            ))
-            new_ind.append(self._indicies[rind].tolist())
+            new_ind.append(list(
+                map(lambda x: x[1], takewhile(lambda x: x[0] <= self.radius, zip(odist, oind)))
+            ))
         return new_ind
 
 
@@ -56,9 +42,8 @@ class NNSeeker(BaseEstimator, NeighborsMixin):
     def _n_jobs(self):
         return -1 if self.parralel else 1
 
-    def fit(self, vecs, labels, indicies=None, centers=None):
+    def fit(self, vecs, labels, centers=None):
         labels = pd.Series.from_array(labels)
-        indicies = indicies if indicies is not None else np.arange(vecs.shape[0])
         centers = centers if centers is not None else find_centers(vecs, labels)
 
         if self.only_centroids:
@@ -71,7 +56,7 @@ class NNSeeker(BaseEstimator, NeighborsMixin):
                                               leaf_size=self.leaf_size,
                                               n_jobs=self._n_jobs)
                     train_ind = labels[train].index.values
-                    nn.fit(vecs[train_ind], indicies[train_ind])
+                    nn.fit(vecs[train_ind])
                     ind = nn.neighbors(centers[label][np.newaxis, :])[0]
                     new_labels_list.append(labels.iloc[ind])
             labels = pd.concat(new_labels_list)
@@ -88,7 +73,7 @@ class NNSeeker(BaseEstimator, NeighborsMixin):
                                               leaf_size=self.leaf_size,
                                               n_jobs=self._n_jobs)
                     train_ind = labels[train].index.values
-                    nn.fit(vecs[train_ind], indicies[train_ind])
+                    nn.fit(vecs[train_ind])
                     nns[label] = nn
 
         self._centers = centers

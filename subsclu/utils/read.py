@@ -3,6 +3,8 @@ import sqlite3
 
 import pandas as pd
 
+from subsclu import languages
+
 
 def split_into_lists(it):
     return tuple(map(list, zip(*it)))
@@ -66,3 +68,8 @@ def from_sl3(*args, **kwargs):
     gen = kwargs.pop("gen", True)
     it = _sl3_gen(*args, **kwargs)
     return it if gen else _fix_and_split(it)
+
+
+def filter_out_invalid(submissions, language):
+    check = languages.from_spec(language).check
+    return ((code, status) for code, status in submissions if check(code))

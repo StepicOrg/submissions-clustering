@@ -2,6 +2,7 @@ import heapq as hp
 from collections import namedtuple, Sized
 from difflib import SequenceMatcher
 from functools import lru_cache
+
 from .base import BaseMetric
 
 
@@ -76,8 +77,8 @@ class RatioMetric(BaseMetric):
     def _method(self, source):
         return self.method(source)
 
-    def best_score(self, source, destinations):
-        return _ratio(self._method(source), (self._method(destination) for destination in destinations))
+    def best_metric(self, source, dests):
+        return _ratio(self._method(source), (self._method(dest) for dest in dests))
 
-    def score(self, source, destination):
-        return self.best_score(source, (destination,))
+    def metric(self, source, dest):
+        return self.best_metric(source, (dest,))

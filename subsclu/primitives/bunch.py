@@ -1,7 +1,12 @@
 class _FrozenBunch:
     def __init__(self, *methods):
         for method in methods:
-            self.__dict__[method.__name__] = method
+            names = []
+            if isinstance(method, tuple):
+                names, method = method
+            names.append(method.__name__)
+            for name in names:
+                self.__dict__[name] = method
 
     def __contains__(self, item):
         return item in self.__dict__

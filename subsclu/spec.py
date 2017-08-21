@@ -10,7 +10,7 @@ def from_spec(language, approach):
         return SubmissionsClustering(
             preprocessor=SimplePreprocessor(
                 language="python",
-                method="asttokenize"
+                method="tokenize"
             ),
             vectorizer=make_pipeline(
                 BagOfNgrams(ngram_range=(1, 2)),
@@ -22,7 +22,20 @@ def from_spec(language, approach):
             seeker=NNSeeker()
         )
     elif (language, approach) == ("python", "token"):
-        return from_spec("python", "diff")
+        return SubmissionsClustering(
+            preprocessor=SimplePreprocessor(
+                language="python",
+                method="asttokenize"
+            ),
+            vectorizer=make_pipeline(
+                BagOfNgrams(ngram_range=(1, 3)),
+                TfidfTransformer(),
+                TruncatedSVD(n_components=100),
+                Normalizer()
+            ),
+            clusterizer=StupidClusterizer(),
+            seeker=NNSeeker()
+        )
     elif (language, approach) == ("python", "ast"):
         return SubmissionsClustering(
             preprocessor=SimplePreprocessor(

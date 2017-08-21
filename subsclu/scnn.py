@@ -48,5 +48,10 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin, LoadSaveMixin):
         vecs = self.vectorizer.transform(structs)
         labels = self.clusterizer.predict(vecs)
         neighbors_inds = self.seeker.neighbors(vecs, labels)
-        neighbors_inds = [self._train_ind[neighbors_ind] for neighbors_ind in neighbors_inds]
-        return neighbors_inds
+        answer = []
+        for neighbors_ind in neighbors_inds:
+            if neighbors_ind.size:
+                answer.append(self._train_ind[neighbors_ind])
+            else:
+                answer.append([])
+        return answer

@@ -13,9 +13,14 @@ class StupidPreprocessor(BaseEstimator, SanitizerMixin):
         return codes
 
 
+_STRUCTS = (
+    (list, [0], lambda l, e: [e[elem] for elem in l]),  # list
+    (Tree, Tree(0), lambda t, e: t.map(e))  # Tree
+)
+
+
 class SimplePreprocessor(BaseEstimator, SanitizerMixin):
     UNK_STR = "<UNK>"
-    VALID_STRUCTS = list, Tree
 
     def _make_encoding(self):
         return DefaultIntBijection(zero_value=self.UNK_STR if self.add_unk else None)
@@ -32,12 +37,13 @@ class SimplePreprocessor(BaseEstimator, SanitizerMixin):
         return language[method] if method in language else None
 
     def _encode(self, struct):
-        if isinstance(struct, list):
-            return [self._encoding[elem] for elem in struct]
-        elif isinstance(struct, Tree):
-            return struct.map(self._encoding)
-        else:
-            raise ValueError("struct must be of the {}".format(self.VALID_STRUCTS))
+        for Struct, dummy, encode in _STRUCTS:
+            if isinstance(struct, Struct):
+                if len(struct):
+                    return encode(struct, self._encoding)
+                else:
+                    return dummy
+        raise ValueError("struct must be of the {}".format(self.VALID_STRUCTS))
 
     def fit(self, codes):
         method = self._get_method(self.method)

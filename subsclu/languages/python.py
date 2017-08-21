@@ -77,4 +77,11 @@ def grammarize(code):
     return _grammar2tree(parser.suite(code).tolist())
 
 
-Python = BunchOfMethods(check, tokenize, asttokenize, astize, grammarize)
+Python = BunchOfMethods(
+    (["diff"], lambda x: x),
+    check,
+    tokenize,
+    (["token"], asttokenize),
+    (["ast"], astize),
+    grammarize
+)

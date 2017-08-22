@@ -30,7 +30,8 @@ class ErrorScorer(BaseScorer):
         codes, statuses = split_into_lists(submissions)
         codes, statuses = pd.Series(codes), pd.Series(statuses)
         correct_codes, wrong_codes = codes[statuses == "correct"], codes[statuses != "correct"]
-        logger.debug("num of correct = {}, num of wrong = {}".format(len(correct_codes), len(wrong_codes)))
+        logger.debug("num of correct = {}, num of wrong = {}"
+                     .format(len(correct_codes), len(wrong_codes)))
 
         def neighbors_codes(neighbors_ind):
             return codes.iloc[neighbors_ind].tolist()

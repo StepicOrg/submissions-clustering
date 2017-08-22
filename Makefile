@@ -26,6 +26,6 @@ flake:	## Check if main package fit into flake standards
 
 clean:	## Clean-up the building output dirs
 	${PSPPREFIX} clean
-	rm -rf build dist *.egg-info .eggs
+	rm -rf build dist *.egg-info .eggs .cache
 
 .PHONY: all help reqs freeze build run test flake clean

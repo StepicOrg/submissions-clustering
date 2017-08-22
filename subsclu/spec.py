@@ -4,7 +4,7 @@ import logging
 from subsclu import languages
 from subsclu.exceptions import InvalidSpecError
 from subsclu.pipe import *
-from .scnn import SubmissionsClustering
+from .model import SubmissionsClustering
 
 logger = logging.getLogger(__name__)
 

@@ -2,7 +2,7 @@
 import logging
 
 # noinspection PyUnresolvedReferences
-from .scnn import SubmissionsClustering
+from .model import SubmissionsClustering
 # noinspection PyUnresolvedReferences
 from .spec import from_spec
 

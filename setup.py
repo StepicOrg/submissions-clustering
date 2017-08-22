@@ -39,7 +39,7 @@ setup(
         "Programming Language :: Python :: 3.4",
     ],
     keywords="unsupervised learning code clusters",
-    packages=find_packages(exclude=["_legacy*"]),
+    packages=find_packages(exclude=["_legacy*", "tests*"]),
     install_requires=_install_requires,
     dependency_links=_dependency_links,
     python_requires=">=3.4, <4",

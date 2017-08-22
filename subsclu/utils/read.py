@@ -50,8 +50,10 @@ def from_walk(*args, **kwargs):
 
 def _csv_gen(path, columns=("code", "status"), nrows=None, memory_map=False):
     logger.info("gen codes from csv {}".format(path))
-    yield from pd.read_csv(path, usecols=columns, nrows=nrows, memory_map=memory_map) \
-                   .loc[:, columns].itertuples(index=False)
+    yield from pd.read_csv(
+        path, usecols=columns,
+        nrows=nrows, memory_map=memory_map
+    ).loc[:, columns].itertuples(index=False)
 
 
 def from_csv(*args, **kwargs):

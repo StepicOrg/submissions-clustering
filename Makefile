@@ -15,11 +15,14 @@ build:	## Build the project
 	${PSPPREFIX} build
 	${PSPPREFIX} sdist
 
+test:	## Run tests
+	${PSPPREFIX} test
+
 flake:	## Check if main package fit into flake standards
 	${PSPPREFIX} flake8
 
 clean:	## Clean-up the building output dirs
 	${PSPPREFIX} clean
-	rm -rf build dist *.egg-info
+	rm -rf build dist *.egg-info .eggs
 
-.PHONY: all reqs freeze build flake clean help
+.PHONY: all help reqs freeze build test flake clean

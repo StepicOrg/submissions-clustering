@@ -18,7 +18,6 @@ Addititional deps
 
 - make
 - pip
-- java 1.8 to run ``ASTScorer`` server
 
 Building
 ========
@@ -29,6 +28,17 @@ Building
 Usage
 -----
 
+SetUp
+=====
+
+At first, we need to set things up. Customize your logger behavior:
+
+>>> import logging
+>>> logging.basicConfig(
+...     level=logging.INFO,
+...     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+... )
+
 Example
 =======
 
@@ -37,11 +47,10 @@ similarities. ``.neighbors`` gives ids of most similar code samples.
 
 >>> import subsclu
 >>> from subsclu.utils import read as read_utils
-
->>> sc = subsclu.from_spec("python", "diff")
+>>> model = subsclu.from_spec("python", "diff")
 >>> subs = list(read_utils.from_sl3("data/subs.sl3", nrows=1000))
->>> sc.fit(subs)
->>> print(len(sc.neighbors([subs[0][0]])[0]))
+>>> model.fit(subs)
+>>> print(len(model.neighbors([subs[0][0]])[0]))
 300
 
 Saving & Restoring
@@ -58,7 +67,7 @@ model is pickable object, you can use methods from pickle package (and also use 
 
 .. _`django-picklefield`: https://pypi.python.org/pypi/django-picklefield
 
->>> from subsclu.utils import read as read_utils
+>>> from subsclu.utils import dump as dump_utils
 >>> dump_utils.pickle_save(model, "data/model.dump")
 >>> del model
 >>> model = dump_utils.pickle_load("data/model.dump")
@@ -67,7 +76,15 @@ model is pickable object, you can use methods from pickle package (and also use 
 Test
 ----
 
-``TODO``
+You can either run:
+
+``make test``
+
+to run tests in current enviroment. Another option is:
+
+``tox``
+
+to test full build-test cycle in separate py34 venv.
 
 ------------
 Useful Links

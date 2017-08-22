@@ -1,4 +1,5 @@
 import ast
+import logging
 import parser
 import symbol
 import token as token_
@@ -9,6 +10,8 @@ from keyword import iskeyword
 from asttokens import ASTTokens
 
 from subsclu.primitives import Tree, BunchOfMethods
+
+logger = logging.getLogger(__name__)
 
 _IGNORED_TOKENS = {token_.ENDMARKER, token_.NEWLINE, token_.DEDENT, token_.ERRORTOKEN,
                    tokenize_.COMMENT, tokenize_.NL, tokenize_.ENCODING}
@@ -25,6 +28,7 @@ def check_valid(code):
             return True
     except SyntaxError:
         pass
+    logger.debug("invalid python code: {}".format(code))
     return False
 
 
@@ -33,6 +37,7 @@ def token_parse(code):
     for token in tokenize_.tokenize(BytesIO(code.encode('utf-8')).readline):
         num, val, exact_type = token.type, token.string, token.exact_type
         if num in _IGNORED_TOKENS:
+            logger.debug("ignored token val: {}".format(val))
             continue
         elif num == tokenize_.NAME and not iskeyword(val):
             val = "<name>"

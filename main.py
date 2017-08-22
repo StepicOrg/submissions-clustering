@@ -1,5 +1,6 @@
 import logging.config
 
+from subsclu import scorers
 from subsclu.utils import dump as dump_utils
 from subsclu.utils import read as read_utils
 
@@ -17,12 +18,10 @@ def run():
     # dump_utils.pickle_save(model, presaved_model_path)
     model = dump_utils.pickle_load(presaved_model_path)
 
-    """
     scorer = scorers.from_spec(language, test_approach)
     presaved_score_path = "data/score_{}_{}_{}.dump".format(language, test_approach, nrows or "all")
     score = scorer.score(model, submissions, presaved_score_path)
-    print("score= {}".format(score))
-    """
+    print("score={}".format(score))
 
 
 def main():

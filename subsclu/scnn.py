@@ -48,11 +48,12 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin, LoadSaveMixin):
         """Give correct neighbors indicies for each code sample in the input.
 
         :param codes: code samples
-        :type codes: list[str]
+        :type codes: Iterable[str]
 
         :return: array of neighbors inds for each code sample
         :rtype: list[ndarray]
         """
+        codes = list(codes)
         logger.info("doing preprocessor step")
         structs = self.preprocessor.sanitize(codes)
         logger.info("doing vectorizer step")

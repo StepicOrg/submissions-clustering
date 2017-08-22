@@ -42,14 +42,15 @@ At first, we need to set things up. Customize your logger behavior:
 Training
 ========
 
-Simple example of usage. ``.fit`` takes iterable of *(code, status)*, fitting model and finding similarities.
-``.neighbors`` gives ids of most similar correct code samples:
+Simple example of usage. Firslty, with filter out invalid py code. Then, ``.fit`` takes iterable of *(code, status)*,
+fitting model and finding similarities. ``.neighbors`` gives ids of most similar correct code samples:
 
 >>> import subsclu
 >>> from subsclu.utils import read as read_utils
->>> model = subsclu.from_spec("python", "diff")
->>> subs = list(read_utils.from_sl3("data/subs.sl3", nrows=1000))
->>> model.fit(subs)
+>>> submissions = read_utils.from_sl3("data/subs.sl3", nrows=3000)
+>>> submissions = list(read_utils.filter_out_invalid(submissions, "python"))
+>>> model = subsclu.from_spec("python", "ast")
+>>> model.fit(submissions)
 >>> print(len(model.neighbors([subs[0][0]])[0]))
 300
 

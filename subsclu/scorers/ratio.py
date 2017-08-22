@@ -1,16 +1,18 @@
 import heapq as hp
+import logging
 from collections import namedtuple, Sized
 from difflib import SequenceMatcher
+from functools import lru_cache
 
-from .base import BaseScorer
+from .base import BaseMetric
 
-__all__ = ["RatioScorer"]
+logger = logging.getLogger(__name__)
 
 
-def _ratio_list(src, dst):
+def _ratio_list(source, dests):
     max_ratio = 0.
-    for s in dst:
-        sm = SequenceMatcher(None, src, s)
+    for dest in dests:
+        sm = SequenceMatcher(None, source, dest)
         if sm.real_quick_ratio() <= max_ratio or sm.quick_ratio() <= max_ratio:
             continue
         max_ratio = max(max_ratio, sm.ratio())
@@ -60,22 +62,28 @@ def _ratio_heap(ps, ss):
     return max_ratio
 
 
-_THRESHOLD = 50
+_USE_HEAP = False
+_HEAP_THRESHOLD = 50
 
 
 def _ratio(src, dst):
-    if isinstance(dst, Sized) and len(dst) >= _THRESHOLD:
+    if _USE_HEAP and isinstance(dst, Sized) and len(dst) >= _HEAP_THRESHOLD:
+        logger.info("using heap method to calc ratio")
         return _ratio_heap(src, dst)
     else:
         return _ratio_list(src, dst)
 
 
-class RatioScorer(BaseScorer):
+class RatioMetric(BaseMetric):
     def __init__(self, method):
         self.method = method
 
-    def best_score(self, src, dst_it):
-        return _ratio(self.method(src), (self.method(dst) for dst in dst_it))
+    @lru_cache(maxsize=None)
+    def _method(self, source):
+        return self.method(source)
 
-    def score(self, src, dst):
-        return self.best_score(src, (dst,))
+    def best_metric(self, source, dests):
+        return _ratio(self._method(source), (self._method(dest) for dest in dests))
+
+    def metric(self, source, dest):
+        return self.best_metric(source, (dest,))

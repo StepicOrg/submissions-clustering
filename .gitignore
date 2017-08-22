@@ -8,6 +8,8 @@
 build/
 dist/
 *.egg-info
+.tox
+.eggs
 
 # Idea
 .idea

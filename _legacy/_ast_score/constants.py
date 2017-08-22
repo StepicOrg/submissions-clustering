@@ -23,11 +23,11 @@ NODE_DESC = {
         'children': ()
     },
 
-    # ast.FormattedValue: {
+    # _ast_score.FormattedValue: {
     #     'props': ('conversion',),
     #     'children': ('value', 'format_spec')
     # },
-    # ast.JoinedStr: {
+    # _ast_score.JoinedStr: {
     #     'props': (),
     #     'children': ('values',)
     # },
@@ -165,7 +165,7 @@ NODE_DESC = {
         'props': (),
         'children': ()
     },
-    # ast.MatMult: {
+    # _ast_score.MatMult: {
     #     'props': (),
     #     'children': ()
     # },
@@ -292,7 +292,7 @@ NODE_DESC = {
         'props': (),
         'children': ('targets', 'value')
     },
-    # ast.AnnAssign: {
+    # _ast_score.AnnAssign: {
     #     'props': ('simple',),
     #     'children': ('target', 'annotation', 'value')
     # },
@@ -301,7 +301,7 @@ NODE_DESC = {
         'children': ('target', 'op', 'value')
     },
 
-    # ast.Print: {
+    # _ast_score.Print: {
     #     'props': ('nl',),
     #     'children': ('dest', 'value')
     # },
@@ -368,11 +368,11 @@ NODE_DESC = {
         'props': (),
         'children': ('body', 'handlers', 'orelse', 'finalbody')
     },
-    # ast.TryFinally: {
+    # _ast_score.TryFinally: {
     #     'props': (),
     #     'children': ('body', 'finalbody')
     # },
-    # ast.TryExcept: {
+    # _ast_score.TryExcept: {
     #     'props': (),
     #     'children': ('body', 'handlers', 'orelse')
     # },
@@ -436,19 +436,19 @@ NODE_DESC = {
     },
 
     # Async and await
-    # ast.AsyncFunctionDef: {
+    # _ast_score.AsyncFunctionDef: {
     #     'props': ('name',),
     #     'children': ('args', 'body', 'decorator_list', 'returns')
     # },
-    # ast.Await: {
+    # _ast_score.Await: {
     #     'props': (),
     #     'children': ('value',)
     # },
-    # ast.AsyncFor: {
+    # _ast_score.AsyncFor: {
     #     'props': (),
     #     'children': ('target', 'iter', 'body', 'orelse')
     # },
-    # ast.AyncWith: {
+    # _ast_score.AyncWith: {
     #     'props': (),
     #     'children': ('items', 'body')
     # }

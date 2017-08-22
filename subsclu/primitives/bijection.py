@@ -1,4 +1,7 @@
+import logging
 from collections import Mapping
+
+logger = logging.getLogger(__name__)
 
 
 class _Bijection(Mapping):
@@ -32,6 +35,7 @@ class DefaultIntBijection(_Bijection):
 
     def __getitem__(self, item):
         if item not in self._data:
+            logging.debug("new item = {}".format(item))
             next_int = len(self)
             self._data[item] = next_int
             self._rev_data[next_int] = item

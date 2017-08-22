@@ -1,3 +1,6 @@
+from subsclu.exceptions import InvalidStructMethod
+
+
 class _FrozenBunch:
     def __init__(self, *methods):
         for method in methods:
@@ -15,10 +18,10 @@ class _FrozenBunch:
         if item in self.__dict__:
             return self.__dict__[item]
         else:
-            raise ValueError("no such method in bunch")
+            raise InvalidStructMethod("no such method in bunch")
 
     def __setattr__(self, key, value):
-        raise TypeError("bunch does not support item assignment")
+        raise InvalidStructMethod("bunch does not support item assignment")
 
 
 class BunchOfMethods:

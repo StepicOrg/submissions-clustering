@@ -1,13 +1,19 @@
 # flake8: noqa
+import logging
+
 from subsclu import languages
 from subsclu.exceptions import InvalidSpecError
 from subsclu.pipe import *
 from .scnn import SubmissionsClustering
 
+logger = logging.getLogger(__name__)
+
 VALID_APPROACHES = "diff", "token", "ast", "test"
 
 
 def from_spec(language, approach):
+    logger.info("creating model from spec with language={}, approach={}"
+                .format(language, approach))
     language = languages.from_spec(language)
     if approach == "diff":
         return SubmissionsClustering(

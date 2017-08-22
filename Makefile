@@ -15,6 +15,9 @@ build:	## Build the project
 	${PSPPREFIX} build
 	${PSPPREFIX} sdist
 
+run:	## Run main.py script
+	python main.py
+
 test:	## Run tests
 	${PSPPREFIX} test
 
@@ -25,4 +28,4 @@ clean:	## Clean-up the building output dirs
 	${PSPPREFIX} clean
 	rm -rf build dist *.egg-info .eggs
 
-.PHONY: all help reqs freeze build test flake clean
+.PHONY: all help reqs freeze build run test flake clean

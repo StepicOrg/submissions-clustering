@@ -16,7 +16,7 @@ VALID_NAMES = "python",
 
 
 def from_spec(name):
-    logger.info("start creating language from spec with name = {}".format(name))
+    logger.info("creating language from spec with name={}".format(name))
     if name == "python":
         return Python()
     else:

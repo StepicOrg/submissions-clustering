@@ -6,3 +6,8 @@ class InvalidSpecError(Exception):
 class PipeCompoundError(Exception):
     """Raise an error when pipe parts give incompatible output."""
     pass
+
+
+class InvalidStructMethod(Exception):
+    """Raise an error when invalid struct usage occur."""
+    pass

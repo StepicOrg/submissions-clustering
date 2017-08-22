@@ -1,9 +1,12 @@
 import heapq as hp
+import logging
 from collections import namedtuple, Sized
 from difflib import SequenceMatcher
 from functools import lru_cache
 
 from .base import BaseMetric
+
+logger = logging.getLogger(__name__)
 
 
 def _ratio_list(source, dests):
@@ -65,6 +68,7 @@ _HEAP_THRESHOLD = 50
 
 def _ratio(src, dst):
     if _USE_HEAP and isinstance(dst, Sized) and len(dst) >= _HEAP_THRESHOLD:
+        logger.info("using heap method to calc ratio")
         return _ratio_heap(src, dst)
     else:
         return _ratio_list(src, dst)

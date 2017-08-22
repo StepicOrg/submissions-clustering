@@ -12,10 +12,13 @@ class _FrozenBunch:
         return item in self.__dict__
 
     def __getitem__(self, item):
-        return self.__dict__[item]
+        if item in self.__dict__:
+            return self.__dict__[item]
+        else:
+            raise ValueError("no such method in bunch")
 
     def __setattr__(self, key, value):
-        raise TypeError("object does not support item assignment")
+        raise TypeError("bunch does not support item assignment")
 
 
 class BunchOfMethods:

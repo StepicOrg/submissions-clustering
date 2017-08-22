@@ -1,3 +1,4 @@
+from subsclu.exceptions import InvalidSpecError
 from .python import Python
 
 _PYTHON = Python()
@@ -14,4 +15,4 @@ def from_spec(name):
     if name == "python":
         return Python()
     else:
-        raise ValueError("name must be of the {}".format(VALID_NAMES))
+        raise InvalidSpecError("name must be of the {}".format(VALID_NAMES))

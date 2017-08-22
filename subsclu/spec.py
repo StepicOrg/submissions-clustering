@@ -1,5 +1,6 @@
 # flake8: noqa
 from subsclu import languages
+from subsclu.exceptions import InvalidSpecError
 from subsclu.pipe import *
 from .scnn import SubmissionsClustering
 
@@ -64,4 +65,4 @@ def from_spec(language, approach):
             seeker=NNSeeker()
         )
     else:
-        raise ValueError("approach must be of the {}".format(VALID_APPROACHES))
+        raise InvalidSpecError("approach must be of the {}".format(VALID_APPROACHES))

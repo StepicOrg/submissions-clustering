@@ -22,7 +22,7 @@ class ErrorScorer(BaseScorer):
     def __init__(self, metric):
         self.metric = metric
 
-    def score(self, model, submissions, presaved_path=None, plot_errors=True):
+    def score(self, model, submissions, presaved_path=None, plot_errors=False):
         codes, statuses = split_into_lists(submissions)
         codes, statuses = pd.Series(codes), pd.Series(statuses)
         correct_codes, wrong_codes = codes[statuses == "correct"], codes[statuses != "correct"]

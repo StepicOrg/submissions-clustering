@@ -1,2 +1,2 @@
 # flake8: noqa
-from .spec import ErrorScorer, from_spec
+from .spec import from_spec

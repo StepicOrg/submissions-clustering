@@ -47,11 +47,21 @@ similarities. ``.neighbors`` gives ids of most similar code samples.
 Saving & Restoring
 ==================
 
-Efficient save and load using joblib for faster work with numpy arrays.
+Model class provide save and static load methods for faster and efficient model saving and loading:
 
->>> sc.save("data/snn.dump")
->>> del sc
->>> sc = subsclu.SubmissionsClustering.load("data/snn.dump")
+>>> model.save("data/model.dump")
+>>> del model
+>>> model = subsclu.SubmissionsClustering.load("data/model.dump")
+
+Default serializing machinery provided by joblib package from sklearn (for faster work with numpy matricies). Since
+model is pickable object, you can use methods from pickle package (and also use with `django-picklefield`_):
+
+.. _`django-picklefield`: https://pypi.python.org/pypi/django-picklefield
+
+>>> from subsclu.utils import read as read_utils
+>>> dump_utils.pickle_save(model, "data/model.dump")
+>>> del model
+>>> model = dump_utils.pickle_load("data/model.dump")
 
 ----
 Test

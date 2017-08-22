@@ -1,16 +1,17 @@
 # flake8: noqa
+from subsclu import languages
 from subsclu.pipe import *
 from .scnn import SubmissionsClustering
 
-VALID_ARGS = ("python", "diff"), ("python", "token"), ("python", "ast"), ("python", "test")
+VALID_APPROACHES = "diff", "token", "ast", "test"
 
 
 def from_spec(language, approach):
-    if (language, approach) == ("python", "diff"):
+    language = languages.from_spec(language)
+    if approach == "diff":
         return SubmissionsClustering(
             preprocessor=SimplePreprocessor(
-                language="python",
-                method="tokenize"
+                method=language.tokenize
             ),
             vectorizer=make_pipeline(
                 BagOfNgrams(ngram_range=(1, 2)),
@@ -21,11 +22,10 @@ def from_spec(language, approach):
             clusterizer=StupidClusterizer(),
             seeker=NNSeeker()
         )
-    elif (language, approach) == ("python", "token"):
+    elif approach == "token":
         return SubmissionsClustering(
             preprocessor=SimplePreprocessor(
-                language="python",
-                method="asttokenize"
+                method=language.tokenize
             ),
             vectorizer=make_pipeline(
                 BagOfNgrams(ngram_range=(1, 3)),
@@ -36,11 +36,10 @@ def from_spec(language, approach):
             clusterizer=StupidClusterizer(),
             seeker=NNSeeker()
         )
-    elif (language, approach) == ("python", "ast"):
+    elif approach == "ast":
         return SubmissionsClustering(
             preprocessor=SimplePreprocessor(
-                language="python",
-                method="astize"
+                method=language.astize
             ),
             vectorizer=make_pipeline(
                 BagOfTrees(ngram_range=(1, 2)),
@@ -51,11 +50,10 @@ def from_spec(language, approach):
             clusterizer=StupidClusterizer(),
             seeker=NNSeeker()
         )
-    elif (language, approach) == ("python", "test"):
+    elif approach == "test":
         return SubmissionsClustering(
             preprocessor=SimplePreprocessor(
-                language="python",
-                method="tokenize"
+                method=language.astize
             ),
             vectorizer=make_pipeline(
                 Token2Vec(),
@@ -66,4 +64,4 @@ def from_spec(language, approach):
             seeker=NNSeeker()
         )
     else:
-        raise ValueError("language and approach must be of the {}".format(VALID_ARGS))
+        raise ValueError("approach must be of the {}".format(VALID_APPROACHES))

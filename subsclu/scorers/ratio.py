@@ -6,10 +6,10 @@ from functools import lru_cache
 from .base import BaseMetric
 
 
-def _ratio_list(src, dst):
+def _ratio_list(source, dests):
     max_ratio = 0.
-    for s in dst:
-        sm = SequenceMatcher(None, src, s)
+    for dest in dests:
+        sm = SequenceMatcher(None, source, dest)
         if sm.real_quick_ratio() <= max_ratio or sm.quick_ratio() <= max_ratio:
             continue
         max_ratio = max(max_ratio, sm.ratio())
@@ -59,11 +59,12 @@ def _ratio_heap(ps, ss):
     return max_ratio
 
 
-_THRESHOLD = 50
+_USE_HEAP = False
+_HEAP_THRESHOLD = 50
 
 
 def _ratio(src, dst):
-    if isinstance(dst, Sized) and len(dst) >= _THRESHOLD:
+    if _USE_HEAP and isinstance(dst, Sized) and len(dst) >= _HEAP_THRESHOLD:
         return _ratio_heap(src, dst)
     else:
         return _ratio_list(src, dst)

@@ -1,6 +1,8 @@
 from sklearn.decomposition import PCA, TruncatedSVD
 from sklearn.manifold import TSNE
 
+from subsclu.exceptions import InvalidSpecError
+
 __all__ = ["PCA", "TruncatedSVD", "TSNE"]
 
 VALID_NAMES = "pca", "lsa", "lsi", "tsne"
@@ -14,4 +16,4 @@ def from_spec(name, n_dim, **kwargs):
     elif name == "tsne":
         return TSNE(n_components=n_dim, **kwargs)
     else:
-        raise ValueError("name must be of the {}".format(VALID_NAMES))
+        raise InvalidSpecError("name must be of the {}".format(VALID_NAMES))

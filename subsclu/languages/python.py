@@ -1,4 +1,5 @@
 import ast
+import logging
 import parser
 import symbol
 import token as token_
@@ -10,6 +11,8 @@ from asttokens import ASTTokens
 
 from subsclu.primitives import Tree, BunchOfMethods
 
+logger = logging.getLogger(__name__)
+
 _IGNORED_TOKENS = {token_.ENDMARKER, token_.NEWLINE, token_.DEDENT, token_.ERRORTOKEN,
                    tokenize_.COMMENT, tokenize_.NL, tokenize_.ENCODING}
 _TOKEN_MAP = dict(list(symbol.sym_name.items()) + list(token_.tok_name.items()))
@@ -19,20 +22,22 @@ def _code2ast(code):
     return ast.parse(code)
 
 
-def check(code):
+def check_valid(code):
     try:
         if isinstance(code, str) and _code2ast(code) is not None:
             return True
     except SyntaxError:
         pass
+    logger.debug("invalid python code: {}".format(code))
     return False
 
 
-def tokenize(code):
+def token_parse(code):
     result = []
     for token in tokenize_.tokenize(BytesIO(code.encode('utf-8')).readline):
         num, val, exact_type = token.type, token.string, token.exact_type
         if num in _IGNORED_TOKENS:
+            logger.debug("ignored token val: {}".format(val))
             continue
         elif num == tokenize_.NAME and not iskeyword(val):
             val = "<name>"
@@ -54,7 +59,7 @@ def _tok_to_str(token):
     return str((token.type, token.string))
 
 
-def asttokenize(code):
+def asttokens_parse(code):
     return list(map(_tok_to_str, filter(_not_junk, ASTTokens(code).tokens)))
 
 
@@ -63,7 +68,7 @@ class _SimpleVisitor(ast.NodeVisitor):
         return Tree(node.__class__.__name__, map(self.visit, ast.iter_child_nodes(node)))
 
 
-def astize(code):
+def ast_parse(code):
     return _SimpleVisitor().visit(_code2ast(code))
 
 
@@ -73,8 +78,16 @@ def _grammar2tree(node):
     return Tree(value, children)
 
 
-def grammarize(code):
+def grammar_parse(code):
     return _grammar2tree(parser.suite(code).tolist())
 
 
-Python = BunchOfMethods(check, tokenize, asttokenize, astize, grammarize)
+Python = BunchOfMethods(
+    # core
+    (["check"], check_valid),
+    (["tokenize"], asttokens_parse),
+    (["astize"], ast_parse),
+    # spare
+    token_parse,
+    grammar_parse
+)

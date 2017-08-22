@@ -5,7 +5,7 @@ import subprocess
 import requests
 
 from .uast import Node
-from ..base import BaseScorer
+from _metrics.scorers.base import BaseScorer
 
 __all__ = ["ASTScorer"]
 

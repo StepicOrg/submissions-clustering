@@ -1,7 +1,10 @@
 import errno
+import logging
 import os
 
 import requests
+
+logger = logging.getLogger(__name__)
 
 URL = "https://docs.google.com/uc?export=download"
 CHUNK_SIZE = 32768
@@ -43,5 +46,7 @@ def _download_file_from_google_drive(id_, destination):
 def download_file(name):
     dst_path = "data/{}".format(name)
     if not os.path.exists(dst_path):
+        logger.info("download file {} from gdisk, saving to {}".format(name, dst_path))
         _download_file_from_google_drive(NAME2ID[name], dst_path)
+    logger.info("the file is on {}".format(dst_path))
     return dst_path

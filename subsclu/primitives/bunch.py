@@ -1,16 +1,27 @@
+from subsclu.exceptions import InvalidStructMethod
+
+
 class _FrozenBunch:
     def __init__(self, *methods):
         for method in methods:
-            self.__dict__[method.__name__] = method
+            names = []
+            if isinstance(method, tuple):
+                names, method = method
+            names.append(method.__name__)
+            for name in names:
+                self.__dict__[name] = method
 
     def __contains__(self, item):
         return item in self.__dict__
 
     def __getitem__(self, item):
-        return self.__dict__[item]
+        if item in self.__dict__:
+            return self.__dict__[item]
+        else:
+            raise InvalidStructMethod("no such method in bunch")
 
     def __setattr__(self, key, value):
-        raise TypeError("object does not support item assignment")
+        raise InvalidStructMethod("bunch does not support item assignment")
 
 
 class BunchOfMethods:

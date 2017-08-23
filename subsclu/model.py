@@ -22,12 +22,12 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin, LoadSaveMixin):
     def fit(self, submissions):
         """Fit model with new submissions.
 
-        :param submissions: tuple of (code, status), where status either "correct" or something
-        else
+        :param submissions: tuple of (code, status), where status either
+        "correct" or something else.
         :type submissions: list[(str, str)]
-
         :return: self
         :rtype: SubmissionsClustering
+
         """
         codes, statuses = split_into_lists(submissions)
         logger.info("fitting preprocessor step")

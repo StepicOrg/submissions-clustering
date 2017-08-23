@@ -18,14 +18,22 @@ build:	## Build the project
 run:	## Run main.py script
 	python main.py
 
-test:	## Run tests
+tests:	## Run tests
 	${PSPPREFIX} test
+
+tox:	## Run tox tests in separate venv
+	tox
+
+docs:	## Making Sphinx docs
+	sphinx-apidoc -f -o docs/source subsclu/
+	cd docs && make latexpdf
 
 flake:	## Check if main package fit into flake standards
 	${PSPPREFIX} flake8
 
 clean:	## Clean-up the building output dirs
 	${PSPPREFIX} clean
-	rm -rf build dist *.egg-info .eggs .cache
+	rm -rf build dist *.egg-info .eggs .cache .tox
+	make -C docs/ clean
 
-.PHONY: all help reqs freeze build run test flake clean
+.PHONY: all help reqs freeze build run tests tox docs flake clean

@@ -18,22 +18,26 @@ build:	## Build the project
 run:	## Run main.py script
 	python main.py
 
-tests:	## Run tests
+tests:	## Run tests in currect env (faster)
 	${PSPPREFIX} test
 
-tox:	## Run tox tests in separate venv
+tox:	## Run tests in separate py34 venv with package building (slower)
 	tox
 
 docs:	## Making Sphinx docs
 	sphinx-apidoc -f -o docs/source subsclu/
 	cd docs && make latexpdf
+	open docs/_build/latex/*.pdf
 
-flake:	## Check if main package fit into flake standards
-	${PSPPREFIX} flake8
+DIR=
+
+check:	## Runs flake8 and pylint checks (use can specify DIR to check)
+	flake8 --max-line-length=79 ${DIR}
+	pylint ${DIR}
 
 clean:	## Clean-up the building output dirs
 	${PSPPREFIX} clean
 	rm -rf build dist *.egg-info .eggs .cache .tox
 	make -C docs/ clean
 
-.PHONY: all help reqs freeze build run tests tox docs flake clean
+.PHONY: all help reqs freeze build run tests docs check clean

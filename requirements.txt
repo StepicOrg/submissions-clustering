@@ -1,9 +1,12 @@
 asttokens==1.1.6
+boto==2.48.0
 bz2file==0.98
 certifi==2017.7.27.1
 chardet==3.0.4
 cycler==0.10.0
 flake8==3.4.1
+flake8-docstrings==1.1.0
+flake8-polyfill==1.0.1
 gensim==2.3.0
 idna==2.6
 matplotlib==2.0.2
@@ -14,6 +17,7 @@ pandas==0.20.3
 pluggy==0.4.0
 py==1.4.34
 pycodestyle==2.3.1
+pydocstyle==2.0.0
 pyflakes==1.5.0
 pyparsing==2.2.0
 pytest==3.2.1
@@ -27,6 +31,7 @@ seaborn==0.8
 setuptools-scm==1.15.6
 six==1.10.0
 smart-open==1.5.3
+snowballstemmer==1.2.1
 tox==2.7.0
 tqdm==4.15.0
 typing==3.6.2

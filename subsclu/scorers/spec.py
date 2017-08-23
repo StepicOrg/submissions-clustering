@@ -1,7 +1,7 @@
 import logging
 
 from subsclu import languages
-from subsclu.exceptions import InvalidSpecError
+from subsclu.exceptions import InvalidSpec
 from .error import ErrorScorer
 from .ratio import RatioMetric
 
@@ -27,4 +27,4 @@ def from_spec(language, approach):
             )
         )
     else:
-        raise InvalidSpecError("approach must be of the {}".format(VALID_APPROACHES))
+        raise InvalidSpec("approach must be of the {}".format(VALID_APPROACHES))

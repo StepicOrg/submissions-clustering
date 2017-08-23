@@ -2,7 +2,7 @@
 import logging
 
 from subsclu import languages
-from subsclu.exceptions import InvalidSpecError
+from subsclu.exceptions import InvalidSpec
 from subsclu.pipe import *
 from .model import SubmissionsClustering
 
@@ -71,4 +71,4 @@ def from_spec(language, approach):
             seeker=NNSeeker()
         )
     else:
-        raise InvalidSpecError("approach must be of the {}".format(VALID_APPROACHES))
+        raise InvalidSpec("approach must be of the {}".format(VALID_APPROACHES))

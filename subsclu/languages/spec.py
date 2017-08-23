@@ -1,23 +1,7 @@
-import logging
+from subsclu.languages.python import Python
 
-from subsclu.exceptions import InvalidSpecError
-from .python import Python
+__all__ = ["NAME_TO_LANGUAGE"]
 
-logger = logging.getLogger(__name__)
-
-_PYTHON = Python()
-
-
-def Python():
-    return _PYTHON
-
-
-VALID_NAMES = "python",
-
-
-def from_spec(name):
-    logger.info("creating language from spec with name={}".format(name))
-    if name == "python":
-        return Python()
-    else:
-        raise InvalidSpecError("name must be of the {}".format(VALID_NAMES))
+NAME_TO_LANGUAGE = {
+    "python": Python
+}

@@ -1,4 +1,4 @@
-from subsclu.exceptions import PipeCompoundError
+from subsclu.exceptions import InvalidPipeCompound
 from subsclu.pipe.bases import BaseEstimator, SanitizerMixin
 from subsclu.primitives import Tree, DefaultIntBijection
 
@@ -40,7 +40,7 @@ class SimplePreprocessor(BaseEstimator, SanitizerMixin):
                     return encode(struct, self._encoding)
                 else:
                     return dummy
-        raise PipeCompoundError("struct must be of the {}".format(_VALID_STRUCTS))
+        raise InvalidPipeCompound("struct must be of the {}".format(_VALID_STRUCTS))
 
     def fit(self, codes):
         for code in codes:

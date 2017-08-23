@@ -2,6 +2,7 @@ import ast
 import logging
 import parser
 import symbol
+import sys
 import token as token_
 import tokenize as tokenize_
 from io import BytesIO
@@ -9,13 +10,20 @@ from keyword import iskeyword
 
 from asttokens import ASTTokens
 
-from subsclu.primitives import Tree, BunchOfMethods
+from subsclu.languages.base import Language
+from subsclu.primitives import Tree
+
+__all__ = ["check_valid", "parse_asttokens", "parse_ast", "Python"]
 
 logger = logging.getLogger(__name__)
 
-_IGNORED_TOKENS = {token_.ENDMARKER, token_.NEWLINE, token_.DEDENT, token_.ERRORTOKEN,
-                   tokenize_.COMMENT, tokenize_.NL, tokenize_.ENCODING}
-_TOKEN_MAP = dict(list(symbol.sym_name.items()) + list(token_.tok_name.items()))
+_IGNORED_TOKENS = {
+    token_.ENDMARKER, token_.NEWLINE, token_.DEDENT, token_.ERRORTOKEN,
+    tokenize_.COMMENT, tokenize_.NL, tokenize_.ENCODING
+}
+_TOKEN_MAP = dict(
+    list(symbol.sym_name.items()) + list(token_.tok_name.items())
+)
 
 
 def _code2ast(code):
@@ -23,6 +31,14 @@ def _code2ast(code):
 
 
 def check_valid(code):
+    """Check if input object is a valid python code.
+
+    Args:
+        code ():
+
+    Returns:
+
+    """
     try:
         if isinstance(code, str) and _code2ast(code) is not None:
             return True
@@ -32,7 +48,7 @@ def check_valid(code):
     return False
 
 
-def token_parse(code):
+def _parse_tokens(code):
     result = []
     for token in tokenize_.tokenize(BytesIO(code.encode('utf-8')).readline):
         num, val, exact_type = token.type, token.string, token.exact_type
@@ -59,7 +75,7 @@ def _tok_to_str(token):
     return str((token.type, token.string))
 
 
-def asttokens_parse(code):
+def parse_asttokens(code):
     return list(map(_tok_to_str, filter(_not_junk, ASTTokens(code).tokens)))
 
 
@@ -68,7 +84,7 @@ class _SimpleVisitor(ast.NodeVisitor):
         return Tree(node.__class__.__name__, map(self.visit, ast.iter_child_nodes(node)))
 
 
-def ast_parse(code):
+def parse_ast(code):
     return _SimpleVisitor().visit(_code2ast(code))
 
 
@@ -78,16 +94,21 @@ def _grammar2tree(node):
     return Tree(value, children)
 
 
-def grammar_parse(code):
+def _parse_grammar(code):
     return _grammar2tree(parser.suite(code).tolist())
 
 
-Python = BunchOfMethods(
-    # core
-    (["check"], check_valid),
-    (["tokenize"], asttokens_parse),
-    (["astize"], ast_parse),
-    # spare
-    token_parse,
-    grammar_parse
-)
+class Python(Language):
+    def __init__(self):
+        super().__init__(
+            methods=(
+                ("check", check_valid),
+                ("tokenize", parse_asttokens),
+                ("astize", parse_ast)
+            )
+        )
+
+    @property
+    def version(self):
+        version = sys.version_info
+        return version.major, version.minor, version.micro

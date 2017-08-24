@@ -1,23 +1,24 @@
-class Error(Exception):
+"""Module for custom exceptions."""
+
+__all__ = ["InvalidSpec", "InvalidPipeCompound",
+           "InvalidValue", "InvalidStructUsage"]
+
+
+class _Error(Exception):
     """Base class for all custom exceptions within module."""
-    pass
 
 
-class InvalidSpec(Error):
+class InvalidSpec(_Error):
     """Raise an error when meet wrong specification for some factory."""
-    pass
 
 
-class InvalidPipeCompound(Error):
+class InvalidPipeCompound(_Error):
     """Raise an error when pipe parts give incompatible output or/and input."""
-    pass
 
 
-class InvalidValue(Error):
+class InvalidValue(_Error):
     """Raise an error when invalid value occurs."""
-    pass
 
 
-class InvalidStructUsage(Error):
+class InvalidStructUsage(_Error):
     """Raise an error when invalid struct usage orrurs."""
-    pass

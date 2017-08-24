@@ -1,12 +1,8 @@
 """Module for stuff related with language bases."""
 
-import logging
-
-from subsclu.exceptions import InvalidSpec, InvalidValue
+from subsclu.exceptions import InvalidValue
 
 __all__ = ["Language"]
-
-logger = logging.getLogger(__name__)
 
 
 class Language:
@@ -43,21 +39,7 @@ class Language:
                     if not name.startswith("_"))
 
     @staticmethod
-    def outof(name, **kwargs):
-        """Make language from str name.
-
-        Args:
-            name (str): Name of a language to make.
-            **kwargs: Params to pass in language creation.
-
-        Returns:
-            An instance of :class:`subsclu.languages.base.Language`.
-
-        """
-        logger.info("creating a language from name %s", name)
-        from subsclu.languages.spec import NAME_TO_LANGUAGE
-        if name in NAME_TO_LANGUAGE:
-            return NAME_TO_LANGUAGE[name](**kwargs)
-        else:
-            raise InvalidSpec("name must be one of the {}"
-                              .format(NAME_TO_LANGUAGE.keys()))
+    def outof(*args, **kwargs):
+        """See :func:`subsclu.languages.spec.language_from_spec`."""
+        from subsclu.languages.spec import language_from_spec
+        return language_from_spec(*args, **kwargs)

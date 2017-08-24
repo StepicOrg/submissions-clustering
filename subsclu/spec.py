@@ -1,23 +1,39 @@
 # flake8: noqa
+# pylint: skip-file
+"""Module consist of model specifications."""
+
 import logging
 
-from subsclu import languages
 from subsclu.exceptions import InvalidSpec
+from subsclu.languages import Language
+from subsclu.model import SubmissionsClustering
 from subsclu.pipe import *
-from .model import SubmissionsClustering
+
+__all__ = ["VALID_APPROACHES", "model_from_spec"]
 
 logger = logging.getLogger(__name__)
 
 VALID_APPROACHES = "diff", "token", "ast", "test"
+"""Tuple of valid approaches."""
 
 
-def from_spec(language, approach):
-    logger.info("creating model from spec with language={}, approach={}"
-                .format(language, approach))
-    language = languages.from_spec(language)
+def model_from_spec(language, approach):
+    """Create model from language and approach.
+
+    Args:
+        language (str): Name of language to use.
+        approach (str): Approach to use.
+
+    Returns:
+        An instance of :class:`subsclu.model.SubmissionsCLustering`.
+
+    """
+    logger.info("creating model from spec with language %s, approach %s",
+                language, approach)
+    language = Language.outof(language)
     if approach == "diff":
         return SubmissionsClustering(
-            preprocessor=SimplePreprocessor(
+            preprocessor=CodePreprocessor(
                 method=language.tokenize
             ),
             vectorizer=make_pipeline(
@@ -26,12 +42,12 @@ def from_spec(language, approach):
                 TruncatedSVD(n_components=100),
                 Normalizer()
             ),
-            clusterizer=StupidClusterizer(),
+            clusterizer=SimpleClusterizer(),
             seeker=NNSeeker()
         )
     elif approach == "token":
         return SubmissionsClustering(
-            preprocessor=SimplePreprocessor(
+            preprocessor=CodePreprocessor(
                 method=language.tokenize
             ),
             vectorizer=make_pipeline(
@@ -40,12 +56,12 @@ def from_spec(language, approach):
                 TruncatedSVD(n_components=100),
                 Normalizer()
             ),
-            clusterizer=StupidClusterizer(),
+            clusterizer=SimpleClusterizer(),
             seeker=NNSeeker()
         )
     elif approach == "ast":
         return SubmissionsClustering(
-            preprocessor=SimplePreprocessor(
+            preprocessor=CodePreprocessor(
                 method=language.astize
             ),
             vectorizer=make_pipeline(
@@ -54,12 +70,12 @@ def from_spec(language, approach):
                 TruncatedSVD(n_components=100),
                 Normalizer()
             ),
-            clusterizer=StupidClusterizer(),
+            clusterizer=SimpleClusterizer(),
             seeker=NNSeeker()
         )
     elif approach == "test":
         return SubmissionsClustering(
-            preprocessor=SimplePreprocessor(
+            preprocessor=CodePreprocessor(
                 method=language.astize
             ),
             vectorizer=make_pipeline(
@@ -67,8 +83,9 @@ def from_spec(language, approach):
                 SumList(),
                 Normalizer()
             ),
-            clusterizer=StupidClusterizer(),
+            clusterizer=SimpleClusterizer(),
             seeker=NNSeeker()
         )
     else:
-        raise InvalidSpec("approach must be of the {}".format(VALID_APPROACHES))
+        raise InvalidSpec("approach must be of the {}"
+                          .format(VALID_APPROACHES))

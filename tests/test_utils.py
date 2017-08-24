@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 
-from subsclu.utils import dump, gdisk, matrix, read
+from subsclu.utils import dump, gdisk, iter, matrix, read
 
 
 class A(dump.LoadSaveMixin):
@@ -28,6 +28,10 @@ def test_dump():
 
 def test_gdisk():
     assert isinstance(gdisk.download_file(gdisk.NAMES[0]), str), "path str"
+
+
+def test_iter():
+    assert list(iter.select_at([0, 1, 2], [0, 2])) == [0, 2], "ch"
 
 
 def test_matrix():

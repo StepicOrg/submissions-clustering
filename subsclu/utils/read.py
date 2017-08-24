@@ -6,10 +6,8 @@ import sqlite3
 
 import pandas as pd
 
-from subsclu.languages import Language
-
 __all__ = ["split_into_lists", "from_file", "from_walk",
-           "from_csv", "from_sl3", "filter_out_invalid"]
+           "from_csv", "from_sl3"]
 
 logger = logging.getLogger(__name__)
 
@@ -90,9 +88,3 @@ def from_sl3(*args, **kwargs):
     gen = kwargs.pop("gen", True)
     iterator = _sl3_gen(*args, **kwargs)
     return iterator if gen else _fix_and_split(iterator)
-
-
-def filter_out_invalid(submissions, language):
-    """Filter correct codes."""
-    check = Language.outof(language).check
-    return ((code, status) for code, status in submissions if check(code))

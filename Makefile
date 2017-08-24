@@ -29,10 +29,10 @@ docs:	## Making Sphinx docs
 	cd docs && make latexpdf
 	open docs/_build/latex/*.pdf
 
-DIR=
+DIR=subsclu/
 
 check:	## Runs flake8 and pylint checks (use can specify DIR to check)
-	flake8 --max-line-length=79 ${DIR}
+	flake8 ${DIR}
 	pylint ${DIR}
 
 clean:	## Clean-up the building output dirs
@@ -40,4 +40,4 @@ clean:	## Clean-up the building output dirs
 	rm -rf build dist *.egg-info .eggs .cache .tox
 	make -C docs/ clean
 
-.PHONY: all help reqs freeze build run tests docs check clean
+.PHONY: all help reqs freeze build run tests tox docs check clean

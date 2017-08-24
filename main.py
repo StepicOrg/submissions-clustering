@@ -1,6 +1,7 @@
 import logging.config
 
-from subsclu import _scorers
+from _legacy import _scorers
+
 from subsclu.utils import dump as dump_utils
 from subsclu.utils import read as read_utils
 

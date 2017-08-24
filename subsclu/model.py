@@ -69,7 +69,7 @@ class SubmissionsClustering(BaseEstimator, NeighborsMixin, LoadSaveMixin):
         logger.debug("num of correct codes %s", len(train_indicies))
 
         # saving correct code indicies to be able to get original indicies back
-        self._correct_indicies = checked_indicies[train_statuses]
+        self._correct_indicies = checked_indicies[train_indicies]
 
         # fit seecker model
         logger.info("fitting seeker step")

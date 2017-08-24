@@ -1,33 +1,36 @@
 import logging.config
 
-from _legacy import _scorers
-
 from subsclu.utils import dump as dump_utils
 from subsclu.utils import read as read_utils
 
 
+def make_model_path(language, approach, nrows):
+    return "data/model_{}_{}_{}.dump".format(language, approach, nrows or "all")
+
+
 def run():
-    language, train_approach, test_approach = "python", "ast", "diff"
-    train_data_path, nrows = "data/subs.sl3", 3000
+    language, approach = "python", "ast"
+    data_path, nrows = "data/subs.sl3", 3000
 
-    submissions = read_utils.from_sl3(train_data_path, nrows=nrows)
-    submissions = list(read_utils.filter_out_invalid(submissions, language))
+    submissions = list(read_utils.from_sl3(data_path, nrows=nrows))
 
-    presaved_model_path = "data/model_{}_{}_{}.dump".format(language, train_approach, nrows or "all")
-    # model = subsclu.from_spec(language, train_approach)
+    # model = sc.SubmissionsClustering.outof(language, approach)
     # model.fit(submissions)
-    # dump_utils.pickle_save(model, presaved_model_path)
+
+    presaved_model_path = make_model_path(language, approach, nrows)
     model = dump_utils.pickle_load(presaved_model_path)
 
-    scorer = _scorers.from_spec(language, test_approach)
+    """
+    scorer = scorers.from_spec(language, test_approach)
     presaved_score_path = "data/score_{}_{}_{}.dump".format(language, test_approach, nrows or "all")
     score = scorer.score(model, submissions, presaved_score_path)
     print("score={}".format(score))
+    """
 
 
 def main():
     logging.basicConfig(
-        level=logging.INFO,
+        level=logging.ERROR,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
     logger = logging.getLogger(__name__)

@@ -115,5 +115,5 @@ class Python(Language):
 
     @property
     def version(self):
-        """:func:`subsclu.languages.base.Language.version`."""
+        """See :func:`subsclu.languages.base.Language.version`."""
         return sys.version_info[:3]

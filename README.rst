@@ -49,28 +49,6 @@ fitting model and finding similarities. ``.neighbors`` gives ids of most similar
 >>> from subsclu.utils import read as read_utils
 >>> submissions = read_utils.from_sl3("data/subs.sl3", nrows=3000)
 >>> submissions = list(read_utils.filter_out_invalid(submissions, "python"))
->>> model = subsclu.model_from_spec("python", "ast")
->>> model.fit(submissions)
->>> print(len(model.neighbors([subs[0][0]])[0]))
-300
-
-
-
->>> import subsclu
->>> from subsclu.utils import read as read_utils
->>> submissions = read_utils.from_sl3("data/subs.sl3", nrows=3000)
->>> submissions = list(read_utils.filter_out_invalid(submissions, "python"))
->>> model = subsclu.model_from_spec("python", "ast")
->>> model.fit(submissions)
->>> print(len(model.neighbors([subs[0][0]])[0]))
-300
-
-
-
->>> import subsclu
->>> from subsclu.utils import read as read_utils
->>> submissions = read_utils.from_sl3("data/subs.sl3", nrows=3000)
->>> submissions = list(read_utils.filter_out_invalid(submissions, "python"))
 >>> model = subsclu.from_spec("python", "ast")
 >>> model.fit(submissions)
 >>> print(len(model.neighbors([subs[0][0]])[0]))

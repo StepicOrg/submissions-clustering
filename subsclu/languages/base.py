@@ -1,5 +1,7 @@
 """Module for stuff related with language bases."""
 
+from abc import abstractmethod
+
 from subsclu.exceptions import InvalidValue
 
 __all__ = ["Language"]
@@ -22,7 +24,7 @@ class Language:
 
     def __contains__(self, item):
         """Check if instance contains item as a field or as a method."""
-        return item in self.__dict__
+        return item in self.attrs
 
     def __getitem__(self, item):
         """Try to get field or method as a key, or raises an Exception."""
@@ -31,6 +33,12 @@ class Language:
         else:
             raise InvalidValue("no {} field or method in language"
                                .format(item))
+
+    @property
+    @abstractmethod
+    def version(self):
+        """Output currect language version."""
+        pass
 
     @property
     def attrs(self):

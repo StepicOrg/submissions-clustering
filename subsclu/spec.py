@@ -34,7 +34,8 @@ def model_from_spec(language, approach):
     if approach == "diff":
         return SubmissionsClustering(
             preprocessor=CodePreprocessor(
-                method=language.tokenize
+                method=language.tokenize,
+                check=language.check
             ),
             vectorizer=make_pipeline(
                 BagOfNgrams(ngram_range=(1, 2)),
@@ -48,7 +49,8 @@ def model_from_spec(language, approach):
     elif approach == "token":
         return SubmissionsClustering(
             preprocessor=CodePreprocessor(
-                method=language.tokenize
+                method=language.tokenize,
+                check=language.check
             ),
             vectorizer=make_pipeline(
                 BagOfNgrams(ngram_range=(1, 3)),
@@ -62,7 +64,8 @@ def model_from_spec(language, approach):
     elif approach == "ast":
         return SubmissionsClustering(
             preprocessor=CodePreprocessor(
-                method=language.astize
+                method=language.astize,
+                check=language.check
             ),
             vectorizer=make_pipeline(
                 BagOfTrees(ngram_range=(1, 2)),
@@ -76,7 +79,8 @@ def model_from_spec(language, approach):
     elif approach == "test":
         return SubmissionsClustering(
             preprocessor=CodePreprocessor(
-                method=language.astize
+                method=language.astize,
+                check=language.check
             ),
             vectorizer=make_pipeline(
                 Token2Vec(),

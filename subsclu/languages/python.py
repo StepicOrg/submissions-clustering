@@ -103,12 +103,11 @@ def _parse_grammar(code):
 class Python(Language):
     """Python language."""
 
-    _APPROACHES_TO_METHOD = (
-        ("check", check_valid),
-        ("tokenize", parse_asttokens),
-        ("astize", parse_ast)
-    )
-    """Map from well-known approach to existing method func."""
+    _APPROACHES_TO_METHOD = {
+        "check": check_valid,
+        "tokenize": parse_asttokens,
+        "astize": parse_ast
+    }
 
     def __init__(self):
         """Init method with no args."""

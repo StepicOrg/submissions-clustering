@@ -11,15 +11,13 @@ def test_language():
         return 0
 
     language = Language(
-        methods=((("a", "b", "c"), f),),
-        version=(3, 5, 6, "alpha")
+        methods={"a": f}
     )
 
-    assert language.a() == language.b() == language.c() == 0
-    assert language["a"]() == language["b"]() == language["c"]() == 0
-    assert language.a() == language["a"]()
-    assert language.a is f
-    assert language.version == (3, 5, 6, "alpha")
+    assert language.a() == f() == 0, "invoking same funcs"
+    assert language["a"]() == f() == 0, "invoking same funcs"
+    assert language.a is f, "same funcs have same ids"
+    assert language.attrs == ["a"], "list of methods has only 'a'"
 
 
 def test_outof():

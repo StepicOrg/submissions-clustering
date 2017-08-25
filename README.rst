@@ -49,9 +49,9 @@ At first, we need to set things up. Customize your logger behavior:
 Training
 ========
 
-Simple example of usage. Firstly, we read our submissions as iterable *(code : str, status : str)* for some source. Then
-we create a model from specification (langauge and approach). Then, we feed submission into model (the training goes
-here). Lastly, we predict ids of first 5 neighbors for first code sample:
+Simple example of usage. Firstly, we read our submissions as iterable *(code : str, status : str)* from some source.
+Then we create a model from specification (langauge and approach). Then, we feed submission into model (the training
+goes here). Lastly, we predict ids of first 5 neighbors for first code sample:
 
 >>> import subsclu as sc
 >>> from subsclu.utils import read as read_utils

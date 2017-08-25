@@ -12,13 +12,20 @@ __all__ = ["RatioMetric"]
 
 logger = logging.getLogger(__name__)
 
+_USE_QUICK_BOUNDS = True
+
+
+@lru_cache(maxsize=None)
+def _get_seq_matcher(dest):
+    return SequenceMatcher(None, b=dest)
+
 
 def _ratio_list(source, dests):
     max_ratio = 0.
     for dest in dests:
         seq_matcher = SequenceMatcher(None, source, dest)
-        if seq_matcher.real_quick_ratio() <= max_ratio \
-                or seq_matcher.quick_ratio() <= max_ratio:
+        if _USE_QUICK_BOUNDS and (seq_matcher.real_quick_ratio() <= max_ratio
+                                  or seq_matcher.quick_ratio() <= max_ratio):
             continue
         max_ratio = max(max_ratio, seq_matcher.ratio())
     return max_ratio

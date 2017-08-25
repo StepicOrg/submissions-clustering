@@ -1,11 +1,10 @@
 # flake8: noqa
-from .pre import *
-from .simple import *
-from .sklearn import *
-from .tovec import *
+# pylint: skip-file
+"""Package for implementing pipe ops for vectorizing."""
 
-__all__ = []
-__all__.extend(pre.__all__)
-__all__.extend(simple.__all__)
-__all__.extend(sklearn.__all__)
-__all__.extend(tovec.__all__)
+from subsclu.pipe.vectorizers.pre import *
+from subsclu.pipe.vectorizers.simple import *
+from subsclu.pipe.vectorizers.sklearn import *
+from subsclu.pipe.vectorizers.tovec import *
+
+__all__ = pre.__all__ + simple.__all__ + sklearn.__all__ + tovec.__all__

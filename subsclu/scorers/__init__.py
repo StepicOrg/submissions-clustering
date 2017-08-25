@@ -1,2 +1,5 @@
-# flake8: noqa
-from .spec import from_spec
+"""Package for implementing stuff related with scorers."""
+
+from subsclu.scorers.base import Scorer
+
+__all__ = ["Scorer"]

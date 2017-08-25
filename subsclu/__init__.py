@@ -1,9 +1,9 @@
-# flake8: noqa
+"""Package of model using to cluster code submissions."""
+
 import logging
 
-# noinspection PyUnresolvedReferences
-from .scnn import SubmissionsClustering
-# noinspection PyUnresolvedReferences
-from .spec import from_spec
+from subsclu.model import SubmissionsClustering
+
+__all__ = ["SubmissionsClustering"]
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())

@@ -85,7 +85,7 @@ Evaluating
 
 Of course, we need to somehow evaluate performance of our model. For this purpose we gonna use scorers. Here we create
 on of them from specification (language and testing approach). Scorer instance has *score(model, submissions, **kwargs)*
-method to calculate of how good model (unfitted) perform on given submissions:
+method to calculate of how good model perform on given submissions:
 
 >>> from subsclu.scorers import Scorer
 >>> scorer = Scorer.outof("python", "diff")

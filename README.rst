@@ -11,13 +11,18 @@ Installation
 Addititional deps
 =================
 
-- make
-- pip
+* ``make``
+* ``pip``
 
 Pip
 ===
 
 ``pip install git+https://github.com/StepicOrg/submissions-clustering.git``
+
+Locally
+=======
+
+...
 
 Working with
 ========

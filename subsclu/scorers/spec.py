@@ -33,13 +33,15 @@ def scorer_from_spec(language, approach):
         return ErrorScorer(
             metric=RatioMetric(
                 method=lambda x: x
-            )
+            ),
+            check=language.check
         )
     elif approach == "token":
         return ErrorScorer(
             metric=RatioMetric(
                 method=language.tokenize
-            )
+            ),
+            check=language.check
         )
     else:
         raise InvalidSpec("approach must be of the {}"

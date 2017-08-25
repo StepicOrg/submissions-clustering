@@ -21,13 +21,15 @@ logger = logging.getLogger(__name__)
 class ErrorScorer(Scorer):
     """Error scorer."""
 
-    def __init__(self, metric):
+    def __init__(self, metric, check):
         """Create instance of scorer with given metric.
 
         Args:
             metric: Metric to metric.
+            check: Func to check if code is good.
         """
         self.metric = metric
+        self.check = check
 
     @staticmethod
     def _split(submissions):
@@ -37,8 +39,6 @@ class ErrorScorer(Scorer):
         codes, statuses = pd.Series(codes), pd.Series(statuses)
         correct_codes = codes[statuses == "correct"]
         wrong_codes = codes[statuses != "correct"]
-        logger.debug("num of correct %s, num of wrong %s",
-                     len(correct_codes), len(wrong_codes))
 
         # func for get neighbors codes from indicies
         def neighbors_codes(neighbor_indicies):
@@ -46,6 +46,29 @@ class ErrorScorer(Scorer):
             return codes.iloc[neighbor_indicies].tolist()
 
         return correct_codes, wrong_codes, neighbors_codes
+
+    def _best_metrics(self, correct_codes, presaved_path, wrong_codes):
+        # calculating best metrics
+        logger.info("calculating best metrics")
+        logger.debug("num of correct %s, num of wrong %s",
+                     len(correct_codes), len(wrong_codes))
+        if presaved_path is not None and os.path.exists(presaved_path):
+            logging.info("restoring best metrics from %s", presaved_path)
+            best_metrics = default_load(presaved_path)
+        else:
+            logging.info("can't restore best metrics, start recalculating it")
+            best_metrics = []
+            for code in tqdm(wrong_codes):
+                best_metrics.append(
+                    self.metric.best_metric(code, correct_codes)
+                )
+            best_metrics = np.array(best_metrics)
+            logging.info("finishing calculating best metrics")
+            logging.debug("mean %s", best_metrics.mean())
+            if presaved_path is not None:
+                logging.info("saving best metrics to %s", presaved_path)
+                default_save(best_metrics, presaved_path)
+        return best_metrics
 
     def _local_best_metrics(self, model, neighbors_codes, wrong_codes):
         # calculating local best metrics
@@ -65,27 +88,6 @@ class ErrorScorer(Scorer):
         logging.info("finishing calculating local best metrics")
         return local_best_metrics
 
-    def _best_metrics(self, correct_codes, presaved_path, wrong_codes):
-        # calculating best metrics
-        logger.info("calculating best metrics")
-        if presaved_path is not None and os.path.exists(presaved_path):
-            logging.info("restoring best metrics from %s", presaved_path)
-            best_metrics = default_load(presaved_path)
-        else:
-            logging.info("can't restore best metrics, start recalculating it")
-            best_metrics = []
-            for code in tqdm(wrong_codes):
-                best_metrics.append(
-                    self.metric.best_metric(code, correct_codes)
-                )
-            best_metrics = np.array(best_metrics)
-            logging.info("finishing calculating best metrics")
-            logging.debug("mean %s", best_metrics.mean())
-            if presaved_path is not None:
-                logging.info("saving best metrics to %s", presaved_path)
-                default_save(best_metrics, presaved_path)
-        return best_metrics
-
     @staticmethod
     def _errors(best_metrics, local_best_metrics, plot_errors):
         # calculating errors
@@ -102,6 +104,8 @@ class ErrorScorer(Scorer):
         """See :func:`subsclu.scorers.base.Scorer.score`."""
         # split
         correct_codes, wrong_codes, neighbors_codes = self._split(submissions)
+        # filter out bad code
+        wrong_codes = [code for code in wrong_codes if self.check(code)]
         # best_metrics
         best_metrics = self._best_metrics(
             correct_codes, presaved_path, wrong_codes

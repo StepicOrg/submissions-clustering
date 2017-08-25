@@ -24,8 +24,9 @@ Locally
 =======
 
 1. ``git clone https://github.com/StepicOrg/submissions-clustering``
-2. ``make reqs``
-3. ``make build``
+2. ``cd submissions-clustering``
+3. ``make reqs``
+4. ``make build``
 
 You can run ``make help`` for list of avialible deps. Some of them provided just for convinience. For example, you can
 run ``make run`` to execute **main.py** script or run ``make check`` to run python static code checkers.
@@ -34,7 +35,7 @@ run ``make run`` to execute **main.py** script or run ``make check`` to run pyth
 Usage
 -----
 
-Setting Up
+Setting up
 ==========
 
 At first, we need to set things up. Customize your logger behavior:
@@ -92,8 +93,8 @@ method to calculate of how good model (unfitted) perform on given submissions:
 True
 
 Scorer uses metric isntance inside, that measure of how close one code to another. The overall score is computed as mean
-of diff between best metric and local best metric (within neighbors). Metric evaluate how close is one code to another.
-We can speed-up the calculating using predefined array of best scores:
+of diff between best metric and local best metric (within neighbors). We can speed-up the calculating using predefined
+array of best scores:
 
 >>> scorer.score(model, submissions, presaved_score_path="data/best_metrics.dump")
 0.013940358468805102

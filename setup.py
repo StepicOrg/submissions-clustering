@@ -39,11 +39,10 @@ setup(
         "Programming Language :: Python :: 3.4",
     ],
     keywords="unsupervised learning code clusters",
-    packages=find_packages(exclude=["_legacy*", "tests*", "docs*"]),
+    packages=find_packages(exclude=["_legacy*", "docs*", "tests*"]),
     install_requires=_install_requires,
     dependency_links=_dependency_links,
     python_requires=">=3.4, <4",
     use_scm_version=_use_scm_version,
-    setup_requires=["setuptools_scm", "pytest-runner"],
-    tests_require=["pytest"]
+    setup_requires=["setuptools_scm"],
 )

@@ -8,11 +8,12 @@ Fine tool to split code submissions into clusters.
 Installation
 ------------
 
-Addititional deps
-=================
+Dependencies
+============
 
-* ``make``
-* ``pip``
+1. ``make``
+2. ``python`` of version *3.4* or more.
+3. ``pip``
 
 Pip
 ===
@@ -22,12 +23,14 @@ Pip
 Locally
 =======
 
-...
+1. ``git clone https://github.com/StepicOrg/submissions-clustering``
+2. ``make reqs``
+3. ``make build``
 
-Working with
-========
+Other stuff
+============
 
-``make help`` for help. Then either ``build``, ``run`` or ``test``.
+``make help`` for help. Then either ``check``, ``test``, ``run``, ``doc`` or ``clean``.
 
 -----
 Usage
@@ -96,15 +99,7 @@ evaluate how close is one code to another. We can speed-up the calculating using
 Test
 ----
 
-You can either run:
-
-``make test``
-
-to run tests in current enviroment. Another option is:
-
-``tox``
-
-to test full build-test cycle in separate py34 venv.
+Run ``make test`` to start full build-test cycle in separate py34 venv using **tox**.
 
 ------------
 Useful Links

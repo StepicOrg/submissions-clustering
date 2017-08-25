@@ -27,7 +27,7 @@ def test_dump():
 
 
 def test_gdisk():
-    assert isinstance(gdisk.download_file(gdisk.NAMES[0]), str), "path str"
+    assert isinstance(gdisk.NAMES[0], str), "name str"
 
 
 def test_iter():
@@ -43,5 +43,5 @@ def test_matrix():
 def test_read():
     assert read.split_into_lists([(1, 2)]) == ([1], [2]), "test list split"
     assert isinstance(
-        list(read.from_file("tests/test_utils.py"))[0][0], str
+        list(read.from_file(os.path.realpath(__file__)))[0][0], str
     ), "code str"

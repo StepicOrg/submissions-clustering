@@ -11,9 +11,9 @@ Installation
 Dependencies
 ============
 
-1. ``make``
-2. ``python`` of version *3.4* or more.
-3. ``pip``
+1. **make**
+2. **python** of version *3.4* or more.
+3. **pip**
 
 Pip
 ===
@@ -27,17 +27,15 @@ Locally
 2. ``make reqs``
 3. ``make build``
 
-Other stuff
-============
-
-``make help`` for help. Then either ``check``, ``test``, ``run``, ``doc`` or ``clean``.
+You can run ``make help`` for list of avialible deps. Some of them provided just for convinience. For example, you can
+run ``make run`` to execute **main.py** script or run ``make check`` to run python static code checkers.
 
 -----
 Usage
 -----
 
-SetUp
-=====
+Setting Up
+==========
 
 At first, we need to set things up. Customize your logger behavior:
 
@@ -50,17 +48,17 @@ At first, we need to set things up. Customize your logger behavior:
 Training
 ========
 
-Simple example of usage. Firslty, with filter out invalid py code. Then, ``.fit`` takes iterable of *(code, status)*,
-fitting model and finding similarities. ``.neighbors`` gives ids of most similar correct code samples:
+Simple example of usage. Firstly, we read our submissions as iterable *(code : str, status : str)* for some source. Then
+we create a model from specification (langauge and approach). Then, we feed submission into model (the training goes
+here). Lastly, we predict ids of first 5 neighbors for first code sample:
 
->>> import subsclu
+>>> import subsclu as sc
 >>> from subsclu.utils import read as read_utils
->>> submissions = read_utils.from_sl3("data/subs.sl3", nrows=3000)
->>> submissions = list(read_utils.filter_out_invalid(submissions, "python"))
->>> model = subsclu.from_spec("python", "ast")
+>>> submissions = list(read_utils.from_sl3("data/subs.sl3", nrows=3000))
+>>> model = sc.SubmissionsClustering.outof("python", "ast")
 >>> model.fit(submissions)
->>> print(len(model.neighbors([subs[0][0]])[0]))
-300
+>>> model.neighbors([submissions[0][0]])[0][:5]
+array([   0, 2308, 1686,  460,  643])
 
 Saving & Restoring
 ==================
@@ -69,7 +67,7 @@ Model class provide save and static load methods for faster and efficient model 
 
 >>> model.save("data/model.dump")
 >>> del model
->>> model = subsclu.SubmissionsClustering.load("data/model.dump")
+>>> model = sc.SubmissionsClustering.load("data/model.dump")
 
 Default serializing machinery provided by joblib package from sklearn (for faster work with numpy matricies). Since
 model is pickable object, you can use methods from pickle package (and also use with `django-picklefield`_):
@@ -84,22 +82,51 @@ model is pickable object, you can use methods from pickle package (and also use 
 Evaluating
 ==========
 
-Of course, we need to somehow evaluate performance of our model. For this we use scorers:
+Of course, we need to somehow evaluate performance of our model. For this purpose we gonna use scorers. Here we create
+on of them from specification (language and testing approach). Scorer instance has *score(model, submissions, **kwargs)*
+method to calculate of how good model (unfitted) perform on given submissions:
 
->>> from subsclu import scorers
->>> scorer = scorers.from_spec("python", "diff")
+>>> from subsclu.scorers import Scorer
+>>> scorer = Scorer.outof("python", "diff")
+>>> hasattr(scorer, "score")
+True
 
-The overall score is compute as mean of diff between best metric and local best metric (within neighbors). Metric
-evaluate how close is one code to another. We can speed-up the calculating using predefined array of best scores:
+Scorer uses metric isntance inside, that measure of how close one code to another. The overall score is computed as mean
+of diff between best metric and local best metric (within neighbors). Metric evaluate how close is one code to another.
+We can speed-up the calculating using predefined array of best scores:
 
 >>> scorer.score(model, submissions, presaved_score_path="data/best_metrics.dump")
 0.013940358468805102
+
+Spec and creating custom
+========================
+
+To see list of languages run:
+
+>>> from subsclu.languages.spec import VALID_NAMES
+>>> VALID_NAMES
+('python',)
+
+Same goes for approaches and other stuff:
+
+>>> from subsclu.spec import VALID_APPROACHES
+>>> VALID_APPROACHES
+('diff', 'token', 'ast', 'test')
+
+If you dont satisfied with predefined in spec set of things, you can define you own. See **subsclu** package subpackages
+for more info on that.
 
 ----
 Test
 ----
 
 Run ``make test`` to start full build-test cycle in separate py34 venv using **tox**.
+
+---
+Doc
+---
+
+Run ``make doc`` to get pdf file of full package documentation.
 
 ------------
 Useful Links

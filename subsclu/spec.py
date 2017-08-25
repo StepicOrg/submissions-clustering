@@ -79,16 +79,17 @@ def model_from_spec(language, approach):
     elif approach == "test":
         return SubmissionsClustering(
             preprocessor=CodePreprocessor(
-                method=language.astize,
+                method=language.tokenize,
                 check=language.check
             ),
             vectorizer=make_pipeline(
-                Token2Vec(),
-                SumList(),
+                BagOfNgrams(ngram_range=(1, 3)),
+                TfidfTransformer(),
+                TruncatedSVD(n_components=100),
                 Normalizer()
             ),
-            clusterizer=SimpleClusterizer(),
-            seeker=NNSeeker()
+            clusterizer=MyDBSCAN(min_samples=2),
+            seeker=NNSeeker(start_from_center=True)
         )
     else:
         raise InvalidSpec("approach must be of the {}"

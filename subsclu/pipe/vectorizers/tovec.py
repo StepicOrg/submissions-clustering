@@ -72,14 +72,23 @@ class Tokens2Vec(BaseEstimator, TransformerMixin):
 
         self._model = self._make_model()
 
+    @staticmethod
+    def _to_strs(vec):
+        return list(map(str, vec.tolist()))
+
     def fit(self, vecs):
-        """Doing model fit of given tokens."""
-        vecs = list(TaggedDocument(vec, ind) for ind, vec in enumerate(vecs))
+        """Doing model fit of given vecs."""
+        vecs = list(
+            TaggedDocument(self._to_strs(vec), [ind])
+            for ind, vec in enumerate(vecs)
+        )
         self._model.build_vocab(vecs)
         self._model.train(vecs, total_examples=self._model.corpus_count,
                           epochs=self._model.iter)
         return self
 
     def transform(self, vecs):
-        """Transform tokens into vec."""
-        return np.stack([self._model.infer_vector(vec) for vec in vecs])
+        """Transform vec into vec."""
+        return np.stack([
+            self._model.infer_vector(self._to_strs(vec)) for vec in vecs
+        ])

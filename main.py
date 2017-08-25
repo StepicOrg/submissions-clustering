@@ -19,19 +19,21 @@ def make_score_path(language, approach, nrows):
 
 def run():
     # params
-    language, approach = "python", "ast"
+    language, approach = "python", "test"
     data_path, nrows = "data/subs.sl3", 1000
     test_approach = "diff"
+    model_seek_path, model_save_path = False, False
 
     # make fitted model
     submissions = list(read_utils.from_sl3(data_path, nrows=nrows))
     presaved_model_path = make_model_path(language, approach, nrows)
-    if os.path.exists(presaved_model_path):
+    if model_seek_path and os.path.exists(presaved_model_path):
         model = dump_utils.pickle_load(presaved_model_path)
     else:
         model = sc.SubmissionsClustering.outof(language, approach)
         model.fit(submissions)
-        dump_utils.pickle_save(model, presaved_model_path)
+        if model_save_path:
+            dump_utils.pickle_save(model, presaved_model_path)
 
     # score
     presaved_score_path = make_score_path(language, test_approach, nrows)

@@ -32,7 +32,7 @@ class NNSeeker(BaseEstimator, NeighborsMixin):
     """Seeker based on nearese neighbors finding."""
 
     def __init__(self, insider_cluster=False, start_from_center=False,
-                 only_centroids=False, max_c=300, dist_c=1., cmax_c=20,
+                 only_centroids=False, max_c=200, dist_c=1., cmax_c=20,
                  cdist_c=.1, leaf_size=30, parralel=False):
         # pylint: disable=too-many-arguments
         """Make NNSeeker.

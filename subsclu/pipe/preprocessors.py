@@ -24,8 +24,18 @@ class StupidPreprocessor(BaseEstimator, SanitizerMixin):
 
 
 _STRUCTS_INFO = (
-    (list, [0], lambda l, e: [e[elem] for elem in l]),  # list
-    (Tree, Tree(0), lambda t, e: t.map(e))  # Tree
+    (
+        # list
+        list,
+        np.array([0]),
+        lambda l, e: np.array([e[elem] for elem in l])
+    ),
+    (
+        # Tree
+        Tree,
+        Tree(0),
+        lambda t, e: t.map(e)
+    )
 )
 
 _VALID_STRUCTS = tuple(struct for struct, _, _ in _STRUCTS_INFO)

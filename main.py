@@ -1,27 +1,43 @@
 import logging.config
+import os
 
-from subsclu import scorers
+import subsclu as sc
+from subsclu.scorers import Scorer
 from subsclu.utils import dump as dump_utils
 from subsclu.utils import read as read_utils
 
 
+def make_model_path(language, approach, nrows):
+    return "data/model_{}_{}_{}.dump" \
+        .format(language, approach, nrows or "all")
+
+
+def make_score_path(language, approach, nrows):
+    return "data/score_{}_{}_{}.dump" \
+        .format(language, approach, nrows or "all")
+
+
 def run():
-    language, train_approach, test_approach = "python", "ast", "diff"
-    train_data_path, nrows = "data/subs.sl3", 3000
+    # params
+    language, approach = "python", "ast"
+    data_path, nrows = "data/subs.sl3", 1000
+    test_approach = "diff"
 
-    submissions = read_utils.from_sl3(train_data_path, nrows=nrows)
-    submissions = list(read_utils.filter_out_invalid(submissions, language))
+    # make fitted model
+    submissions = list(read_utils.from_sl3(data_path, nrows=nrows))
+    presaved_model_path = make_model_path(language, approach, nrows)
+    if os.path.exists(presaved_model_path):
+        model = dump_utils.pickle_load(presaved_model_path)
+    else:
+        model = sc.SubmissionsClustering.outof(language, approach)
+        model.fit(submissions)
+        dump_utils.pickle_save(model, presaved_model_path)
 
-    presaved_model_path = "data/model_{}_{}_{}.dump".format(language, train_approach, nrows or "all")
-    # model = subsclu.from_spec(language, train_approach)
-    # model.fit(submissions)
-    # dump_utils.pickle_save(model, presaved_model_path)
-    model = dump_utils.pickle_load(presaved_model_path)
-
-    scorer = scorers.from_spec(language, test_approach)
-    presaved_score_path = "data/score_{}_{}_{}.dump".format(language, test_approach, nrows or "all")
+    # score
+    presaved_score_path = make_score_path(language, test_approach, nrows)
+    scorer = Scorer.outof(language, test_approach)
     score = scorer.score(model, submissions, presaved_score_path)
-    print("score={}".format(score))
+    print("score {}".format(score))
 
 
 def main():

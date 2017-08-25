@@ -1,0 +1,5 @@
+[BASIC]
+good-names=logger
+
+[MESSAGES CONTROL]
+disable=cyclic-import

@@ -1,17 +1,15 @@
 # flake8: noqa
-from .bases import *
-from .clusterizers import *
-from .commons import *
-from .preprocessors import *
-from .reducers import *
-from .seekers import *
-from .vectorizers import *
+# pylint: skip-file
+"""Package for implementing pipe and pipe ops."""
 
-__all__ = []
-__all__.extend(bases.__all__)
-__all__.extend(clusterizers.__all__)
-__all__.extend(commons.__all__)
-__all__.extend(preprocessors.__all__)
-__all__.extend(reducers.__all__)
-__all__.extend(seekers.__all__)
-__all__.extend(vectorizers.__all__)
+from subsclu.pipe.bases import *
+from subsclu.pipe.clusterizers import *
+from subsclu.pipe.commons import *
+from subsclu.pipe.preprocessors import *
+from subsclu.pipe.reducers import *
+from subsclu.pipe.seekers import *
+from subsclu.pipe.vectorizers import *
+
+__all__ = bases.__all__ + clusterizers.__all__ + commons.__all__ \
+          + preprocessors.__all__ + reducers.__all__ + seekers.__all__ \
+          + vectorizers.__all__

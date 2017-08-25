@@ -12,7 +12,7 @@ for requirement in parse_requirements("requirements.txt", session="hack"):
         _dependency_links.append(str(requirement.link))
 
 
-def myversion():
+def _use_scm_version():
     from setuptools_scm.version import get_local_dirty_tag
 
     def clean_scheme(version):
@@ -39,11 +39,10 @@ setup(
         "Programming Language :: Python :: 3.4",
     ],
     keywords="unsupervised learning code clusters",
-    packages=find_packages(exclude=["_legacy*"]),
+    packages=find_packages(exclude=["_legacy*", "docs*", "tests*"]),
     install_requires=_install_requires,
     dependency_links=_dependency_links,
     python_requires=">=3.4, <4",
-    use_scm_version=myversion,
-    setup_requires=["setuptools_scm", "pytest-runner"],
-    tests_require=["pytest"]
+    use_scm_version=_use_scm_version,
+    setup_requires=["setuptools_scm"],
 )

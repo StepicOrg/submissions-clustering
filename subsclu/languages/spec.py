@@ -1,23 +1,30 @@
+"""Module consist of languages specifications."""
+
 import logging
 
-from subsclu.exceptions import InvalidSpecError
-from .python import Python
+from subsclu.exceptions import InvalidSpec
+from subsclu.languages.python import Python
+
+__all__ = ["VALID_NAMES", "language_from_spec"]
 
 logger = logging.getLogger(__name__)
 
-_PYTHON = Python()
+VALID_NAMES = ("python",)
+"""Tuple of valid names."""
 
 
-def Python():
-    return _PYTHON
+def language_from_spec(name):
+    """Make language from str name.
 
+    Args:
+        name (str): Name of a language to make.
 
-VALID_NAMES = "python",
+    Returns:
+        An instance of :class:`subsclu.languages.base.Language`.
 
-
-def from_spec(name):
-    logger.info("creating language from spec with name={}".format(name))
+    """
+    logger.info("creating a language from name %s", name)
     if name == "python":
         return Python()
     else:
-        raise InvalidSpecError("name must be of the {}".format(VALID_NAMES))
+        raise InvalidSpec("name must be one of the {}".format(VALID_NAMES))
